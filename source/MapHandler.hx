@@ -3,11 +3,13 @@ class MapHandler
 {
  
 	public var Map:Array<Int>;
+	public var mainChunkSquares:Array<Int>;
  
 	public var MapWidth:Int;
 	public var MapHeight:Int;
 	public var PercentAreWalls:Int;
     public var mode:Int;
+	public var builtMap:Bool = false;
 	
 	public var MIN_PATHABLE_SQUARES:Int = 200;
 	public static var LEVEL_WIDTH:Int = 32;
@@ -36,26 +38,26 @@ class MapHandler
             MakeCaverns();
         }
 		
-		// fill in stuff
-		var filledOnce:Bool = false;
-		
-		for(row in 0...MapHeight) {
-			for (column in 0...MapWidth) {
-				if (filledOnce) break;
-				
-				if (getVal(column, row) == 0) {
-					fillInSpace(column, row);
-					
-					filledOnce = true;
-				}
+		while (!builtMap) {
+			var tryX:Int = Std.int(Math.random() * MapWidth);
+			var tryY:Int = Std.int(Math.random() * MapHeight);
+			
+			if (getVal(tryX, tryY) != 0) {
+				continue;
 			}
+			fillInSpace(tryX, tryY);
 		}
+		
         return Map;
 	}
     
     public function getVal(x:Int, y:Int):Int {
         return Map[x + MapWidth * y];
     }
+	
+	public function getRandomPathableSquare():Int {
+		return mainChunkSquares[Std.int(Math.random() * mainChunkSquares.length)];
+	}
 	
     public function getHalfTileValOrSolid(x:Int, y:Int):Int {
 		return getValOrSolid(Std.int(x / 2), Std.int(y / 2));
@@ -291,13 +293,16 @@ class MapHandler
 			RandomFillMap();
 		}
 		else {
+			mainChunkSquares = new Array<Int>();
 			for (i in 0...LEVEL_HEIGHT) {
 				for (j in 0...LEVEL_WIDTH) {
 					if (visited[i][j] == 0) {
 						setVal(j, i, 1);
+						mainChunkSquares.push(j * LEVEL_WIDTH + i);
 					}
 				}
 			}
+			builtMap = true;
 		}
 	}
  

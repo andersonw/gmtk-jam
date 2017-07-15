@@ -430,8 +430,49 @@ class PlayState extends FlxState {
 	
 	// ==============================================================================
 	
+	function hitTestWall(object:FlxObject):Bool {
+		var leftX:Float = object.x - object.width / 2;
+		var rightX:Float = object.x + object.width / 2;
+		var topY:Float = object.y - object.height / 2;
+		var bottomY:Float = object.y + object.height / 2;
+		
+		var nwTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
+		var neTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
+		var swTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(bottomY / TILE_HEIGHT));
+		var seTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(bottomY / TILE_HEIGHT));
+		
+		return nwTileValue != 0 || neTileValue != 0 || swTileValue != 0 || seTileValue != 0;
+	}
+	function snapObjectToTiles(object:FlxObject, elapsed:Float):Void {
+		if (!hitTestWall(object)) {
+			return;
+		}
+		
+		var xDistance:Float = object.velocity.x * elapsed;
+		var yDistance:Float = object.velocity.y * elapsed;
+		var hitWithoutX:Bool = false;
+		var hitWithoutY:Bool = false;
+		object.x -= xDistance;
+		if (hitTestWall(object)) {
+			hitWithoutX = true;
+		}
+		object.x += xDistance;
+		object.y -= yDistance;
+		if (hitTestWall(object)) {
+			hitWithoutY = true;
+		}
+		if (hitWithoutX && hitWithoutY) {
+			object.x -= xDistance;
+		} else if (hitWithoutX) {
+		} else {
+			object.y += yDistance;
+			object.x -= xDistance;
+		}
+	}
+	
 	function updateAndHandleCollisions(elapsed:Float):Void {
 		_player._update(elapsed);
+		snapObjectToTiles(_player, elapsed);
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet = _bullets[i];
@@ -448,9 +489,11 @@ class PlayState extends FlxState {
 		checkPowerupCollisions();
 		for (enemy in _enemies) {
 			enemy._update(elapsed);
+			snapObjectToTiles(enemy, elapsed);
 		}
 		for (bomb in _powerupBombs) {
 			bomb._update(elapsed);
+			snapObjectToTiles(bomb, elapsed);
 			if (bomb.isExploding()) {
 				bomb.destroy();
 				_powerupBombs.remove(bomb);
