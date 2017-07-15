@@ -10,10 +10,11 @@ import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
+import flixel.math.FlxRandom;
 
 class PlayState extends FlxState {
 	private var _player:Player;
-	
+    private var _enemy:Enemy;
 	private var _bullets:Array<Bullet>;
 
 	override public function create():Void {
@@ -22,13 +23,22 @@ class PlayState extends FlxState {
 		_player = new Player(25, 25);
 		add(_player);
 
+        _enemy = new Enemy(300, 300);
+        add(_enemy);
 		super.create();
+	}
+
+	public function resetLevel(player:Player, enemy:Enemy)
+	{
+		FlxG.switchState(new PlayState());
 	}
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		
 		handlePlayerMovement();
+        moveEnemies();
+        FlxG.overlap(_player, _enemy, resetLevel);
 		handleMousePress();
 	}
 	
@@ -81,6 +91,11 @@ class PlayState extends FlxState {
         else {
             _player.velocity.set(0, 0);
         }
+    }
+
+    function moveEnemies():Void {
+        _enemy.velocity.set(30,0);
+        _enemy.velocity.rotate(FlxPoint.weak(0,0), (Math.random() * 360));
     }
 	
 	function handleMousePress():Void {
