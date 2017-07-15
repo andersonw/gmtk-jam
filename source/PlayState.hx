@@ -32,11 +32,21 @@ class PlayState extends FlxState {
         var enemy = new Enemy(300, 300);
         add(enemy);
 		_enemies.push(enemy);
+        var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
 		super.create();
+		//FlxG.log.warn(_player.characterSprite().getHitbox());
 	}
 
-	public function resetLevel(player:Player, enemy:Enemy)
-	{
+    private function spawnEnemies(Timer:FlxTimer):Void {
+        if(FlxG.random.int(0,100) < Timer.elapsedLoops) {
+            var enemy = new Enemy(FlxG.random.int(0,640), FlxG.random.int(0,480));
+            add(enemy);
+            _enemies.push(enemy);
+            Timer.reset(0.1);
+        }
+    }
+
+	public function resetLevel(player:Player, enemy:Enemy) {
 		FlxG.switchState(new PlayState());
 	}
 
@@ -120,7 +130,7 @@ class PlayState extends FlxState {
 	function handleMousePress():Void {
 		if (FlxG.mouse.pressed && bulletReady) {
             bulletReady = false;
-            var timer = new FlxTimer().start(0.1, reload, 1);
+            var bulletTimer = new FlxTimer().start(0.1, reload, 1);
 			var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
 			var BULLET_VELOCITY:Float = 300.0;
 			
@@ -153,12 +163,15 @@ class PlayState extends FlxState {
 				_bullets.splice(i, 1);
 				continue;
 			} else {
+				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
-					if (FlxG.overlap(bullet, enemy)) {
+					if (FlxG.overlap(bullet, enemy.characterSprite())) {
 						enemy.currentHealth -= 1;
+						
 						bullet.destroy();
 						_bullets.splice(i, 1);
+
 						if (enemy.currentHealth <= 0) {
 							var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
 							
@@ -167,10 +180,14 @@ class PlayState extends FlxState {
 							
 							_powerups.push(powerup);
 							add(powerup);
-							
-							continue;
 						}
+						
+						collisionFound = true;
+						break;
 					}
+				}
+				if (collisionFound) {
+					continue;
 				}
 			}
 			++i;
@@ -186,7 +203,7 @@ class PlayState extends FlxState {
 		while (i < _powerups.length) {
 			var powerup:Powerup = _powerups[i];
 			
-			if (FlxG.overlap(powerup, _player)) {
+			if (FlxG.overlap(powerup, _player.characterSprite())) {
 				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
 				
 				powerup.destroy();
