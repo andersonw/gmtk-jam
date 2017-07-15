@@ -31,7 +31,7 @@ class Powerup extends FlxSpriteGroup {
 		powerupSprite = new FlxSprite();
 		powerupSprite.makeGraphic(20, 20, FlxColor.TRANSPARENT, true);
 		powerupSprite.x = powerupSprite.y = -10;
-		powerupSprite.drawPolygon([new FlxPoint(10, 0), new FlxPoint(0, 6), new FlxPoint(4, 18), new FlxPoint(16, 18), new FlxPoint(20, 6)],
+		powerupSprite.drawPolygon([new FlxPoint(10, 0), new FlxPoint(0, 6), new FlxPoint(4, 20), new FlxPoint(16, 20), new FlxPoint(20, 6)],
 								  kPowerupToColorMap[type], { }, { } );
 		add(powerupSprite);
     }

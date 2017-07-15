@@ -155,16 +155,11 @@ class PlayState extends FlxState {
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
-<<<<<<< HEAD
-			if (FlxG.overlap(bullet, _player.characterSprite())) {
+			if (overlap(bullet, _player.characterSprite())) {
 				_player.currentHealth -= 1;
 				if (_player.currentHealth <= 0) {
 					//TODO: figure out what happens when the player dies
 				}
-=======
-			if (overlap(bullet, _player.characterSprite())) {
-				// TODO: damage player
->>>>>>> 8870b23c0900a051aef3fb4a0bc751cbc8f962f8
 				bullet.destroy();
 				_bullets.splice(i, 1);
 				continue;
@@ -172,13 +167,8 @@ class PlayState extends FlxState {
 				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
-<<<<<<< HEAD
-					if (FlxG.overlap(bullet, enemy.characterSprite())) {
-						enemy.currentHealth -= 1;
-=======
 					if (overlap(bullet, enemy.characterSprite())) {
-						var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
->>>>>>> 8870b23c0900a051aef3fb4a0bc751cbc8f962f8
+						enemy.currentHealth -= 1;
 						
 						bullet.destroy();
 						_bullets.splice(i, 1);
