@@ -18,7 +18,7 @@ class BoringEnemy extends Enemy {
             
             var angle:Float = Math.atan2(_playState._player.y - y, _playState._player.x - x) + FlxG.random.float(-0.1,0.1);
             var DISTANCE_SPAWN_FROM_ENEMY:Float = 32.0;
-			var BULLET_VELOCITY:Float = 300.0;
+			var BULLET_VELOCITY:Float = 100.0;
             var bullet:Bullet = new Bullet(x + DISTANCE_SPAWN_FROM_ENEMY * Math.cos(angle),
 										   y + DISTANCE_SPAWN_FROM_ENEMY * Math.sin(angle),
 										   Bullet.BulletType.REGULAR, Bullet.BulletOwner.ENEMY);

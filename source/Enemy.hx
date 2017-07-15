@@ -19,7 +19,6 @@ class Enemy extends Character {
 	}
 
     public function move():Void {
-        // default Colin move
         var ENEMY_VELOCITY:Float = 30.0;
         velocity.set(ENEMY_VELOCITY,0);
 		velocity.rotate(FlxPoint.weak(0, 0), (Math.random() * 360));

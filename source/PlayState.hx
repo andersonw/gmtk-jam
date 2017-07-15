@@ -5,6 +5,7 @@ import flash.display.BitmapData;
 import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -30,6 +31,7 @@ class PlayState extends FlxState {
 	public var _enemies:Array<Enemy>;
 	public var _powerups:Array<Powerup>;
 	public var _powerupBombs:Array<PowerupBomb>;
+	public var _camera:FlxCamera;
 	
 	private var _mapPillars:Array<FlxSprite>;
 	private var _mapSprite:FlxSprite;
@@ -52,9 +54,12 @@ class PlayState extends FlxState {
 		_enemies = new Array <Enemy>();
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
+		_camera = new FlxCamera();
 		
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
+		
+		FlxG.sound.playMusic("assets/music/life.wav");
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -90,7 +95,7 @@ class PlayState extends FlxState {
 							4 * (occupiedSW == 1 ? 1 : 0) +
 							8 * (occupiedSE == 1 ? 1 : 0);
 				}
-				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y - 1) == 0) {
+				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y - 1) != 1) {
 					tileCode = 16;  // pillars below tiles
 				}
 
@@ -104,7 +109,7 @@ class PlayState extends FlxState {
 					var pillarTiles:Array<Int> = [ 7, 11, 13, 14, 17, 17, 16, 16 ];
 					
 					for (i in 0...8) {
-						if (i < 6 || mapHandler.getHalfTileValOrSolid(x, y + 2) != 0) {
+						if (i < 6 || mapHandler.getHalfTileValOrSolid(x, y) == 1) {
 							tileCode = pillarTiles[i];
 							pillarSpriteData.copyPixels(mapSrcBitmapData, getRectByTileCode(tileCode),
 														new Point(TILE_WIDTH / 2 * (i % 2), TILE_HEIGHT / 2 * Std.int(i / 2)));
@@ -499,6 +504,13 @@ class PlayState extends FlxState {
 				_powerupBombs.remove(bomb);
 			}
 		}
+		handleScrolls();
+	}
+	
+	function handleScrolls() {
+		camera.scroll.x = _player.x - Main.GAME_WIDTH / 2;
+		camera.scroll.y = _player.y - Main.GAME_HEIGHT / 2;
+		if (camera.x < 0) camera.x = 0;
 	}
 	
 	function overlap(obj1:FlxObject, obj2:FlxObject):Bool {
