@@ -259,6 +259,7 @@ class MapHandler
 		var queue:Array<Int> = new Array<Int>();
 		var visited:Array<Array<Int>> = new Array<Array<Int>>();
 		var count:Int = 1;
+		mainChunkSquares = new Array<Int>();
 		
 		for (i in 0...LEVEL_HEIGHT) {
 			visited.push(new Array<Int>());
@@ -282,6 +283,7 @@ class MapHandler
 				if (nxPos >= 0 && nxPos < LEVEL_WIDTH && nyPos >= 0 && nyPos < LEVEL_HEIGHT && getVal(nxPos, nyPos) != 1 && visited[nyPos][nxPos] == 0) {
 					visited[nyPos][nxPos] = 1;
 					count++;
+					mainChunkSquares.push(nyPos * LEVEL_WIDTH + nxPos);
 					
 					queue.insert(0, nxPos);
 					queue.insert(0, nyPos);
@@ -293,12 +295,10 @@ class MapHandler
 			RandomFillMap();
 		}
 		else {
-			mainChunkSquares = new Array<Int>();
 			for (i in 0...LEVEL_HEIGHT) {
 				for (j in 0...LEVEL_WIDTH) {
 					if (visited[i][j] == 0) {
 						setVal(j, i, 1);
-						mainChunkSquares.push(j * LEVEL_WIDTH + i);
 					}
 				}
 			}

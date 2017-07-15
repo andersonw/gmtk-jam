@@ -132,8 +132,12 @@ class PlayState extends FlxState {
 			add(pillar);
 		}
 		
-		_player = new Player(Main.GAME_WIDTH/2, Main.GAME_HEIGHT/2);
+		var randomFreePosition = mapHandler.getRandomPathableSquare();
+        var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
+        var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
+		_player = new Player(randX, randY);
 		add(_player);
+		handleScrolls();
 
         var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
 		super.create();
@@ -141,11 +145,11 @@ class PlayState extends FlxState {
 	}
 
     private function spawnEnemies(Timer:FlxTimer):Void {
-        if(FlxG.random.int(0, 100) < Timer.elapsedLoops) {
-            var randX = FlxG.random.int(30, Main.GAME_WIDTH-30);
-            var randY = FlxG.random.int(30, Main.GAME_HEIGHT-30);
-            var randomPoint = new FlxPoint(randX, randY);
-            if(FlxMath.distanceToPoint(_player, randomPoint) > 50) {
+        if (FlxG.random.int(0, 100) < Timer.elapsedLoops) {
+			var randomFreePosition = mapHandler.getRandomPathableSquare();
+            var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
+            var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
+            if(FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) > 250) {
                 var enemy:Enemy;
                 if(FlxG.random.float(0, 1) < 0.3) {
                     enemy = new CrazyEnemy(randX, randY, this);
@@ -482,8 +486,8 @@ class PlayState extends FlxState {
 		while (i < _bullets.length) {
 			var bullet = _bullets[i];
 			bullet._update(elapsed);
-			if (bullet.x < -100 || bullet.x > Main.GAME_WIDTH + 100 ||
-				bullet.y < -100 || bullet.y > Main.GAME_HEIGHT + 100) {
+			if (bullet.x < camera.scroll.x - 100 || bullet.x > Main.GAME_WIDTH + camera.scroll.x + 100 ||
+				bullet.y < camera.scroll.y - 100 || bullet.y > Main.GAME_HEIGHT + camera.scroll.y + 100) {
 				bullet.destroy();
 				_bullets.splice(i, 1);
 				continue;
