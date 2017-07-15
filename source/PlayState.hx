@@ -2,6 +2,7 @@ package;
 
 import flash.Vector;
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.math.FlxPoint;
@@ -154,11 +155,16 @@ class PlayState extends FlxState {
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
+<<<<<<< HEAD
 			if (FlxG.overlap(bullet, _player.characterSprite())) {
 				_player.currentHealth -= 1;
 				if (_player.currentHealth <= 0) {
 					//TODO: figure out what happens when the player dies
 				}
+=======
+			if (overlap(bullet, _player.characterSprite())) {
+				// TODO: damage player
+>>>>>>> 8870b23c0900a051aef3fb4a0bc751cbc8f962f8
 				bullet.destroy();
 				_bullets.splice(i, 1);
 				continue;
@@ -166,8 +172,13 @@ class PlayState extends FlxState {
 				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
+<<<<<<< HEAD
 					if (FlxG.overlap(bullet, enemy.characterSprite())) {
 						enemy.currentHealth -= 1;
+=======
+					if (overlap(bullet, enemy.characterSprite())) {
+						var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
+>>>>>>> 8870b23c0900a051aef3fb4a0bc751cbc8f962f8
 						
 						bullet.destroy();
 						_bullets.splice(i, 1);
@@ -203,7 +214,7 @@ class PlayState extends FlxState {
 		while (i < _powerups.length) {
 			var powerup:Powerup = _powerups[i];
 			
-			if (FlxG.overlap(powerup, _player.characterSprite())) {
+			if (overlap(powerup, _player.characterSprite())) {
 				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
 				
 				powerup.destroy();
@@ -226,5 +237,15 @@ class PlayState extends FlxState {
 		for (enemy in _enemies) {
 			enemy._update(elapsed);
 		}
+	}
+	
+	function overlap(obj1:FlxObject, obj2:FlxObject):Bool {
+		var hitbox1 = obj1.getHitbox();
+		var hitbox2 = obj2.getHitbox();
+		
+		return 	hitbox1.x + hitbox1.width >= hitbox2.x &&
+				hitbox2.x + hitbox2.width >= hitbox1.x &&
+				hitbox1.y + hitbox1.height >= hitbox2.y &&
+				hitbox2.y + hitbox2.height >= hitbox1.y;
 	}
 }
