@@ -9,7 +9,7 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 
-class MenuState extends FlxState {
+class PlayState extends FlxState {
 	var titleText:FlxText;
 	var helpText:FlxText;
 
