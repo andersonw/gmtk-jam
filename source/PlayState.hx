@@ -15,6 +15,8 @@ import flixel.math.FlxMath;
 import flixel.math.FlxRandom;
 import flixel.util.FlxTimer;
 
+using flixel.util.FlxSpriteUtil;
+
 class PlayState extends FlxState {
 	private var _player:Player;
 	private var _bullets:Array<Bullet>;
@@ -131,26 +133,70 @@ class PlayState extends FlxState {
 	
 	function handleMousePress():Void {
 		if (FlxG.mouse.pressed && bulletReady) {
-            bulletReady = false;
-            var bulletTimer = new FlxTimer().start(0.1, reload, 1);
-			var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
-			var BULLET_VELOCITY:Float = 300.0;
-			
 			var angle:Float = Math.atan2(FlxG.mouse.y - _player.y, FlxG.mouse.x - _player.x);
 			
-			var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(angle),
-										   _player.y + DISTANCE_SPAWN_FROM_PLAYER * Math.sin(angle));
-			
-			bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
-			
-			_bullets.push(bullet);
-			add(bullet);
+			if (_player.powerupType != Powerup.PowerupType.LIGHTNING) {
+				bulletReady = false;
+				var bulletTimer = new FlxTimer().start(0.1, reload, 1);
+				var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
+				var BULLET_VELOCITY:Float = 300.0;
+				
+				var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(angle),
+											   _player.y + DISTANCE_SPAWN_FROM_PLAYER * Math.sin(angle),
+											   Bullet.BulletType.REGULAR);
+				
+				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
+				
+				_bullets.push(bullet);
+				add(bullet);
+			} else {
+				if (_enemies.length > 0) {
+					var bestEnemy:Enemy = null;
+					var bestDistance:Int = 230;
+					for (enemy in _enemies) {
+						var enemyAngle:Float = Math.atan2(enemy.y - _player.y, enemy.x - _player.x);
+						var angleCutoff:Float = 0.2;
+						var angleWithinRange:Bool = (Math.abs(enemyAngle - angle) < angleCutoff ||
+													 2 * Math.PI - Math.abs(enemyAngle - angle) < angleCutoff);
+						
+						if (angleWithinRange && FlxMath.isDistanceWithin(enemy, _player, bestDistance)) {
+							bestEnemy = enemy;
+							bestDistance = FlxMath.distanceBetween(enemy, _player);
+						}
+					}
+					if (bestEnemy != null) {
+						var offsetX = (bestEnemy.x - _player.x < 0 ? _player.x - bestEnemy.x : 0);
+						var offsetY = (bestEnemy.y - _player.y < 0 ? _player.y - bestEnemy.y : 0);
+						var lightningFX:StaticFX = new StaticFX(_player.x - offsetX, _player.y - offsetY, 0.2);
+						lightningFX.makeGraphic(bestDistance, bestDistance, FlxColor.TRANSPARENT);
+						lightningFX.drawLine(offsetX, offsetY, bestEnemy.x - _player.x + offsetX, bestEnemy.y - _player.y + offsetY,
+							{"color": FlxColor.YELLOW, "thickness": 3 } );
+						add(lightningFX);
+						
+						damageEnemy(bestEnemy, 1);
+					}
+				}
+			}
 		}
 	}
 
     private function reload(Timer:FlxTimer):Void {
         bulletReady = true;
     }
+	
+	function damageEnemy(enemy:Enemy, amt:Int):Void {
+		enemy.currentHealth -= amt;
+		
+		if (enemy.currentHealth <= 0) {
+			var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
+							
+			enemy.destroy();
+			_enemies.remove(enemy);
+			
+			_powerups.push(powerup);
+			add(powerup);
+		}
+	}
 	
 	function checkBulletCollisions():Void {
 		var i:Int = 0;
@@ -169,20 +215,10 @@ class PlayState extends FlxState {
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
 					if (overlap(bullet, enemy.characterSprite())) {
-						enemy.currentHealth -= 1;
-						
 						bullet.destroy();
 						_bullets.splice(i, 1);
-
-						if (enemy.currentHealth <= 0) {
-							var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
-							
-							enemy.destroy();
-							_enemies.splice(j, 1);
-							
-							_powerups.push(powerup);
-							add(powerup);
-						}
+						
+						damageEnemy(enemy, 1);
 						
 						collisionFound = true;
 						break;
@@ -207,6 +243,7 @@ class PlayState extends FlxState {
 			
 			if (overlap(powerup, _player.characterSprite())) {
 				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
+				_player.powerupType = powerup.getType();
 				
 				powerup.destroy();
 				_powerups.splice(i, 1);
