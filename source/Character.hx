@@ -21,8 +21,8 @@ class Character extends FlxSpriteGroup {
 
         healthbarSprite = new FlxSprite();
         healthbarSprite.makeGraphic(32, 10, FlxColor.RED);
-        healthbarSprite.x = characterSprite.x;
-        healthbarSprite.y = characterSprite.y + 16;
+        healthbarSprite.x = characterSprite.x - this.x;
+        healthbarSprite.y = characterSprite.y - this.y + 40;
         add(healthbarSprite);
     }
 	override public function update(elapsed:Float):Void {
