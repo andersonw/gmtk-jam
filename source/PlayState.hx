@@ -18,11 +18,12 @@ import flixel.util.FlxTimer;
 using flixel.util.FlxSpriteUtil;
 
 class PlayState extends FlxState {
-	private var _player:Player;
-	private var _bullets:Array<Bullet>;
-	private var _enemies:Array<Enemy>;
-	private var _powerups:Array<Powerup>;
-	private var _powerupBombs:Array<PowerupBomb>;
+	// these have underscores because VSCode can't refactor the names :(
+	public var _player:Player;
+	public var _bullets:Array<Bullet>;
+	public var _enemies:Array<Enemy>;
+	public var _powerups:Array<Powerup>;
+	public var _powerupBombs:Array<PowerupBomb>;
 	
     public var bulletReady = true;
 
@@ -41,12 +42,12 @@ class PlayState extends FlxState {
 	}
 
     private function spawnEnemies(Timer:FlxTimer):Void {
-        if(FlxG.random.int(0,100) < Timer.elapsedLoops) {
-            var randX = FlxG.random.int(30,Main.GAME_WIDTH-30);
-            var randY = FlxG.random.int(30,Main.GAME_HEIGHT-30);
-            var randomPoint = new FlxPoint(randX,randY);
-            if(FlxMath.distanceToPoint(_player,randomPoint) > 50) {
-                var enemy = new Enemy(randX,randY);
+        if(FlxG.random.int(0, 100) < Timer.elapsedLoops) {
+            var randX = FlxG.random.int(30, Main.GAME_WIDTH-30);
+            var randY = FlxG.random.int(30, Main.GAME_HEIGHT-30);
+            var randomPoint = new FlxPoint(randX, randY);
+            if(FlxMath.distanceToPoint(_player, randomPoint) > 50) {
+                var enemy = new BoringEnemy(randX, randY, this);
                 add(enemy);
                 _enemies.push(enemy);
                 Timer.reset(0.1);
@@ -126,9 +127,7 @@ class PlayState extends FlxState {
 
     function moveEnemies():Void {
 		for (enemy in _enemies) {
-			var ENEMY_VELOCITY:Float = 30.0;
-			var angle:Float = Math.atan2(_player.y - enemy.y, _player.x - enemy.x);
-			enemy.velocity.set(ENEMY_VELOCITY * Math.cos(angle), ENEMY_VELOCITY * Math.sin(angle));
+			enemy.move();
 		}
     }
 	
