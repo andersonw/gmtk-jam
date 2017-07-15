@@ -16,13 +16,23 @@ class MenuState extends FlxState {
 	override public function create():Void {
 		super.create();
 		
-		bgColor = new FlxColor(0xff303030);
+		bgColor = new FlxColor(0xff000000);
 
-		titleText = new FlxText(40, 100, 0, "Luge Brothers XXIV");
+		var swatch:FlxSprite = new FlxSprite();
+		swatch.loadGraphic("assets/images/swatch.png");
+		swatch.x = 40;
+		swatch.y = 118;
+		add(swatch);
+		
+		titleText = new FlxText(70, 100, 0, "Luge Brothers XXIV");
+		titleText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
+		titleText.size = 40;
 		//titleText.setFormat(AssetPaths.pixelmix__ttf, 48, FlxColor.RED);
 		add(titleText);
 
-		helpText = new FlxText(500, 450, 0, "[SPACE] START");
+		helpText = new FlxText(500, 650, 0, "[SPACE] START");
+		helpText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
+		helpText.size = 32;
 		//helpText.setFormat(AssetPaths.pixelmix__ttf, 32, FlxColor.WHITE);
 		add(helpText);
 	}
