@@ -18,6 +18,8 @@ enum PowerupType {
 }
 
 class Powerup extends FlxSpriteGroup {
+	private var _playState:PlayState;
+
 	private static var kPowerupToColorMap:Map<PowerupType, FlxColor> =
 		[FIRE => FlxColor.RED, ICE => FlxColor.BLUE,
 		 LIGHTNING => FlxColor.YELLOW, POISON => FlxColor.GREEN,
@@ -25,9 +27,10 @@ class Powerup extends FlxSpriteGroup {
 	 
 	private var powerupSprite:FlxSprite;
 	private var _type:PowerupType;
-    public function new(?X:Float=0, ?Y:Float=0, type:PowerupType) {
+    public function new(?X:Float=0, ?Y:Float=0, type:PowerupType, ?playState:PlayState) {
         super(X, Y);
 		_type = type;
+		_playState = playState;
 		
 		powerupSprite = new FlxSprite();
 		powerupSprite.makeGraphic(20, 20, FlxColor.TRANSPARENT, true);

@@ -307,7 +307,7 @@ class PlayState extends FlxState {
 	}
 
     private function spawnPowerup(x,y):Void {
-        var powerup:Powerup = new Powerup(x, y, Powerup.getRandomType());
+        var powerup:Powerup = new Powerup(x, y, Powerup.getRandomType(), this);
 		_powerups.push(powerup);
 		add(powerup);
     }
@@ -363,7 +363,7 @@ class PlayState extends FlxState {
 						bullet.destroy();
 						_bullets.splice(i, 1);
 						
-						var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType());
+						var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType(), this);
 						powerup.destroy();
 						_powerups.splice(j, 1);
 						
