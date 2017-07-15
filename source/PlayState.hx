@@ -126,8 +126,9 @@ class PlayState extends FlxState {
 
     function moveEnemies():Void {
 		for (enemy in _enemies) {
-			enemy.velocity.set(150,0);
-			enemy.velocity.rotate(FlxPoint.weak(0, 0), (Math.random() * 360));
+			var ENEMY_VELOCITY:Float = 30.0;
+			var angle:Float = Math.atan2(_player.y - enemy.y, _player.x - enemy.x);
+			enemy.velocity.set(ENEMY_VELOCITY * Math.cos(angle), ENEMY_VELOCITY * Math.sin(angle));
 		}
     }
 	
