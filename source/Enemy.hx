@@ -12,6 +12,6 @@ class Enemy extends Character {
 	override public function update(elapsed:Float):Void {
 	}
 	override public function _update(elapsed:Float):Void {
-		super.update(elapsed);
+		super._update(elapsed);
 	}
 }
