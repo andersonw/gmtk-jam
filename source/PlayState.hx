@@ -47,7 +47,13 @@ class PlayState extends FlxState {
             var randY = FlxG.random.int(30, Main.GAME_HEIGHT-30);
             var randomPoint = new FlxPoint(randX, randY);
             if(FlxMath.distanceToPoint(_player, randomPoint) > 50) {
-                var enemy = new BoringEnemy(randX, randY, this);
+                var enemy:Enemy;
+                if(FlxG.random.float(0, 1) < 0.3) {
+                    enemy = new CrazyEnemy(randX, randY, this);
+                }
+                else {
+                    enemy = new BoringEnemy(randX, randY, this);
+                }
                 add(enemy);
                 _enemies.push(enemy);
                 Timer.reset(0.1);
