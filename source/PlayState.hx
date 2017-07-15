@@ -2,6 +2,7 @@ package;
 
 import flash.Vector;
 import flash.display.BitmapData;
+import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flixel.FlxG;
@@ -30,6 +31,7 @@ class PlayState extends FlxState {
 	public var _powerups:Array<Powerup>;
 	public var _powerupBombs:Array<PowerupBomb>;
 	
+	private var _mapPillars:Array<FlxSprite>;
 	private var _mapSprite:FlxSprite;
 	private var mapHandler:MapHandler;
 	private var mapBitmapData:BitmapData;
@@ -38,6 +40,12 @@ class PlayState extends FlxState {
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
+	
+	private function getRectByTileCode(code:Int) {
+		return new Rectangle(TILE_WIDTH / 2 * (code % 8),
+							 TILE_HEIGHT / 2 * Std.int(code / 8),
+							 TILE_WIDTH / 2, TILE_HEIGHT / 2);
+	}
 
 	override public function create():Void {
 		_bullets = new Array <Bullet>();
@@ -46,10 +54,15 @@ class PlayState extends FlxState {
 		_powerupBombs = new Array <PowerupBomb>();
 		
 		mapHandler = new MapHandler();
+		_mapPillars = new Array<FlxSprite>();
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
 		mapBitmapData = new BitmapData(mapHandler.MapWidth * TILE_WIDTH, mapHandler.MapHeight * TILE_HEIGHT, true, 0);
+		mapHandler.Map[3 * MapHandler.LEVEL_WIDTH + 3] = 2;
+		
+		mapHandler.Map[6 * MapHandler.LEVEL_WIDTH + 5] = 2;
+		mapHandler.Map[6 * MapHandler.LEVEL_WIDTH + 6] = 2;
 		for (y in 0...2*mapHandler.MapHeight) {
 			for (x in 0...2 * mapHandler.MapWidth) {
 				var tileCode:Int = 15;  // filled tile
@@ -72,22 +85,47 @@ class PlayState extends FlxState {
 						occupiedSW = occupiedSE = 1;
 					}
 					
-					tileCode = occupiedNW + 2 * occupiedNE + 4 * occupiedSW + 8 * occupiedSE;
+					tileCode =  (occupiedNW == 1 ? 1 : 0) +
+							2 * (occupiedNE == 1 ? 1 : 0) +
+							4 * (occupiedSW == 1 ? 1 : 0) +
+							8 * (occupiedSE == 1 ? 1 : 0);
 				}
 				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y - 1) == 0) {
 					tileCode = 16;  // pillars below tiles
 				}
 
-				mapBitmapData.copyPixels(mapSrcBitmapData, new Rectangle(TILE_WIDTH / 2 * (tileCode % 8),
-																		 TILE_HEIGHT / 2 * Std.int(tileCode / 8),
-																		 TILE_WIDTH / 2, TILE_HEIGHT / 2),
+				mapBitmapData.copyPixels(mapSrcBitmapData, getRectByTileCode(tileCode),
 										new Point(TILE_WIDTH / 2 * x, TILE_HEIGHT / 2 * y));
+				
+				if ((x % 2 == 0) && (y % 2 == 0) && mapHandler.getHalfTileValOrSolid(x, y) == 2) {
+					var pillarSpriteData:BitmapData = new BitmapData(TILE_WIDTH, 2 * TILE_HEIGHT, true, 0);
+					var pillar:FlxSprite = new FlxSprite();
+					
+					var pillarTiles:Array<Int> = [ 7, 11, 13, 14, 17, 17, 16, 16 ];
+					
+					for (i in 0...8) {
+						if (i < 6 || mapHandler.getHalfTileValOrSolid(x + (i % 2), y + Std.int(i / 2)) != 0) {
+							tileCode = pillarTiles[i];
+							pillarSpriteData.copyPixels(mapSrcBitmapData, getRectByTileCode(tileCode),
+														new Point(TILE_WIDTH / 2 * (i % 2), TILE_HEIGHT / 2 * Std.int(i / 2)));
+						}
+					}
+					pillarSpriteData.colorTransform(pillarSpriteData.rect, new ColorTransform(0.5, 0.5, 0.5, 1));
+					pillar.loadGraphic(pillarSpriteData);
+					pillar.x = x * TILE_WIDTH / 2;
+					pillar.y = y * TILE_HEIGHT / 2 - 26;
+					_mapPillars.push(pillar);
+				}
 			}
 		}
 		
 		_mapSprite = new FlxSprite();
 		_mapSprite.loadGraphic(mapBitmapData);
 		add(_mapSprite);
+		
+		for (pillar in _mapPillars) {
+			add(pillar);
+		}
 		
 		_player = new Player(Main.GAME_WIDTH/2, Main.GAME_HEIGHT/2);
 		add(_player);

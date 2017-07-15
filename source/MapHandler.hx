@@ -10,8 +10,8 @@ class MapHandler
     public var mode:Int;
 	
 	public var MIN_PATHABLE_SQUARES:Int = 200;
-	public var LEVEL_WIDTH:Int = 12;
-	public var LEVEL_HEIGHT:Int = 12;
+	public static var LEVEL_WIDTH:Int = 32;
+	public static var LEVEL_HEIGHT:Int = 32;
  
 	public function new():Void
 	{
