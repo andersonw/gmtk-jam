@@ -24,6 +24,8 @@ class PlayState extends FlxState {
 	private var _powerups:Array<Powerup>;
 	private var _powerupBombs:Array<PowerupBomb>;
 	
+	private var mapHandler:MapHandler;
+
     public var bulletReady = true;
 
 	override public function create():Void {
