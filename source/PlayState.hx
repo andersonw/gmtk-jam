@@ -256,6 +256,31 @@ class PlayState extends FlxState {
 			if (collisionFound) {
 				continue;
 			}
+			
+			for (j in 0..._powerupBombs.length) {
+				var bomb:PowerupBomb = _powerupBombs[j];
+				var ACCELERATE_AMT_WHEN_HIT:Float = 0.6;
+				
+				if (overlap(bullet, bomb)) {
+					
+					if (bomb.isLit()) {
+						bomb.addToTickDuration(ACCELERATE_AMT_WHEN_HIT);
+					} else {
+						bomb.light();
+					}
+					var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(0.5));
+					bomb.velocity.set(newVelocity.x, newVelocity.y);
+					
+					bullet.destroy();
+					_bullets.splice(i, 1);
+					
+					collisionFound = true;
+					break;
+				}
+			}
+			if (collisionFound) {
+				continue;
+			}
 			++i;
 		}
 	}
@@ -301,6 +326,13 @@ class PlayState extends FlxState {
 		checkPowerupCollisions();
 		for (enemy in _enemies) {
 			enemy._update(elapsed);
+		}
+		for (bomb in _powerupBombs) {
+			bomb._update(elapsed);
+			if (bomb.isExploding()) {
+				bomb.destroy();
+				_powerupBombs.remove(bomb);
+			}
 		}
 	}
 	

@@ -18,9 +18,15 @@ using Powerup.PowerupType;
 class PowerupBomb extends FlxSpriteGroup {
 	private var bombSprite:FlxSprite;
 	private var bombOutlineSprite:FlxSprite;
+	private var bombFuseSprite:FlxSprite = null;
 	
 	private var SPRITE_WIDTH:Int = 40;
 	private var SPRITE_HEIGHT:Int = 40;
+	private var FUSE_WIDTH:Int = 60;
+	private var FUSE_HEIGHT:Int = 20;
+	
+	private var _bombState:Int = 0;  // unlit
+	private var _tickDuration:Float = 1;
 	
 	private var _type:PowerupType;
     public function new(?X:Float=0, ?Y:Float=0, type:PowerupType) {
@@ -54,9 +60,43 @@ class PowerupBomb extends FlxSpriteGroup {
 		
 		add(bombSprite);
 		add(bombOutlineSprite);
+		makeBombFuseSprite();
     }
 	public function getType():PowerupType {
 		return _type;
+	}
+	
+	public function isLit():Bool {
+		return _bombState != 0;
+	}
+	
+	public function light():Void {
+		_bombState = 1;
+		makeBombFuseSprite();
+	}
+	
+	public function isExploding():Bool {
+		return _bombState == 4;
+	}
+	
+	public function addToTickDuration(amt:Float):Void {
+		_tickDuration += amt;
+	}
+	
+	private function makeBombFuseSprite() {
+		if (bombFuseSprite != null) {
+			bombFuseSprite.destroy();
+		}
+		var bombFuseSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/bomb_fuse.png");
+		
+		var bombFuseBitmapData:BitmapData = new BitmapData(FUSE_WIDTH, FUSE_HEIGHT);
+			bombFuseBitmapData.copyPixels(
+				bombFuseSrcBitmapData, new Rectangle(0, FUSE_HEIGHT * _bombState, FUSE_WIDTH, FUSE_HEIGHT), new Point(0, 0));
+		bombFuseSprite = new FlxSprite();
+		bombFuseSprite.loadGraphic(bombFuseBitmapData);
+		bombFuseSprite.x = -40;
+		bombFuseSprite.y = -26;
+		add(bombFuseSprite);
 	}
 	
 	override public function getHitbox(?rect:FlxRect):FlxRect {
@@ -66,6 +106,18 @@ class PowerupBomb extends FlxSpriteGroup {
 	override public function update(elapsed:Float):Void {
 	}
 	public function _update(elapsed:Float):Void {
+		if (_bombState > 0) {
+			_tickDuration += elapsed;
+			var newState:Int = Std.int(_tickDuration);
+			if (newState > _bombState) {
+				if (newState >= 4) {
+					_bombState = newState = 4;  // just in case!
+				} else {
+					_bombState = newState;
+					makeBombFuseSprite();
+				}
+			}
+		}
 		super.update(elapsed);
 	}
 }
