@@ -1,5 +1,6 @@
 package;
 import flixel.FlxG;
+import flixel.math.FlxPoint;
 
 class CrazyEnemy extends Enemy {
     private var _bulletSpawnTimer:Float;
@@ -31,5 +32,7 @@ class CrazyEnemy extends Enemy {
 
     override public function move():Void {
         var ENEMY_VELOCITY:Float = 300.0;
+        velocity.set(ENEMY_VELOCITY,0);
+		velocity.rotate(FlxPoint.weak(0, 0), (Math.random() * 360));
     }
 }
