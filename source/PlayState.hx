@@ -220,8 +220,17 @@ class PlayState extends FlxState {
 	
 	function updateAndHandleCollisions(elapsed:Float):Void {
 		_player._update(elapsed);
-		for (bullet in _bullets) {
+		var i:Int = 0;
+		while (i < _bullets.length) {
+			var bullet = _bullets[i];
 			bullet._update(elapsed);
+			if (bullet.x < -100 || bullet.x > Main.GAME_WIDTH + 100 ||
+				bullet.y < -100 || bullet.y > Main.GAME_HEIGHT + 100) {
+				bullet.destroy();
+				_bullets.splice(i, 1);
+				continue;
+			}
+			++i;
 		}
 		checkBulletCollisions();
 		checkPowerupCollisions();
