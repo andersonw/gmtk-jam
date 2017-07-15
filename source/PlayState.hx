@@ -23,11 +23,12 @@ import openfl.display.BitmapData;
 using flixel.util.FlxSpriteUtil;
 
 class PlayState extends FlxState {
-	private var _player:Player;
-	private var _bullets:Array<Bullet>;
-	private var _enemies:Array<Enemy>;
-	private var _powerups:Array<Powerup>;
-	private var _powerupBombs:Array<PowerupBomb>;
+	// these have underscores because VSCode can't refactor the names :(
+	public var _player:Player;
+	public var _bullets:Array<Bullet>;
+	public var _enemies:Array<Enemy>;
+	public var _powerups:Array<Powerup>;
+	public var _powerupBombs:Array<PowerupBomb>;
 	
 	private var _mapSprite:FlxSprite;
 	private var mapHandler:MapHandler;
@@ -97,12 +98,12 @@ class PlayState extends FlxState {
 	}
 
     private function spawnEnemies(Timer:FlxTimer):Void {
-        if(FlxG.random.int(0,100) < Timer.elapsedLoops) {
-            var randX = FlxG.random.int(30,Main.GAME_WIDTH-30);
-            var randY = FlxG.random.int(30,Main.GAME_HEIGHT-30);
-            var randomPoint = new FlxPoint(randX,randY);
-            if(FlxMath.distanceToPoint(_player,randomPoint) > 50) {
-                var enemy = new Enemy(randX,randY);
+        if(FlxG.random.int(0, 100) < Timer.elapsedLoops) {
+            var randX = FlxG.random.int(30, Main.GAME_WIDTH-30);
+            var randY = FlxG.random.int(30, Main.GAME_HEIGHT-30);
+            var randomPoint = new FlxPoint(randX, randY);
+            if(FlxMath.distanceToPoint(_player, randomPoint) > 50) {
+                var enemy = new BoringEnemy(randX, randY, this);
                 add(enemy);
                 _enemies.push(enemy);
                 Timer.reset(0.1);
@@ -186,9 +187,7 @@ class PlayState extends FlxState {
 
     function moveEnemies():Void {
 		for (enemy in _enemies) {
-			var ENEMY_VELOCITY:Float = 30.0;
-			var angle:Float = Math.atan2(_player.y - enemy.y, _player.x - enemy.x);
-			enemy.velocity.set(ENEMY_VELOCITY * Math.cos(angle), ENEMY_VELOCITY * Math.sin(angle));
+			enemy.move();
 		}
     }
 	
@@ -208,7 +207,7 @@ class PlayState extends FlxState {
 				
 				var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(angle),
 											   _player.y + DISTANCE_SPAWN_FROM_PLAYER * Math.sin(angle),
-											   Bullet.BulletType.REGULAR);
+											   Bullet.BulletType.REGULAR, Bullet.BulletOwner.PLAYER);
 				
 				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
 				
@@ -274,79 +273,82 @@ class PlayState extends FlxState {
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
 			
-			// collision with player?
-			if (overlap(bullet, _player.characterSprite())) {
-				_player.currentHealth -= 1;
-				if (_player.currentHealth <= 0) {
-					//TODO: figure out what happens when the player dies
-				}
-				bullet.destroy();
-				_bullets.splice(i, 1);
-				continue;
-			}
-			
-			// collision with an enemy?
-			var collisionFound:Bool = false;
-			for (j in 0..._enemies.length) {
-				var enemy:Enemy = _enemies[j];
-				if (overlap(bullet, enemy.characterSprite())) {
-					bullet.destroy();
-					_bullets.splice(i, 1);
-					
-					damageEnemy(enemy, 1);
-						
-					collisionFound = true;
-					break;
-				}
-			}
-			if (collisionFound) {
-				continue;
-			}
-			
-			for (j in 0..._powerups.length) {
-				var powerup:Powerup = _powerups[j];
-				if (overlap(bullet, powerup)) {
-					bullet.destroy();
-					_bullets.splice(i, 1);
-					
-					var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType());
-					powerup.destroy();
-					_powerups.splice(j, 1);
-					
-					add(powerupBomb);
-					_powerupBombs.push(powerupBomb);
-					
-					collisionFound = true;
-					break;
-				}
-			}
-			if (collisionFound) {
-				continue;
-			}
-			
-			for (j in 0..._powerupBombs.length) {
-				var bomb:PowerupBomb = _powerupBombs[j];
-				var ACCELERATE_AMT_WHEN_HIT:Float = 0.6;
-				
-				if (overlap(bullet, bomb)) {
-					
-					if (bomb.isLit()) {
-						bomb.addToTickDuration(ACCELERATE_AMT_WHEN_HIT);
-					} else {
-						bomb.light();
+			if (bullet.owner == Bullet.BulletOwner.ENEMY) {
+				// collision with player?
+				if (overlap(bullet, _player.characterSprite())) {
+					_player.currentHealth -= 1;
+					if (_player.currentHealth <= 0) {
+						//TODO: figure out what happens when the player dies
 					}
-					var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(0.5));
-					bomb.velocity.set(newVelocity.x, newVelocity.y);
-					
 					bullet.destroy();
 					_bullets.splice(i, 1);
-					
-					collisionFound = true;
-					break;
+					continue;
 				}
 			}
-			if (collisionFound) {
-				continue;
+			else if (bullet.owner == Bullet.BulletOwner.PLAYER) {
+				// collision with an enemy?
+				var collisionFound:Bool = false;
+				for (j in 0..._enemies.length) {
+					var enemy:Enemy = _enemies[j];
+					if (overlap(bullet, enemy.characterSprite())) {
+						bullet.destroy();
+						_bullets.splice(i, 1);
+						
+						damageEnemy(enemy, 1);
+							
+						collisionFound = true;
+						break;
+					}
+				}
+				if (collisionFound) {
+					continue;
+				}
+				
+				for (j in 0..._powerups.length) {
+					var powerup:Powerup = _powerups[j];
+					if (overlap(bullet, powerup)) {
+						bullet.destroy();
+						_bullets.splice(i, 1);
+						
+						var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType());
+						powerup.destroy();
+						_powerups.splice(j, 1);
+						
+						add(powerupBomb);
+						_powerupBombs.push(powerupBomb);
+						
+						collisionFound = true;
+						break;
+					}
+				}
+				if (collisionFound) {
+					continue;
+				}
+				
+				for (j in 0..._powerupBombs.length) {
+					var bomb:PowerupBomb = _powerupBombs[j];
+					var ACCELERATE_AMT_WHEN_HIT:Float = 0.6;
+					
+					if (overlap(bullet, bomb)) {
+						
+						if (bomb.isLit()) {
+							bomb.addToTickDuration(ACCELERATE_AMT_WHEN_HIT);
+						} else {
+							bomb.light();
+						}
+						var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(0.5));
+						bomb.velocity.set(newVelocity.x, newVelocity.y);
+						
+						bullet.destroy();
+						_bullets.splice(i, 1);
+						
+						collisionFound = true;
+						break;
+					}
+				}
+				if (collisionFound) {
+					continue;
+				}
 			}
 			++i;
 		}

@@ -44,7 +44,12 @@ class Character extends FlxSpriteGroup {
 	}
 	public function _update(elapsed:Float):Void {
         _healthbarSprite.visible = _healthbarVisible;
-        _healthbarSprite.makeGraphic(Std.int(currentHealth/maxHealth*_characterSprite.width), 10, FlxColor.RED);
+        if (currentHealth > 0) {
+            _healthbarSprite.makeGraphic(Std.int(currentHealth/maxHealth*_characterSprite.width), 10, FlxColor.RED);
+        }
+        else {
+            _healthbarSprite.visible = false;
+        }
 		super.update(elapsed);
 	}
 }
