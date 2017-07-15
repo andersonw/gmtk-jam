@@ -24,10 +24,10 @@ class Character extends FlxSpriteGroup {
     }
 	
 	public function drawCharacterSprite(color:FlxColor) {
-		characterSprite = new FlxSprite();
-        characterSprite.makeGraphic(32, 32, color, true);
-		characterSprite.x = characterSprite.y = -16;
-		add(characterSprite);
+		_characterSprite = new FlxSprite();
+        _characterSprite.makeGraphic(32, 32, color, true);
+		_characterSprite.x = _characterSprite.y = -16;
+		add(_characterSprite);
 	}
 
     public function characterSprite():FlxSprite {
