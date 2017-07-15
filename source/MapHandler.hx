@@ -10,12 +10,15 @@ class MapHandler
     public var mode:Int;
 	
 	public var MIN_PATHABLE_SQUARES:Int = 200;
+	public var LEVEL_WIDTH:Int = 12;
+	public var LEVEL_HEIGHT:Int = 12;
  
 	public function new():Void
 	{
-		MapWidth = 40;
-		MapHeight = 40;
+		MapWidth = LEVEL_WIDTH;
+		MapHeight = LEVEL_HEIGHT;
 		PercentAreWalls = 40;
+		genMap(MapWidth, MapHeight, PercentAreWalls);
     }
     
     public function genMap(w:Int, h:Int, p:Int=40):Array<Int> {
@@ -51,6 +54,16 @@ class MapHandler
 	}
     
     public function getVal(x:Int, y:Int):Int {
+        return Map[x + MapWidth * y];
+    }
+	
+    public function getHalfTileValOrSolid(x:Int, y:Int):Int {
+		return getValOrSolid(Std.int(x / 2), Std.int(y / 2));
+    }
+    public function getValOrSolid(x:Int, y:Int):Int {
+		if (x < 0 || x >= MapWidth || y < 0 || y >= MapHeight) {
+			return 1;
+		}
         return Map[x + MapWidth * y];
     }
     
@@ -245,9 +258,9 @@ class MapHandler
 		var visited:Array<Array<Int>> = new Array<Array<Int>>();
 		var count:Int = 1;
 		
-		for (i in 0...Reg.LEVEL_HEIGHT) {
+		for (i in 0...LEVEL_HEIGHT) {
 			visited.push(new Array<Int>());
-			for (j in 0...Reg.LEVEL_WIDTH) {
+			for (j in 0...LEVEL_WIDTH) {
 				visited[i].push(0);
 			}
 		}
@@ -264,7 +277,7 @@ class MapHandler
 				var nxPos:Int = xPos + directions[i][0];
 				var nyPos:Int = yPos + directions[i][1];
 				
-				if (nxPos >= 0 && nxPos < Reg.LEVEL_WIDTH && nyPos >= 0 && nyPos < Reg.LEVEL_HEIGHT && getVal(nxPos, nyPos) != 1 && visited[nyPos][nxPos] == 0) {
+				if (nxPos >= 0 && nxPos < LEVEL_WIDTH && nyPos >= 0 && nyPos < LEVEL_HEIGHT && getVal(nxPos, nyPos) != 1 && visited[nyPos][nxPos] == 0) {
 					visited[nyPos][nxPos] = 1;
 					count++;
 					
@@ -278,8 +291,8 @@ class MapHandler
 			RandomFillMap();
 		}
 		else {
-			for (i in 0...Reg.LEVEL_HEIGHT) {
-				for (j in 0...Reg.LEVEL_WIDTH) {
+			for (i in 0...LEVEL_HEIGHT) {
+				for (j in 0...LEVEL_WIDTH) {
 					if (visited[i][j] == 0) {
 						setVal(j, i, 1);
 					}
