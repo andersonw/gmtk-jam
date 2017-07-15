@@ -17,11 +17,14 @@ class PlayState extends FlxState {
 	private var _player:Player;
 	private var _bullets:Array<Bullet>;
 	private var _enemies:Array<Enemy>;
+	private var _powerups:Array<Powerup>;
+	
     public var bulletReady = true;
 
 	override public function create():Void {
 		_bullets = new Array <Bullet>();
 		_enemies = new Array <Enemy>();
+		_powerups = new Array <Powerup>();
 		
 		_player = new Player(25, 25);
 		add(_player);
@@ -31,6 +34,7 @@ class PlayState extends FlxState {
 		_enemies.push(enemy);
         var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
 		super.create();
+		FlxG.log.warn(_player.characterSprite().getHitbox());
 	}
 
     private function spawnEnemies(Timer:FlxTimer):Void {
@@ -150,22 +154,53 @@ class PlayState extends FlxState {
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
-			if (FlxG.overlap(bullet, _player)) {
+			if (FlxG.overlap(bullet, _player.characterSprite())) {
 				// TODO: damage player
 				bullet.destroy();
 				_bullets.splice(i, 1);
 				continue;
 			} else {
+				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
-					if (FlxG.overlap(bullet, enemy)) {
+					if (FlxG.overlap(bullet, enemy.characterSprite())) {
+						var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
+						
 						bullet.destroy();
 						enemy.destroy();
 						_bullets.splice(i, 1);
 						_enemies.splice(j, 1);
-						continue;
+						
+						_powerups.push(powerup);
+						add(powerup);
+						
+						collisionFound = true;
+						break;
 					}
 				}
+				if (collisionFound) {
+					continue;
+				}
+			}
+			++i;
+		}
+	}
+	
+	// ==============================================================================
+	// Powerup-related functions
+	// ==============================================================================
+	
+	function checkPowerupCollisions():Void {
+		var i:Int = 0;
+		while (i < _powerups.length) {
+			var powerup:Powerup = _powerups[i];
+			
+			if (FlxG.overlap(powerup, _player.characterSprite())) {
+				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
+				
+				powerup.destroy();
+				_powerups.splice(i, 1);
+				continue;
 			}
 			++i;
 		}
@@ -179,6 +214,7 @@ class PlayState extends FlxState {
 			bullet._update(elapsed);
 		}
 		checkBulletCollisions();
+		checkPowerupCollisions();
 		for (enemy in _enemies) {
 			enemy._update(elapsed);
 		}
