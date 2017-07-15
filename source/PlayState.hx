@@ -145,29 +145,31 @@ class PlayState extends FlxState {
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
 			if (FlxG.overlap(bullet, _player.characterSprite())) {
-				// TODO: damage player
+				_player.currentHealth -= 1;
+				if (_player.currentHealth <= 0) {
+					//TODO: figure out what happens when the player dies
+				}
 				bullet.destroy();
 				_bullets.splice(i, 1);
 				continue;
 			} else {
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
-<<<<<<< HEAD
 					if (FlxG.overlap(bullet, enemy)) {
-						var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
-						
-=======
-					if (FlxG.overlap(bullet, enemy.characterSprite())) {
->>>>>>> ad885fd0bc4cce1a3cca741be133652ebe5b3c08
+						enemy.currentHealth -= 1;
 						bullet.destroy();
-						enemy.destroy();
 						_bullets.splice(i, 1);
-						_enemies.splice(j, 1);
-						
-						_powerups.push(powerup);
-						add(powerup);
-						
-						continue;
+						if (enemy.currentHealth <= 0) {
+							var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
+							
+							enemy.destroy();
+							_enemies.splice(j, 1);
+							
+							_powerups.push(powerup);
+							add(powerup);
+							
+							continue;
+						}
 					}
 				}
 			}

@@ -7,7 +7,8 @@ import flixel.FlxSprite;
 class Enemy extends Character {
 
     public function new(?X:Float=0, ?Y:Float=0) {
-        super(X, Y, FlxColor.ORANGE);
+        super(X, Y, FlxColor.ORANGE, 5);
+        _healthbarVisible = true;
     }
 	override public function update(elapsed:Float):Void {
 	}

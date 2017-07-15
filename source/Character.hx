@@ -11,7 +11,10 @@ class Character extends FlxSpriteGroup {
     private var _healthbarSprite:FlxSprite;
     private var _healthbarVisible:Bool;
 
-    public function new(?X:Float=0, ?Y:Float=0, ?color:FlxColor=FlxColor.BLUE) {
+    public var currentHealth:Int;
+    public var maxHealth:Int;
+
+    public function new(?X:Float=0, ?Y:Float=0, ?color:FlxColor=FlxColor.BLUE, ?maxHealth:Int=1) {
         super(X, Y);
 		
 		drawCharacterSprite(color);
@@ -21,13 +24,16 @@ class Character extends FlxSpriteGroup {
         _healthbarSprite.x = _characterSprite.x - this.x;
         _healthbarSprite.y = _characterSprite.y - this.y + 40;
         add(_healthbarSprite);
+
+        this.maxHealth = maxHealth;
+        currentHealth = maxHealth;
     }
 	
 	public function drawCharacterSprite(color:FlxColor) {
-		characterSprite = new FlxSprite();
-        characterSprite.makeGraphic(32, 32, color, true);
-		characterSprite.x = characterSprite.y = -16;
-		add(characterSprite);
+		_characterSprite = new FlxSprite();
+        _characterSprite.makeGraphic(32, 32, color, true);
+		_characterSprite.x = _characterSprite.y = -16;
+		add(_characterSprite);
 	}
 
     public function characterSprite():FlxSprite {
@@ -38,6 +44,7 @@ class Character extends FlxSpriteGroup {
 	}
 	public function _update(elapsed:Float):Void {
         _healthbarSprite.visible = _healthbarVisible;
+        _healthbarSprite.makeGraphic(Std.int(currentHealth/maxHealth*_characterSprite.width), 10, FlxColor.RED);
 		super.update(elapsed);
 	}
 }
