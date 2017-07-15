@@ -79,8 +79,8 @@ class PlayState extends FlxState {
         _left = FlxG.keys.anyPressed([LEFT, A]);
         _right = FlxG.keys.anyPressed([RIGHT, D]);
 
-        if (FlxG.keys.anyPressed([SHIFT]))
-            speed = 50;
+        if (!bulletReady)
+            speed = 120;
         else
             speed = 200;
 
