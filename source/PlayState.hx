@@ -144,7 +144,7 @@ class PlayState extends FlxState {
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
-			if (FlxG.overlap(bullet, _player)) {
+			if (FlxG.overlap(bullet, _player.characterSprite())) {
 				// TODO: damage player
 				bullet.destroy();
 				_bullets.splice(i, 1);
@@ -152,9 +152,13 @@ class PlayState extends FlxState {
 			} else {
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
+<<<<<<< HEAD
 					if (FlxG.overlap(bullet, enemy)) {
 						var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
 						
+=======
+					if (FlxG.overlap(bullet, enemy.characterSprite())) {
+>>>>>>> ad885fd0bc4cce1a3cca741be133652ebe5b3c08
 						bullet.destroy();
 						enemy.destroy();
 						_bullets.splice(i, 1);
