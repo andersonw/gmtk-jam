@@ -33,6 +33,7 @@ class PlayState extends FlxState {
         add(enemy);
 		_enemies.push(enemy);
 		super.create();
+		FlxG.log.warn(_player.characterSprite().getHitbox());
 	}
 
 	public function resetLevel(player:Player, enemy:Enemy)
@@ -150,6 +151,7 @@ class PlayState extends FlxState {
 				_bullets.splice(i, 1);
 				continue;
 			} else {
+				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
 					if (FlxG.overlap(bullet, enemy.characterSprite())) {
@@ -163,8 +165,12 @@ class PlayState extends FlxState {
 						_powerups.push(powerup);
 						add(powerup);
 						
-						continue;
+						collisionFound = true;
+						break;
 					}
+				}
+				if (collisionFound) {
+					continue;
 				}
 			}
 			++i;
