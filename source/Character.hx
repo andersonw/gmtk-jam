@@ -14,10 +14,7 @@ class Character extends FlxSpriteGroup {
     public function new(?X:Float=0, ?Y:Float=0, ?color:FlxColor=FlxColor.BLUE) {
         super(X, Y);
 		
-		characterSprite = new FlxSprite();
-        characterSprite.makeGraphic(32, 32, color, true);
-		characterSprite.x = characterSprite.y = -16;
-		add(characterSprite);
+		drawCharacterSprite(color);
 
         healthbarSprite = new FlxSprite();
         healthbarSprite.makeGraphic(32, 10, FlxColor.RED);
@@ -25,6 +22,13 @@ class Character extends FlxSpriteGroup {
         healthbarSprite.y = characterSprite.y - this.y + 40;
         add(healthbarSprite);
     }
+	public function drawCharacterSprite(color:FlxColor) {
+		characterSprite = new FlxSprite();
+        characterSprite.makeGraphic(32, 32, color, true);
+		characterSprite.x = characterSprite.y = -16;
+		add(characterSprite);
+	}
+	
 	override public function update(elapsed:Float):Void {
 	}
 	public function _update(elapsed:Float):Void {

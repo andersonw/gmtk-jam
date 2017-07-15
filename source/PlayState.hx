@@ -16,10 +16,12 @@ class PlayState extends FlxState {
 	private var _player:Player;
 	private var _bullets:Array<Bullet>;
 	private var _enemies:Array<Enemy>;
+	private var _powerups:Array<Powerup>;
 
 	override public function create():Void {
 		_bullets = new Array <Bullet>();
 		_enemies = new Array <Enemy>();
+		_powerups = new Array <Powerup>();
 		
 		_player = new Player(25, 25);
 		add(_player);
@@ -142,13 +144,39 @@ class PlayState extends FlxState {
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
 					if (FlxG.overlap(bullet, enemy)) {
+						var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
+						
 						bullet.destroy();
 						enemy.destroy();
 						_bullets.splice(i, 1);
 						_enemies.splice(j, 1);
+						
+						_powerups.push(powerup);
+						add(powerup);
+						
 						continue;
 					}
 				}
+			}
+			++i;
+		}
+	}
+	
+	// ==============================================================================
+	// Powerup-related functions
+	// ==============================================================================
+	
+	function checkPowerupCollisions():Void {
+		var i:Int = 0;
+		while (i < _powerups.length) {
+			var powerup:Powerup = _powerups[i];
+			
+			if (FlxG.overlap(powerup, _player)) {
+				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
+				
+				powerup.destroy();
+				_powerups.splice(i, 1);
+				continue;
 			}
 			++i;
 		}
@@ -162,6 +190,7 @@ class PlayState extends FlxState {
 			bullet._update(elapsed);
 		}
 		checkBulletCollisions();
+		checkPowerupCollisions();
 		for (enemy in _enemies) {
 			enemy._update(elapsed);
 		}
