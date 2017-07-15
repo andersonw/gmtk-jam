@@ -1,5 +1,6 @@
 package;
 
+import flash.Vector;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -14,9 +15,12 @@ import flixel.math.FlxRandom;
 class PlayState extends FlxState {
 	private var _player:Player;
     private var _enemy:Enemy;
+	private var _bullets:Array<Bullet>;
 
 	override public function create():Void {
-		_player = new Player(10, 10);
+		_bullets = new Array <Bullet>();
+		
+		_player = new Player(25, 25);
 		add(_player);
 
         _enemy = new Enemy(300, 300);
@@ -34,8 +38,8 @@ class PlayState extends FlxState {
 		
 		handlePlayerMovement();
         moveEnemies();
-
         FlxG.overlap(_player, _enemy, resetLevel);
+		handleMousePress();
 	}
 	
 	function handlePlayerMovement():Void {
@@ -45,10 +49,10 @@ class PlayState extends FlxState {
         var _right:Bool = false;
 		var speed;
 
-        _up = FlxG.keys.anyPressed([UP]);
-        _down = FlxG.keys.anyPressed([DOWN]);
-        _left = FlxG.keys.anyPressed([LEFT]);
-        _right = FlxG.keys.anyPressed([RIGHT]);
+        _up = FlxG.keys.anyPressed([UP, W]);
+        _down = FlxG.keys.anyPressed([DOWN, S]);
+        _left = FlxG.keys.anyPressed([LEFT, A]);
+        _right = FlxG.keys.anyPressed([RIGHT, D]);
 
         if (FlxG.keys.anyPressed([SHIFT]))
             speed = 50;
@@ -93,4 +97,21 @@ class PlayState extends FlxState {
         _enemy.velocity.set(30,0);
         _enemy.velocity.rotate(FlxPoint.weak(0,0), (Math.random() * 360));
     }
+	
+	function handleMousePress():Void {
+		if (FlxG.mouse.justPressed) {
+			var DISTANCE_SPAWN_FROM_PLAYER:Float = 15.0;
+			var BULLET_VELOCITY:Float = 300.0;
+			
+			var angle:Float = Math.atan2(FlxG.mouse.y - _player.y, FlxG.mouse.x - _player.x);
+			
+			var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(angle),
+										   _player.y + DISTANCE_SPAWN_FROM_PLAYER * Math.sin(angle));
+			
+			bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
+			
+			_bullets.push(bullet);
+			add(bullet);
+		}
+	}
 }
