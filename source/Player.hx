@@ -6,21 +6,14 @@ import flixel.math.FlxPoint;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
 
-class Player extends FlxSpriteGroup {
-	public var _velocity:FlxPoint;
-	
-	private var playerSprite:FlxSprite;
+class Player extends Character {
+
     public function new(?X:Float=0, ?Y:Float=0) {
-        super(X, Y);
-		
-		playerSprite = new FlxSprite();
-        playerSprite.makeGraphic(32, 32, FlxColor.BLUE);
-		playerSprite.x = playerSprite.y = -16;
-		add(playerSprite);
+        super(X, Y, FlxColor.BLUE);
     }
 	override public function update(elapsed:Float):Void {
 	}
-	public function _update(elapsed:Float):Void {
+	override public function _update(elapsed:Float):Void {
 		super.update(elapsed);
 	}
 }

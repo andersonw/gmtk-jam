@@ -4,16 +4,14 @@ import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import flixel.FlxSprite;
 
-class Enemy extends FlxSprite {
-	public var _velocity:FlxPoint;
+class Enemy extends Character {
 
     public function new(?X:Float=0, ?Y:Float=0) {
-        super(X, Y);
-        makeGraphic(32, 32, FlxColor.ORANGE, true);
+        super(X, Y, FlxColor.ORANGE);
     }
 	override public function update(elapsed:Float):Void {
 	}
-	public function _update(elapsed:Float):Void {
+	override public function _update(elapsed:Float):Void {
 		super.update(elapsed);
 	}
 }
