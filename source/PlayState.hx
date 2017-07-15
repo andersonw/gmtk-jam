@@ -29,11 +29,20 @@ class PlayState extends FlxState {
         var enemy = new Enemy(300, 300);
         add(enemy);
 		_enemies.push(enemy);
+        var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
 		super.create();
 	}
 
-	public function resetLevel(player:Player, enemy:Enemy)
-	{
+    private function spawnEnemies(Timer:FlxTimer):Void {
+        if(FlxG.random.int(0,100) < Timer.elapsedLoops) {
+            var enemy = new Enemy(FlxG.random.int(0,640), FlxG.random.int(0,480));
+            add(enemy);
+            _enemies.push(enemy);
+            Timer.reset(0.1);
+        }
+    }
+
+	public function resetLevel(player:Player, enemy:Enemy) {
 		FlxG.switchState(new PlayState());
 	}
 
@@ -117,7 +126,7 @@ class PlayState extends FlxState {
 	function handleMousePress():Void {
 		if (FlxG.mouse.pressed && bulletReady) {
             bulletReady = false;
-            var timer = new FlxTimer().start(0.1, reload, 1);
+            var bulletTimer = new FlxTimer().start(0.1, reload, 1);
 			var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
 			var BULLET_VELOCITY:Float = 300.0;
 			
