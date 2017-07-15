@@ -15,7 +15,7 @@ class MenuState extends FlxState {
 	
 	override public function create():Void {
 		super.create();
-
+		
 		bgColor = new FlxColor(0xff303030);
 
 		titleText = new FlxText(40, 100, 0, "Luge Brothers XXIV");
