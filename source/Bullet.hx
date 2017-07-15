@@ -18,4 +18,9 @@ class Bullet extends FlxSpriteGroup {
 		bulletSprite.drawCircle(5, 5, 5, FlxColor.YELLOW);
 		add(bulletSprite);
     }
+	override public function update(elapsed:Float):Void {
+	}
+	public function _update(elapsed:Float):Void {
+		super.update(elapsed);
+	}
 }

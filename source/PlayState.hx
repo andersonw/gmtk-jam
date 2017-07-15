@@ -14,17 +14,19 @@ import flixel.math.FlxRandom;
 
 class PlayState extends FlxState {
 	private var _player:Player;
-    private var _enemy:Enemy;
 	private var _bullets:Array<Bullet>;
+	private var _enemies:Array<Enemy>;
 
 	override public function create():Void {
 		_bullets = new Array <Bullet>();
+		_enemies = new Array <Enemy>();
 		
 		_player = new Player(25, 25);
 		add(_player);
 
-        _enemy = new Enemy(300, 300);
-        add(_enemy);
+        var enemy = new Enemy(300, 300);
+        add(enemy);
+		_enemies.push(enemy);
 		super.create();
 	}
 
@@ -38,7 +40,9 @@ class PlayState extends FlxState {
 		
 		handlePlayerMovement();
         moveEnemies();
-        FlxG.overlap(_player, _enemy, resetLevel);
+		handleUpdateFunctions(elapsed);
+		
+        //FlxG.overlap(_player, _enemy, resetLevel);
 		handleMousePress();
 	}
 	
@@ -94,8 +98,10 @@ class PlayState extends FlxState {
     }
 
     function moveEnemies():Void {
-        _enemy.velocity.set(30,0);
-        _enemy.velocity.rotate(FlxPoint.weak(0,0), (Math.random() * 360));
+		for (enemy in _enemies) {
+			enemy.velocity.set(30,0);
+			enemy.velocity.rotate(FlxPoint.weak(0, 0), (Math.random() * 360));
+		}
     }
 	
 	function handleMousePress():Void {
@@ -112,6 +118,16 @@ class PlayState extends FlxState {
 			
 			_bullets.push(bullet);
 			add(bullet);
+		}
+	}
+	
+	function handleUpdateFunctions(elapsed:Float):Void {
+		_player._update(elapsed);
+		for (bullet in _bullets) {
+			bullet._update(elapsed);
+		}
+		for (enemy in _enemies) {
+			enemy._update(elapsed);
 		}
 	}
 }
