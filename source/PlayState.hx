@@ -32,12 +32,9 @@ class PlayState extends FlxState {
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
 		
-		_player = new Player(25, 25);
+		_player = new Player(Main.GAME_WIDTH/2, Main.GAME_HEIGHT/2);
 		add(_player);
 
-        var enemy = new Enemy(300, 300);
-        add(enemy);
-		_enemies.push(enemy);
         var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
 		super.create();
 		//FlxG.log.warn(_player.characterSprite().getHitbox());
@@ -45,10 +42,15 @@ class PlayState extends FlxState {
 
     private function spawnEnemies(Timer:FlxTimer):Void {
         if(FlxG.random.int(0,100) < Timer.elapsedLoops) {
-            var enemy = new Enemy(FlxG.random.int(0,640), FlxG.random.int(0,480));
-            add(enemy);
-            _enemies.push(enemy);
-            Timer.reset(0.1);
+            var randX = FlxG.random.int(30,Main.GAME_WIDTH-30);
+            var randY = FlxG.random.int(30,Main.GAME_HEIGHT-30);
+            var randomPoint = new FlxPoint(randX,randY);
+            if(FlxMath.distanceToPoint(_player,randomPoint) > 50) {
+                var enemy = new Enemy(randX,randY);
+                add(enemy);
+                _enemies.push(enemy);
+                Timer.reset(0.1);
+            }
         }
     }
 
