@@ -104,13 +104,13 @@ class PlayState extends FlxState {
 					var pillarTiles:Array<Int> = [ 7, 11, 13, 14, 17, 17, 16, 16 ];
 					
 					for (i in 0...8) {
-						if (i < 6 || mapHandler.getHalfTileValOrSolid(x + (i % 2), y + Std.int(i / 2)) != 0) {
+						if (i < 6 || mapHandler.getHalfTileValOrSolid(x, y + 2) != 0) {
 							tileCode = pillarTiles[i];
 							pillarSpriteData.copyPixels(mapSrcBitmapData, getRectByTileCode(tileCode),
 														new Point(TILE_WIDTH / 2 * (i % 2), TILE_HEIGHT / 2 * Std.int(i / 2)));
 						}
 					}
-					pillarSpriteData.colorTransform(pillarSpriteData.rect, new ColorTransform(0.5, 0.5, 0.5, 1));
+					pillarSpriteData.colorTransform(pillarSpriteData.rect, new ColorTransform(0.6, 0.6, 0.6, 1));
 					pillar.loadGraphic(pillarSpriteData);
 					pillar.x = x * TILE_WIDTH / 2;
 					pillar.y = y * TILE_HEIGHT / 2 - 26;
@@ -316,6 +316,15 @@ class PlayState extends FlxState {
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
+			
+			// collision with walls?
+			var bulletTileX = Std.int(bullet.x / TILE_WIDTH);
+			var bulletTileY = Std.int(bullet.y / TILE_HEIGHT);
+			if (mapHandler.getVal(bulletTileX, bulletTileY) == 2) {
+				bullet.destroy();
+				_bullets.splice(i, 1);
+				continue;
+			}
 			
 			if (bullet.owner == Bullet.BulletOwner.ENEMY) {
 				// collision with player?
