@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 
 using flixel.util.FlxSpriteUtil;
@@ -37,6 +38,10 @@ class Powerup extends FlxSpriteGroup {
     }
 	public function getType():PowerupType {
 		return _type;
+	}
+	
+	override public function getHitbox(?rect:FlxRect):FlxRect {
+		return powerupSprite.getHitbox();
 	}
 	
 	// static methods
