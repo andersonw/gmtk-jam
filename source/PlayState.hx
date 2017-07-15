@@ -11,11 +11,13 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 import flixel.math.FlxRandom;
+import flixel.util.FlxTimer;
 
 class PlayState extends FlxState {
 	private var _player:Player;
 	private var _bullets:Array<Bullet>;
 	private var _enemies:Array<Enemy>;
+    public var bulletReady = true;
 
 	override public function create():Void {
 		_bullets = new Array <Bullet>();
@@ -113,7 +115,9 @@ class PlayState extends FlxState {
 	// ==============================================================================
 	
 	function handleMousePress():Void {
-		if (FlxG.mouse.justPressed) {
+		if (FlxG.mouse.pressed && bulletReady) {
+            bulletReady = false;
+            var timer = new FlxTimer().start(0.1, reload, 1);
 			var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
 			var BULLET_VELOCITY:Float = 300.0;
 			
@@ -128,6 +132,10 @@ class PlayState extends FlxState {
 			add(bullet);
 		}
 	}
+
+    private function reload(Timer:FlxTimer):Void {
+        bulletReady = true;
+    }
 	
 	function checkBulletCollisions():Void {
 		var i:Int = 0;
