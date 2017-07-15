@@ -156,7 +156,7 @@ class PlayState extends FlxState {
 			} else {
 				if (_enemies.length > 0) {
 					var bestEnemy:Enemy = null;
-					var bestDistance:Int = 250;
+					var bestDistance:Int = 220;
 					for (enemy in _enemies) {
 						var enemyAngle:Float = Math.atan2(enemy.y - _player.y, enemy.x - _player.x);
 						var angleCutoff:Float = 0.3;
