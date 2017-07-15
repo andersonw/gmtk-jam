@@ -151,7 +151,7 @@ class PlayState extends FlxState {
 				
 				var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(angle),
 											   _player.y + DISTANCE_SPAWN_FROM_PLAYER * Math.sin(angle),
-											   Bullet.BulletType.REGULAR);
+											   Bullet.BulletType.REGULAR, Bullet.BulletOwner.PLAYER);
 				
 				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
 				
