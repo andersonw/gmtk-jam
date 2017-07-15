@@ -9,12 +9,10 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 
-class PlayState extends FlxState
-{
+class PlayState extends FlxState {
 	private var _player:Player;
 
-	override public function create():Void
-	{
+	override public function create():Void {
 		_player = new Player(10, 10);
 		add(_player);
 
