@@ -68,6 +68,10 @@ class PlayState extends FlxState {
 		
         //FlxG.overlap(_player, _enemy, resetLevel);
 		handleMousePress();
+
+        if(FlxG.keys.justPressed.R) {
+            FlxG.switchState(new PlayState());
+        }
 	}
 	
 	// ==============================================================================
@@ -191,16 +195,22 @@ class PlayState extends FlxState {
 	function damageEnemy(enemy:Enemy, amt:Int):Void {
 		enemy.currentHealth -= amt;
 		
-		if (enemy.currentHealth <= 0) {
-			var powerup:Powerup = new Powerup(enemy.x, enemy.y, Powerup.getRandomType());
-							
+		if (enemy.currentHealth <= 0) {			
 			enemy.destroy();
 			_enemies.remove(enemy);
-			
-			_powerups.push(powerup);
-			add(powerup);
+
+            if(FlxG.random.float(0,1) < 0.5) {
+                haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);
+            }
+
 		}
 	}
+
+    private function spawnPowerup(x,y):Void {
+        var powerup:Powerup = new Powerup(x, y, Powerup.getRandomType());
+		_powerups.push(powerup);
+		add(powerup);
+    }
 	
 	function checkBulletCollisions():Void {
 		var i:Int = 0;
