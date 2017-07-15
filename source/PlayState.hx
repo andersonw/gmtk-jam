@@ -40,11 +40,15 @@ class PlayState extends FlxState {
 		
 		handlePlayerMovement();
         moveEnemies();
-		handleUpdateFunctions(elapsed);
+		updateAndHandleCollisions(elapsed);
 		
         //FlxG.overlap(_player, _enemy, resetLevel);
 		handleMousePress();
 	}
+	
+	// ==============================================================================
+	// Movement-related functions
+	// ==============================================================================
 	
 	function handlePlayerMovement():Void {
         var _up:Bool = false;
@@ -104,9 +108,13 @@ class PlayState extends FlxState {
 		}
     }
 	
+	// ==============================================================================
+	// Bullet-related functions
+	// ==============================================================================
+	
 	function handleMousePress():Void {
 		if (FlxG.mouse.justPressed) {
-			var DISTANCE_SPAWN_FROM_PLAYER:Float = 15.0;
+			var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
 			var BULLET_VELOCITY:Float = 300.0;
 			
 			var angle:Float = Math.atan2(FlxG.mouse.y - _player.y, FlxG.mouse.x - _player.x);
@@ -121,11 +129,39 @@ class PlayState extends FlxState {
 		}
 	}
 	
-	function handleUpdateFunctions(elapsed:Float):Void {
+	function checkBulletCollisions():Void {
+		var i:Int = 0;
+		while (i < _bullets.length) {
+			var bullet:Bullet = _bullets[i];
+			if (FlxG.overlap(bullet, _player)) {
+				// TODO: damage player
+				bullet.destroy();
+				_bullets.splice(i, 1);
+				continue;
+			} else {
+				for (j in 0..._enemies.length) {
+					var enemy:Enemy = _enemies[j];
+					if (FlxG.overlap(bullet, enemy)) {
+						bullet.destroy();
+						enemy.destroy();
+						_bullets.splice(i, 1);
+						_enemies.splice(j, 1);
+						continue;
+					}
+				}
+			}
+			++i;
+		}
+	}
+	
+	// ==============================================================================
+	
+	function updateAndHandleCollisions(elapsed:Float):Void {
 		_player._update(elapsed);
 		for (bullet in _bullets) {
 			bullet._update(elapsed);
 		}
+		checkBulletCollisions();
 		for (enemy in _enemies) {
 			enemy._update(elapsed);
 		}
