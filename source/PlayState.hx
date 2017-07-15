@@ -120,7 +120,7 @@ class PlayState extends FlxState {
 
     function moveEnemies():Void {
 		for (enemy in _enemies) {
-			enemy.velocity.set(30,0);
+			enemy.velocity.set(150,0);
 			enemy.velocity.rotate(FlxPoint.weak(0, 0), (Math.random() * 360));
 		}
     }
