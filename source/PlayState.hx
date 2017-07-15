@@ -5,6 +5,7 @@ import flash.display.BitmapData;
 import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -30,6 +31,7 @@ class PlayState extends FlxState {
 	public var _enemies:Array<Enemy>;
 	public var _powerups:Array<Powerup>;
 	public var _powerupBombs:Array<PowerupBomb>;
+	public var _camera:FlxCamera;
 	
 	private var _mapPillars:Array<FlxSprite>;
 	private var _mapSprite:FlxSprite;
@@ -52,9 +54,12 @@ class PlayState extends FlxState {
 		_enemies = new Array <Enemy>();
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
+		_camera = new FlxCamera();
 		
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
+		
+		FlxG.sound.playMusic("assets/music/life.wav");
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -90,7 +95,7 @@ class PlayState extends FlxState {
 							4 * (occupiedSW == 1 ? 1 : 0) +
 							8 * (occupiedSE == 1 ? 1 : 0);
 				}
-				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y - 1) == 0) {
+				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y - 1) != 1) {
 					tileCode = 16;  // pillars below tiles
 				}
 
@@ -104,7 +109,7 @@ class PlayState extends FlxState {
 					var pillarTiles:Array<Int> = [ 7, 11, 13, 14, 17, 17, 16, 16 ];
 					
 					for (i in 0...8) {
-						if (i < 6 || mapHandler.getHalfTileValOrSolid(x, y + 2) != 0) {
+						if (i < 6 || mapHandler.getHalfTileValOrSolid(x, y) == 1) {
 							tileCode = pillarTiles[i];
 							pillarSpriteData.copyPixels(mapSrcBitmapData, getRectByTileCode(tileCode),
 														new Point(TILE_WIDTH / 2 * (i % 2), TILE_HEIGHT / 2 * Std.int(i / 2)));
@@ -127,8 +132,12 @@ class PlayState extends FlxState {
 			add(pillar);
 		}
 		
-		_player = new Player(Main.GAME_WIDTH/2, Main.GAME_HEIGHT/2);
+		var randomFreePosition = mapHandler.getRandomPathableSquare();
+        var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
+        var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
+		_player = new Player(randX, randY);
 		add(_player);
+		handleScrolls();
 
         var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
 		super.create();
@@ -136,11 +145,11 @@ class PlayState extends FlxState {
 	}
 
     private function spawnEnemies(Timer:FlxTimer):Void {
-        if(FlxG.random.int(0, 100) < Timer.elapsedLoops) {
-            var randX = FlxG.random.int(30, Main.GAME_WIDTH-30);
-            var randY = FlxG.random.int(30, Main.GAME_HEIGHT-30);
-            var randomPoint = new FlxPoint(randX, randY);
-            if(FlxMath.distanceToPoint(_player, randomPoint) > 50) {
+        if (FlxG.random.int(0, 100) < Timer.elapsedLoops) {
+			var randomFreePosition = mapHandler.getRandomPathableSquare();
+            var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
+            var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
+            if(FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) > 250) {
                 var enemy:Enemy;
                 if(FlxG.random.float(0, 1) < 0.3) {
                     enemy = new CrazyEnemy(randX, randY, this);
@@ -430,14 +439,55 @@ class PlayState extends FlxState {
 	
 	// ==============================================================================
 	
+	function hitTestWall(object:FlxObject):Bool {
+		var leftX:Float = object.x - object.width / 2;
+		var rightX:Float = object.x + object.width / 2;
+		var topY:Float = object.y - object.height / 2;
+		var bottomY:Float = object.y + object.height / 2;
+		
+		var nwTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
+		var neTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
+		var swTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(bottomY / TILE_HEIGHT));
+		var seTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(bottomY / TILE_HEIGHT));
+		
+		return nwTileValue != 0 || neTileValue != 0 || swTileValue != 0 || seTileValue != 0;
+	}
+	function snapObjectToTiles(object:FlxObject, elapsed:Float):Void {
+		if (!hitTestWall(object)) {
+			return;
+		}
+		
+		var xDistance:Float = object.velocity.x * elapsed;
+		var yDistance:Float = object.velocity.y * elapsed;
+		var hitWithoutX:Bool = false;
+		var hitWithoutY:Bool = false;
+		object.x -= xDistance;
+		if (hitTestWall(object)) {
+			hitWithoutX = true;
+		}
+		object.x += xDistance;
+		object.y -= yDistance;
+		if (hitTestWall(object)) {
+			hitWithoutY = true;
+		}
+		if (hitWithoutX && hitWithoutY) {
+			object.x -= xDistance;
+		} else if (hitWithoutX) {
+		} else {
+			object.y += yDistance;
+			object.x -= xDistance;
+		}
+	}
+	
 	function updateAndHandleCollisions(elapsed:Float):Void {
 		_player._update(elapsed);
+		snapObjectToTiles(_player, elapsed);
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet = _bullets[i];
 			bullet._update(elapsed);
-			if (bullet.x < -100 || bullet.x > Main.GAME_WIDTH + 100 ||
-				bullet.y < -100 || bullet.y > Main.GAME_HEIGHT + 100) {
+			if (bullet.x < camera.scroll.x - 100 || bullet.x > Main.GAME_WIDTH + camera.scroll.x + 100 ||
+				bullet.y < camera.scroll.y - 100 || bullet.y > Main.GAME_HEIGHT + camera.scroll.y + 100) {
 				bullet.destroy();
 				_bullets.splice(i, 1);
 				continue;
@@ -448,14 +498,23 @@ class PlayState extends FlxState {
 		checkPowerupCollisions();
 		for (enemy in _enemies) {
 			enemy._update(elapsed);
+			snapObjectToTiles(enemy, elapsed);
 		}
 		for (bomb in _powerupBombs) {
 			bomb._update(elapsed);
+			snapObjectToTiles(bomb, elapsed);
 			if (bomb.isExploding()) {
 				bomb.destroy();
 				_powerupBombs.remove(bomb);
 			}
 		}
+		handleScrolls();
+	}
+	
+	function handleScrolls() {
+		camera.scroll.x = _player.x - Main.GAME_WIDTH / 2;
+		camera.scroll.y = _player.y - Main.GAME_HEIGHT / 2;
+		if (camera.x < 0) camera.x = 0;
 	}
 	
 	function overlap(obj1:FlxObject, obj2:FlxObject):Bool {
