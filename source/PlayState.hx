@@ -22,6 +22,7 @@ class PlayState extends FlxState {
 	private var _bullets:Array<Bullet>;
 	private var _enemies:Array<Enemy>;
 	private var _powerups:Array<Powerup>;
+	private var _powerupBombs:Array<PowerupBomb>;
 	
     public var bulletReady = true;
 
@@ -29,6 +30,7 @@ class PlayState extends FlxState {
 		_bullets = new Array <Bullet>();
 		_enemies = new Array <Enemy>();
 		_powerups = new Array <Powerup>();
+		_powerupBombs = new Array <PowerupBomb>();
 		
 		_player = new Player(25, 25);
 		add(_player);
@@ -152,10 +154,10 @@ class PlayState extends FlxState {
 			} else {
 				if (_enemies.length > 0) {
 					var bestEnemy:Enemy = null;
-					var bestDistance:Int = 230;
+					var bestDistance:Int = 250;
 					for (enemy in _enemies) {
 						var enemyAngle:Float = Math.atan2(enemy.y - _player.y, enemy.x - _player.x);
-						var angleCutoff:Float = 0.2;
+						var angleCutoff:Float = 0.3;
 						var angleWithinRange:Bool = (Math.abs(enemyAngle - angle) < angleCutoff ||
 													 2 * Math.PI - Math.abs(enemyAngle - angle) < angleCutoff);
 						
@@ -202,6 +204,8 @@ class PlayState extends FlxState {
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
+			
+			// collision with player?
 			if (overlap(bullet, _player.characterSprite())) {
 				_player.currentHealth -= 1;
 				if (_player.currentHealth <= 0) {
@@ -210,23 +214,45 @@ class PlayState extends FlxState {
 				bullet.destroy();
 				_bullets.splice(i, 1);
 				continue;
-			} else {
-				var collisionFound:Bool = false;
-				for (j in 0..._enemies.length) {
-					var enemy:Enemy = _enemies[j];
-					if (overlap(bullet, enemy.characterSprite())) {
-						bullet.destroy();
-						_bullets.splice(i, 1);
+			}
+			
+			// collision with an enemy?
+			var collisionFound:Bool = false;
+			for (j in 0..._enemies.length) {
+				var enemy:Enemy = _enemies[j];
+				if (overlap(bullet, enemy.characterSprite())) {
+					bullet.destroy();
+					_bullets.splice(i, 1);
+					
+					damageEnemy(enemy, 1);
 						
-						damageEnemy(enemy, 1);
-						
-						collisionFound = true;
-						break;
-					}
+					collisionFound = true;
+					break;
 				}
-				if (collisionFound) {
-					continue;
+			}
+			if (collisionFound) {
+				continue;
+			}
+			
+			for (j in 0..._powerups.length) {
+				var powerup:Powerup = _powerups[j];
+				if (overlap(bullet, powerup)) {
+					bullet.destroy();
+					_bullets.splice(i, 1);
+					
+					var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType());
+					powerup.destroy();
+					_powerups.splice(j, 1);
+					
+					add(powerupBomb);
+					_powerupBombs.push(powerupBomb);
+					
+					collisionFound = true;
+					break;
 				}
+			}
+			if (collisionFound) {
+				continue;
 			}
 			++i;
 		}
