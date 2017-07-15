@@ -25,6 +25,7 @@ class Bullet extends FlxSpriteGroup {
     public function new(?X:Float=0, ?Y:Float=0, ?type:BulletType, ?owner:BulletOwner) {
         super(X, Y);
 		this.type = type;
+		this.owner = owner;
 		
 		if (type == BulletType.REGULAR) {
 			bulletSprite = new FlxSprite();

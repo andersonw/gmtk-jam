@@ -217,79 +217,82 @@ class PlayState extends FlxState {
 		while (i < _bullets.length) {
 			var bullet:Bullet = _bullets[i];
 			
-			// collision with player?
-			if (overlap(bullet, _player.characterSprite())) {
-				_player.currentHealth -= 1;
-				if (_player.currentHealth <= 0) {
-					//TODO: figure out what happens when the player dies
-				}
-				bullet.destroy();
-				_bullets.splice(i, 1);
-				continue;
-			}
-			
-			// collision with an enemy?
-			var collisionFound:Bool = false;
-			for (j in 0..._enemies.length) {
-				var enemy:Enemy = _enemies[j];
-				if (overlap(bullet, enemy.characterSprite())) {
-					bullet.destroy();
-					_bullets.splice(i, 1);
-					
-					damageEnemy(enemy, 1);
-						
-					collisionFound = true;
-					break;
-				}
-			}
-			if (collisionFound) {
-				continue;
-			}
-			
-			for (j in 0..._powerups.length) {
-				var powerup:Powerup = _powerups[j];
-				if (overlap(bullet, powerup)) {
-					bullet.destroy();
-					_bullets.splice(i, 1);
-					
-					var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType());
-					powerup.destroy();
-					_powerups.splice(j, 1);
-					
-					add(powerupBomb);
-					_powerupBombs.push(powerupBomb);
-					
-					collisionFound = true;
-					break;
-				}
-			}
-			if (collisionFound) {
-				continue;
-			}
-			
-			for (j in 0..._powerupBombs.length) {
-				var bomb:PowerupBomb = _powerupBombs[j];
-				var ACCELERATE_AMT_WHEN_HIT:Float = 0.6;
-				
-				if (overlap(bullet, bomb)) {
-					
-					if (bomb.isLit()) {
-						bomb.addToTickDuration(ACCELERATE_AMT_WHEN_HIT);
-					} else {
-						bomb.light();
+			if (bullet.owner == Bullet.BulletOwner.ENEMY) {
+				// collision with player?
+				if (overlap(bullet, _player.characterSprite())) {
+					_player.currentHealth -= 1;
+					if (_player.currentHealth <= 0) {
+						//TODO: figure out what happens when the player dies
 					}
-					var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(0.5));
-					bomb.velocity.set(newVelocity.x, newVelocity.y);
-					
 					bullet.destroy();
 					_bullets.splice(i, 1);
-					
-					collisionFound = true;
-					break;
+					continue;
 				}
 			}
-			if (collisionFound) {
-				continue;
+			else if (bullet.owner == Bullet.BulletOwner.PLAYER) {
+				// collision with an enemy?
+				var collisionFound:Bool = false;
+				for (j in 0..._enemies.length) {
+					var enemy:Enemy = _enemies[j];
+					if (overlap(bullet, enemy.characterSprite())) {
+						bullet.destroy();
+						_bullets.splice(i, 1);
+						
+						damageEnemy(enemy, 1);
+							
+						collisionFound = true;
+						break;
+					}
+				}
+				if (collisionFound) {
+					continue;
+				}
+				
+				for (j in 0..._powerups.length) {
+					var powerup:Powerup = _powerups[j];
+					if (overlap(bullet, powerup)) {
+						bullet.destroy();
+						_bullets.splice(i, 1);
+						
+						var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType());
+						powerup.destroy();
+						_powerups.splice(j, 1);
+						
+						add(powerupBomb);
+						_powerupBombs.push(powerupBomb);
+						
+						collisionFound = true;
+						break;
+					}
+				}
+				if (collisionFound) {
+					continue;
+				}
+				
+				for (j in 0..._powerupBombs.length) {
+					var bomb:PowerupBomb = _powerupBombs[j];
+					var ACCELERATE_AMT_WHEN_HIT:Float = 0.6;
+					
+					if (overlap(bullet, bomb)) {
+						
+						if (bomb.isLit()) {
+							bomb.addToTickDuration(ACCELERATE_AMT_WHEN_HIT);
+						} else {
+							bomb.light();
+						}
+						var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(0.5));
+						bomb.velocity.set(newVelocity.x, newVelocity.y);
+						
+						bullet.destroy();
+						_bullets.splice(i, 1);
+						
+						collisionFound = true;
+						break;
+					}
+				}
+				if (collisionFound) {
+					continue;
+				}
 			}
 			++i;
 		}
