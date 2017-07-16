@@ -501,6 +501,7 @@ class PlayState extends FlxState {
 						
 						add(powerupBomb);
 						_powerupBombs.push(powerupBomb);
+						powerupBomb.light();
 						
 						collisionFound = true;
 						break;
