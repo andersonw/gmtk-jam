@@ -30,7 +30,7 @@ class Bullet extends FlxSpriteGroup {
 	public var owner:BulletOwner;
 	public var timeAlive:Float = 0;
 	public var originalVelocity:FlxPoint;
-	
+
     public function new(?X:Float=0, ?Y:Float=0, ?type:BulletType, ?owner:BulletOwner, ?bulletSize:Int) {
         super(X, Y);
 		this.type = type;

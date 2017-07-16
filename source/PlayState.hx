@@ -57,6 +57,13 @@ class PlayState extends FlxTransitionableState {
     public var bulletReady:Bool = true;
 	public var lockPlayerControls:Bool = false;
 	public var ignorePlayerWallCollision:Bool = false;
+
+    private var _bulletSound:FlxSound;
+    private var _flameSound:FlxSound;
+    private var _shotgunSound:FlxSound;
+
+    private var _lightningSound:FlxSound;
+    private var _bulletHitSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -86,6 +93,12 @@ class PlayState extends FlxTransitionableState {
 		_mapPillarBGs = new Array<FlxSprite>();
 		
 		FlxG.sound.playMusic(AssetPaths.silly_song3__wav);
+
+        _bulletSound = FlxG.sound.load(AssetPaths.generic_bullet__wav);
+        _flameSound = FlxG.sound.load(AssetPaths.flamethrower__wav);
+        _shotgunSound = FlxG.sound.load(AssetPaths.shotgun__wav);
+        _lightningSound = FlxG.sound.load(AssetPaths.lightning__wav);
+        _bulletHitSound = FlxG.sound.load(AssetPaths.bullet_impact__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -397,7 +410,7 @@ class PlayState extends FlxTransitionableState {
 											   Bullet.BulletType.REGULAR, Bullet.BulletOwner.PLAYER);
 				
 				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
-				
+				_bulletSound.play();
 				_bullets.push(bullet);
 				bulletLayer.add(bullet);
 			} else if (_player.powerupType == Powerup.PowerupType.FIRE) {
@@ -414,6 +427,7 @@ class PlayState extends FlxTransitionableState {
 											   Bullet.BulletType.FIRE, Bullet.BulletOwner.PLAYER);
 				
 				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
+                _flameSound.play();
 				_bullets.push(bullet);
 				bulletLayer.add(bullet);
 				
@@ -452,7 +466,7 @@ class PlayState extends FlxTransitionableState {
 						lightningFX.drawLine(offsetX, offsetY, bestEnemy.x - _player.x + offsetX, bestEnemy.y - _player.y + offsetY,
 							{"color": FlxColor.YELLOW, "thickness": 3 } );
 						bulletLayer.add(lightningFX);
-						
+						_lightningSound.play();
 						damageEnemy(bestEnemy, 1);
 					}
 				}
@@ -478,6 +492,7 @@ class PlayState extends FlxTransitionableState {
 					_bullets.push(bullet);
 					bulletLayer.add(bullet);
 				}
+                _shotgunSound.play();
 				
 				var velocityToTry:Float = 800.;
 				_player.x -= velocityToTry * knockbackDuration * Math.cos(angle);
@@ -565,6 +580,7 @@ class PlayState extends FlxTransitionableState {
 				// check for collision with player
 				if (overlapCenteredHitboxes(bullet, _player)) {
 					if (!_player.invulnerable) {
+						_bulletHitSound.play();
 						_player.currentHealth -= 1;
 						if (_player.currentHealth <= 0) {
 							//TODO: figure out what happens when the player dies
@@ -581,6 +597,7 @@ class PlayState extends FlxTransitionableState {
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
 					if (overlapCenteredHitboxes(bullet, enemy)) {
+                        _bulletHitSound.play();
 						bullet.destroy();
 						_bullets.splice(i, 1);
 						
