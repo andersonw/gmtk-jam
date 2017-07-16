@@ -528,7 +528,6 @@ class PlayState extends FlxTransitionableState {
 	}
 	
 	private function goToGameOverState(timer:FlxTimer):Void {
-		_gameState.level += 1;
         FlxG.switchState(new GameOverState());
 	}
 	
@@ -611,7 +610,7 @@ class PlayState extends FlxTransitionableState {
 							_player.characterSprite().animation.play("stand");
 							_player.invulnerable = true;
 							lockPlayerControls = true;
-							_deathSound.play();
+							_deathSound.play(); 
 							
 							var lostLevelEmitter = new FlxEmitter(_player.x, _player.y - 20, 200);
 							lostLevelEmitter.makeParticles(6, 6, FlxColor.WHITE, 200);
@@ -623,7 +622,6 @@ class PlayState extends FlxTransitionableState {
 							lostLevelEmitter.start(false, 0.01);
 							
 							new FlxTimer().start(0.1, function(timer:FlxTimer) { _player.alpha -= 0.2; }, 5);
-							
 							new FlxTimer().start(2.5, goToGameOverState, 1);
 						}
 					}
