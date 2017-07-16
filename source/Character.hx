@@ -34,9 +34,9 @@ class Character extends FlxSpriteGroup {
 		_characterSprite.setFacingFlip(FlxObject.LEFT, false, false);
 		_characterSprite.setFacingFlip(FlxObject.RIGHT, true, false);
 		
-		_characterSprite.animation.add("lr", [8, 9, 8, 10], 6, false);
-		_characterSprite.animation.add("u", [4, 5, 4, 6], 6, false);
-		_characterSprite.animation.add("d", [0, 1, 0, 2], 6, false);
+		_characterSprite.animation.add("lr", [8, 9, 8, 10], 3, false);
+		_characterSprite.animation.add("u", [4, 5, 4, 6], 3, false);
+		_characterSprite.animation.add("d", [0, 1, 0, 2], 3, false);
 		
 		_characterSprite.x = -35;
 		_characterSprite.y = -87;

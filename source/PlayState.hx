@@ -467,9 +467,10 @@ class PlayState extends FlxState {
 		
 		if (enemy.currentHealth <= 0) {
             _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
-            levelHUD.updateText(_gameState.score,_gameState.level);
+            levelHUD.updateText(_gameState.score,_gameState.level, _gameState.totalEnemiesLeft);
 			enemy.destroy();
 			_enemies.remove(enemy);
+			_gameState.totalEnemiesLeft -= 1;
 			_gameState.score += 20;
 			
 			if(_gameState.levelComplete()) {
@@ -491,7 +492,7 @@ class PlayState extends FlxState {
 		if (immuneToBombs) {
 			powerup.setInvulnerableToBombs();
 		}
-		add(powerup);
+		bulletLayer.add(powerup);
     }
 	
 	function checkBulletCollisions():Void {
@@ -607,7 +608,7 @@ class PlayState extends FlxState {
 		while (i < _powerups.length) {
 			var powerup:Powerup = _powerups[i];
 			
-			if (overlap(powerup, _player.characterSprite())) {
+			if (overlapCenteredHitboxes(powerup, _player)) {
 				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
 				_player.powerupType = powerup.getType();
 				levelHUD.updateCard(_player.powerupType);
@@ -712,7 +713,7 @@ class PlayState extends FlxState {
 	}
 	
 	function updateMenu(elapsed:Float):Void {
-		levelHUD.updateText(_gameState.score, _gameState.level);
+		levelHUD.updateText(_gameState.score, _gameState.level, _gameState.totalEnemiesLeft);
 		levelHUD.update(elapsed);
 	}
 

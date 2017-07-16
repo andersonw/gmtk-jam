@@ -10,6 +10,7 @@ class GameState {
     public var crazyEnemyCount:Array<Int>;
     public var tankEnemyCount:Array<Int>;
     public var randomEnemySpawnrate:Array<Float>;
+	public var totalEnemiesLeft:Int;
 
 	public function new() {
         fixedEnemyTypes=["boring","crazy","tank"];
@@ -27,7 +28,9 @@ class GameState {
 
         killedEnemyCount=["boring"=>0,
                           "crazy"=>0,
-                          "tank"=>0];
+                          "tank" => 0];
+						  
+		totalEnemiesLeft = boringEnemyCount[level] + crazyEnemyCount[level] + tankEnemyCount[level];
 	}
 	public function resetGame() {
 		score = 0;

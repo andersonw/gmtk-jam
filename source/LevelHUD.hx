@@ -15,6 +15,7 @@ class LevelHUD extends FlxSpriteGroup {
 	public var powerupCard:FlxSprite;
 	private var scoreText:FlxText;
 	private var levelText:FlxText;
+	private var enemiesLeftText:FlxText;
 	
     public function new(?X:Float=0, ?Y:Float=0, ?duration:Float) {
         super(X, Y);
@@ -27,19 +28,22 @@ class LevelHUD extends FlxSpriteGroup {
 		powerupCard.x = 20;
 		powerupCard.y = 15;
 		
-		scoreText = new FlxText(130, 30, 0, "");
-		scoreText.size = 30;
+		scoreText = new FlxText(115, 20, 0, "");
 		scoreText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
-		levelText = new FlxText(130, 60, 0, "");
-		levelText.size = 30;
+		
+		levelText = new FlxText(115, 50, 0, "");
 		levelText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
+		
+		enemiesLeftText = new FlxText(115, 80, 0, "");
+		enemiesLeftText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
 		
 		add(bgMenuImage);
 		
 		add(powerupCard);
 		add(scoreText);
 		add(levelText);
-		updateText(0, 1);
+		add(enemiesLeftText);
+		updateText(0, 1, 0);
     }
 	public function updateCard(type:PowerupType) {
 		if (type == PowerupType.FIRE) {
@@ -52,11 +56,13 @@ class LevelHUD extends FlxSpriteGroup {
 			powerupCard.loadGraphic(AssetPaths.normal_card__png);
 		}
 	}
-	public function updateText(score:Int, level:Int) {
+	public function updateText(score:Int, level:Int, enemiesLeft:Int) {
 		scoreText.text = "Score: " + score;
-		scoreText.size = 24;
+		scoreText.size = 20;
 		levelText.text = "Level: " + level;
-		levelText.size = 24;
+		levelText.size = 20;
+		enemiesLeftText.text = "Enemies Left: " + enemiesLeft;
+		enemiesLeftText.size = 20;
 	}
 	public override function update(elapsed:Float):Void {
 		super.update(elapsed);
