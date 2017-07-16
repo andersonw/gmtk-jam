@@ -1,8 +1,11 @@
 package;
 
+import flash.display3D.textures.RectangleTexture;
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
 
@@ -16,26 +19,37 @@ class Character extends FlxSpriteGroup {
 
     public function new(?X:Float=0, ?Y:Float=0, ?color:FlxColor=FlxColor.BLUE, ?maxHealth:Int=1) {
         super(X, Y);
-		
 		drawCharacterSprite(color);
-        drawHealthbarSprite();
         this.maxHealth = maxHealth;
         currentHealth = maxHealth;
+
+		_characterSprite = new FlxSprite();
+		_characterSprite.loadGraphic(AssetPaths.robot_sprites_packed__png, true, 70, 110);
+		_characterSprite.setFacingFlip(FlxObject.LEFT, false, false);
+		_characterSprite.setFacingFlip(FlxObject.RIGHT, true, false);
+		
+		_characterSprite.animation.add("lr", [8], 6, false);
+		_characterSprite.animation.add("u", [4], 6, false);
+		_characterSprite.animation.add("d", [0, 0], 6, false);
+		_characterSprite.x = -35;
+		_characterSprite.y = -90;
+		add(_characterSprite);
+        drawHealthbarSprite();
     }
-	
+
+	public function drawCharacterSprite(color:FlxColor) {
+	}
+
     public function drawHealthbarSprite() {
         _healthbarSprite = new FlxSprite();
         _healthbarSprite.makeGraphic(32, 10, FlxColor.RED);
         _healthbarSprite.x = _characterSprite.x - this.x;
-        _healthbarSprite.y = _characterSprite.y - this.y + 40;
+        _healthbarSprite.y = _characterSprite.y - this.y + 120;
         add(_healthbarSprite);
-    }
-
-	public function drawCharacterSprite(color:FlxColor) {
-		_characterSprite = new FlxSprite();
-        _characterSprite.makeGraphic(32, 32, color, true);
-		_characterSprite.x = _characterSprite.y = -16;
-		add(_characterSprite);
+	}
+	
+	override public function getHitbox(?rect:FlxRect):FlxRect {
+		return new FlxRect(_characterSprite.x - 25, _characterSprite.y - 5, 50, 40);
 	}
 
     public function characterSprite():FlxSprite {
