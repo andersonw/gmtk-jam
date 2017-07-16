@@ -20,7 +20,7 @@ class CrazyEnemy extends Enemy {
 	override public function _update(elapsed:Float):Void {
         _bulletSpawnTimer += elapsed;
         if (_bulletSpawnTimer > BULLET_COOLDOWN) {
-            _bulletSpawnTimer -= BULLET_COOLDOWN;
+            _bulletSpawnTimer -= BULLET_COOLDOWN + FlxG.random.float(-0.3,0.3);
             
             var angle:Float = FlxG.random.float(0,2*Math.PI);
             var DISTANCE_SPAWN_FROM_ENEMY:Float = 32.0;
