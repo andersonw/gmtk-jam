@@ -2,15 +2,18 @@ package;
 import flixel.FlxG;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
+import flixel.system.FlxSound;
 
 class CrazyEnemy extends Enemy {
     private var _bulletSpawnTimer:Float;
     private static var BULLET_COOLDOWN:Float = 0.6;
+    private var _bulletSound:FlxSound;
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
         super(X, Y, FlxColor.RED, 5, playState);
         _bulletSpawnTimer = 0;
         enemyType = "crazy";
+        _bulletSound = FlxG.sound.load(AssetPaths.enemy_bullet__wav);
     }
     override public function update(elapsed:Float):Void {
 	}
@@ -28,6 +31,7 @@ class CrazyEnemy extends Enemy {
             bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
             _playState._bullets.push(bullet);
             _playState.bulletLayer.add(bullet);
+            _bulletSound.play();
         }
 		super._update(elapsed);
 	}

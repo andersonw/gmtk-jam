@@ -19,24 +19,32 @@ class Character extends FlxSpriteGroup {
 
     public var currentHealth:Int;
     public var maxHealth:Int;
+	public var invulnerable:Bool;
 
     public function new(?X:Float=0, ?Y:Float=0, ?color:FlxColor=FlxColor.BLUE, ?maxHealth:Int=1) {
         super(X, Y);
 		drawCharacterSprite(color);
         this.maxHealth = maxHealth;
         currentHealth = maxHealth;
+		invulnerable = false;
 
 		var characterSpriteData:BitmapData = Assets.getBitmapData(AssetPaths.robot_sprites_packed__png).clone();
+		var ratio:Float = 0.3;
+		if (color == FlxColor.BLUE) {
+			ratio = 0.2;
+		}
 		characterSpriteData.colorTransform(characterSpriteData.rect,
-			new ColorTransform(0.7, 0.7, 0.7, 1, 0.3 * color.red, 0.3 * color.green, 0.3 * color.blue));
+			new ColorTransform(1. - ratio, 1. - ratio, 1. - ratio, 1,
+							   ratio * color.red, ratio * color.green, ratio * color.blue));
 		_characterSprite = new FlxSprite();
 		_characterSprite.loadGraphic(characterSpriteData, true, 70, 110);
 		_characterSprite.setFacingFlip(FlxObject.LEFT, false, false);
 		_characterSprite.setFacingFlip(FlxObject.RIGHT, true, false);
 		
-		_characterSprite.animation.add("lr", [8, 9, 8, 10], 6, false);
-		_characterSprite.animation.add("u", [4, 5, 4, 6], 6, false);
-		_characterSprite.animation.add("d", [0, 1, 0, 2], 6, false);
+		_characterSprite.animation.add("lr", [8, 9, 8, 10], 3, false);
+		_characterSprite.animation.add("u", [4, 5, 4, 6], 3, false);
+		_characterSprite.animation.add("d", [0, 1, 0, 2], 3, false);
+		_characterSprite.animation.add("stand", [0], 3, false);
 		
 		_characterSprite.x = -35;
 		_characterSprite.y = -87;

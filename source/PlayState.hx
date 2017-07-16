@@ -5,11 +5,20 @@ import flash.display.BitmapData;
 import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flash.utils.Timer;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.addons.transition.FlxTransitionableState;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileCircle;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileSquare;
+import flixel.addons.transition.TransitionData;
+import flixel.effects.particles.FlxEmitter;
+import flixel.effects.particles.FlxParticle;
+import flixel.graphics.FlxGraphic;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
@@ -25,7 +34,7 @@ import openfl.display.BitmapData;
 
 using flixel.util.FlxSpriteUtil;
 
-class PlayState extends FlxState {
+class PlayState extends FlxTransitionableState {
 
 	public var backgroundLayer:FlxSpriteGroup;
 	public var bulletLayer:FlxSpriteGroup;
@@ -51,6 +60,14 @@ class PlayState extends FlxState {
     public var bulletReady:Bool = true;
 	public var lockPlayerControls:Bool = false;
 	public var ignorePlayerWallCollision:Bool = false;
+
+    private var _bulletSound:FlxSound;
+    private var _flameSound:FlxSound;
+    private var _shotgunSound:FlxSound;
+    private var _lightningSound:FlxSound;
+    private var _bulletHitSound:FlxSound;
+    private var _powerupSound:FlxSound;
+    private var _levelCompleteSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -80,6 +97,14 @@ class PlayState extends FlxState {
 		_mapPillarBGs = new Array<FlxSprite>();
 		
 		FlxG.sound.playMusic(AssetPaths.silly_song3__wav);
+
+        _bulletSound = FlxG.sound.load(AssetPaths.generic_bullet__wav);
+        _flameSound = FlxG.sound.load(AssetPaths.flamethrower__wav);
+        _shotgunSound = FlxG.sound.load(AssetPaths.shotgun__wav);
+        _lightningSound = FlxG.sound.load(AssetPaths.lightning__wav);
+        _bulletHitSound = FlxG.sound.load(AssetPaths.bullet_impact__wav);
+        _powerupSound = FlxG.sound.load(AssetPaths.powerup__wav);
+        _levelCompleteSound = FlxG.sound.load(AssetPaths.levelComplete__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -205,7 +230,22 @@ class PlayState extends FlxState {
         var enemySpawner = new FlxTimer().start(_gameState.randomEnemySpawnrate[_gameState.level], spawnRandomEnemies, 0);
         spawnLevelEnemies();
 		super.create();
-		//FlxG.log.warn(_player.characterSprite().getHitbox());
+		
+		// initialize transitions
+		FlxTransitionableState.defaultTransIn = new TransitionData();
+		FlxTransitionableState.defaultTransOut = new TransitionData();
+		
+		var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
+		diamond.persist = true;
+		diamond.destroyOnNoUse = false;
+		
+		FlxTransitionableState.defaultTransIn.color = FlxColor.BLACK;
+		FlxTransitionableState.defaultTransOut.color = FlxColor.BLACK;
+		FlxTransitionableState.defaultTransIn.type = flixel.addons.transition.TransitionType.TILES;
+		FlxTransitionableState.defaultTransOut.type = flixel.addons.transition.TransitionType.TILES;
+		FlxTransitionableState.defaultTransIn.tileData = { asset: diamond, width: 32, height: 32 };
+		FlxTransitionableState.defaultTransOut.tileData = { asset: diamond, width: 32, height: 32 };
+		transOut = FlxTransitionableState.defaultTransOut;
 	}
 
     private function spawnRandomEnemies(Timer:FlxTimer):Void {
@@ -250,7 +290,7 @@ class PlayState extends FlxState {
                     case "tank": enemy = new TankEnemy(randX, randY, this);
                     default: enemy = new BoringEnemy(randX, randY, this);
                 }
-                add(enemy);
+                enemyLayer.add(enemy);
                 _enemies.push(enemy);
             }
         }
@@ -327,13 +367,31 @@ class PlayState extends FlxState {
         }
         else {
             _player.velocity.set(0, 0);
-			//playerSprite.animation.play("d");
+			playerSprite.animation.play("stand");
         }
     }
 
     function moveEnemies():Void {
 		for (enemy in _enemies) {
+			var enemySprite = enemy.characterSprite();
 			enemy.move();
+			
+			if (Math.abs(enemy.velocity.x) >= Math.abs(enemy.velocity.y)) {
+				if (enemy.velocity.x >= 0) {
+					enemySprite.facing = FlxObject.RIGHT;
+				} else {
+					enemySprite.facing = FlxObject.LEFT;
+				}
+				enemySprite.animation.play("lr");
+			} else {
+				if (enemy.velocity.y >= 0) {
+					enemySprite.facing = FlxObject.DOWN;
+					enemySprite.animation.play("d");
+				} else {
+					enemySprite.facing = FlxObject.UP;
+					enemySprite.animation.play("u");
+				}
+			}
 		}
     }
 	
@@ -358,7 +416,7 @@ class PlayState extends FlxState {
 											   Bullet.BulletType.REGULAR, Bullet.BulletOwner.PLAYER);
 				
 				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
-				
+				_bulletSound.play();
 				_bullets.push(bullet);
 				bulletLayer.add(bullet);
 			} else if (_player.powerupType == Powerup.PowerupType.FIRE) {
@@ -375,6 +433,7 @@ class PlayState extends FlxState {
 											   Bullet.BulletType.FIRE, Bullet.BulletOwner.PLAYER);
 				
 				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
+                _flameSound.play();
 				_bullets.push(bullet);
 				bulletLayer.add(bullet);
 				
@@ -413,7 +472,7 @@ class PlayState extends FlxState {
 						lightningFX.drawLine(offsetX, offsetY, bestEnemy.x - _player.x + offsetX, bestEnemy.y - _player.y + offsetY,
 							{"color": FlxColor.YELLOW, "thickness": 3 } );
 						bulletLayer.add(lightningFX);
-						
+						_lightningSound.play();
 						damageEnemy(bestEnemy, 1);
 					}
 				}
@@ -439,6 +498,7 @@ class PlayState extends FlxState {
 					_bullets.push(bullet);
 					bulletLayer.add(bullet);
 				}
+                _shotgunSound.play();
 				
 				var velocityToTry:Float = 800.;
 				_player.x -= velocityToTry * knockbackDuration * Math.cos(angle);
@@ -462,23 +522,45 @@ class PlayState extends FlxState {
         bulletReady = true;
     }
 	
+	private function advanceLevel(timer:FlxTimer):Void {
+		_gameState.level += 1;
+        resetLevel();
+	}
+	
 	public function damageEnemy(enemy:Enemy, amt:Int, ?immuneToBombs:Bool = false):Void {
 		enemy.currentHealth -= amt;
 		
 		if (enemy.currentHealth <= 0) {
             _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
-            levelHUD.updateText(_gameState.score,_gameState.level);
+            levelHUD.updateText(_gameState.score,_gameState.level, _gameState.totalEnemiesLeft);
 			enemy.destroy();
 			_enemies.remove(enemy);
+			_gameState.totalEnemiesLeft -= 1;
 			_gameState.score += 20;
 			
-			if(_gameState.levelComplete()) {
-				_gameState.level += 1;
-                resetLevel();
+			if (_gameState.levelComplete() || true) {
+				_player.invulnerable = true;
+				lockPlayerControls = true;
+				_player.velocity.set(0, 0);
+				_player.characterSprite().animation.play("stand");
+                _levelCompleteSound.play();
+				
+				for (i in 0...2) {
+					var beatLevelEmitter = new FlxEmitter(_player.x - 8 + 14*i, _player.y - 60, 200);
+					beatLevelEmitter.makeParticles(3, 3, FlxColor.WHITE, 200);
+					beatLevelEmitter.color.set(FlxColor.GREEN, FlxColor.WHITE);
+					beatLevelEmitter.launchMode = flixel.effects.particles.FlxEmitterMode.SQUARE;
+					beatLevelEmitter.velocity.set(-100, -250, 100, -400);
+					beatLevelEmitter.lifespan.set(0.15, 0.3);
+					
+					add(beatLevelEmitter);
+					beatLevelEmitter.start(false, 0.01);
+				}
+				
+				new FlxTimer().start(2, advanceLevel, 2);
             }
 
             if(FlxG.random.float(0,1) < 1) {
-                // haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);
                 spawnPowerup(enemy.x,enemy.y, immuneToBombs);
             }
 
@@ -491,7 +573,7 @@ class PlayState extends FlxState {
 		if (immuneToBombs) {
 			powerup.setInvulnerableToBombs();
 		}
-		add(powerup);
+		bulletLayer.add(powerup);
     }
 	
 	function checkBulletCollisions():Void {
@@ -514,11 +596,14 @@ class PlayState extends FlxState {
 			}
 			
 			if (bullet.owner == Bullet.BulletOwner.ENEMY) {
-				// collision with player?
+				// check for collision with player
 				if (overlapCenteredHitboxes(bullet, _player)) {
-					_player.currentHealth -= 1;
-					if (_player.currentHealth <= 0) {
-						//TODO: figure out what happens when the player dies
+					if (!_player.invulnerable) {
+						_bulletHitSound.play();
+						_player.currentHealth -= 1;
+						if (_player.currentHealth <= 0) {
+							//TODO: figure out what happens when the player dies
+						}
 					}
 					bullet.destroy();
 					_bullets.splice(i, 1);
@@ -526,11 +611,12 @@ class PlayState extends FlxState {
 				}
 			}
 			else if (bullet.owner == Bullet.BulletOwner.PLAYER) {
-				// collision with an enemy?
+				// check for collision with an enemy
 				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
 					if (overlapCenteredHitboxes(bullet, enemy)) {
+                        _bulletHitSound.play();
 						bullet.destroy();
 						_bullets.splice(i, 1);
 						
@@ -607,7 +693,7 @@ class PlayState extends FlxState {
 		while (i < _powerups.length) {
 			var powerup:Powerup = _powerups[i];
 			
-			if (overlap(powerup, _player.characterSprite())) {
+			if (overlapCenteredHitboxes(powerup, _player)) {
 				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
 				_player.powerupType = powerup.getType();
 				_player.timeUntilPowerupExpires = Powerup.getCooldownOfType(powerup.getType());
@@ -615,6 +701,7 @@ class PlayState extends FlxState {
 				
 				powerup.destroy();
 				_powerups.splice(i, 1);
+                _powerupSound.play();
 				continue;
 			}
 			++i;
@@ -713,7 +800,7 @@ class PlayState extends FlxState {
 	}
 	
 	function updateMenu(elapsed:Float):Void {
-		levelHUD.updateText(_gameState.score, _gameState.level);
+		levelHUD.updateText(_gameState.score, _gameState.level, _gameState.totalEnemiesLeft);
 		levelHUD.update(elapsed);
 	}
 
