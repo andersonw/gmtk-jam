@@ -432,7 +432,6 @@ class PlayState extends FlxState {
 		
 		if (enemy.currentHealth <= 0) {
             _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
-            _gameState.score += 1;
             levelHUD.updateText(_gameState.score,_gameState.level);
 			enemy.destroy();
 			_enemies.remove(enemy);
