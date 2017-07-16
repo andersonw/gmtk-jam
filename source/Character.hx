@@ -9,6 +9,7 @@ import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
+import openfl.Assets;
 import openfl.display.BitmapData;
 
 class Character extends FlxSpriteGroup {
@@ -27,7 +28,7 @@ class Character extends FlxSpriteGroup {
 
 		var characterSpriteData:BitmapData = Assets.getBitmapData(AssetPaths.robot_sprites_packed__png).clone();
 		characterSpriteData.colorTransform(characterSpriteData.rect,
-			new ColorTransform(0.2, 0.2, 0.2, 1, 0.7 * color.red, 0.7 * color.green, 0.7 * color.blue));
+			new ColorTransform(0.7, 0.7, 0.7, 1, 0.3 * color.red, 0.3 * color.green, 0.3 * color.blue));
 		_characterSprite = new FlxSprite();
 		_characterSprite.loadGraphic(characterSpriteData, true, 70, 110);
 		_characterSprite.setFacingFlip(FlxObject.LEFT, false, false);

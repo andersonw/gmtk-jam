@@ -537,14 +537,14 @@ class PlayState extends FlxState {
 				
 				for (j in 0..._powerupBombs.length) {
 					var bomb:PowerupBomb = _powerupBombs[j];
-					var accelerateAmt = 0.6;
+					var accelerateAmt = 0.3;
 					if (bullet.type == Bullet.BulletType.FIRE) {
-						accelerateAmt = 0.1;
+						accelerateAmt = 0.05;
 					}
 					
 					if (overlap(bullet, bomb)) {
 						
-						if (bomb.isLit()) {
+						if (bomb.isLit() && bomb.tickDuration < 3.2) {
 							bomb.addToTickDuration(accelerateAmt);
 						} else {
 							bomb.light();

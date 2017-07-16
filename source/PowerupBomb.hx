@@ -32,7 +32,7 @@ class PowerupBomb extends FlxSpriteGroup {
 	private var FUSE_HEIGHT:Int = 20;
 	
 	private var _bombState:Int = 0;  // unlit
-	private var _tickDuration:Float = 1;
+	public var tickDuration:Float = 1;
 	private var radius:Float;
 	
 	private var _type:PowerupType;
