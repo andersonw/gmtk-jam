@@ -654,9 +654,9 @@ class PlayState extends FlxTransitionableState {
 				
 				for (j in 0..._powerupBombs.length) {
 					var bomb:PowerupBomb = _powerupBombs[j];
-					var accelerateAmt = 0.4;
+					var accelerateAmt = 0.5;
 					if (bullet.type == Bullet.BulletType.FIRE) {
-						accelerateAmt = 0.05;
+						accelerateAmt = 0.1;
 					}
 					
 					if (overlap(bullet, bomb)) {
