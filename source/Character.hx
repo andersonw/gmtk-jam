@@ -13,8 +13,8 @@ import openfl.Assets;
 import openfl.display.BitmapData;
 
 class Character extends FlxSpriteGroup {
-	private var _characterSprite:FlxSprite;
-    private var _healthbarSprite:FlxSprite;
+	public var _characterSprite:FlxSprite;
+    public var _healthbarSprite:FlxSprite;
     private var _healthbarVisible:Bool;
 
     public var currentHealth:Int;
@@ -49,6 +49,7 @@ class Character extends FlxSpriteGroup {
 
     public function drawHealthbarSprite() {
         _healthbarSprite = new FlxSprite();
+        _healthbarSprite.alpha = 0.3;
         _healthbarSprite.makeGraphic(32, 10, FlxColor.RED);
         _healthbarSprite.x = _characterSprite.x - this.x;
         _healthbarSprite.y = _characterSprite.y - this.y + 120;
