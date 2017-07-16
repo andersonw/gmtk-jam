@@ -20,7 +20,7 @@ class LevelHUD extends FlxSpriteGroup {
 	private var levelText:FlxText;
 
 	private static var POWERUP_BAR_HEIGHT = 80;
-	
+
 	private var enemiesLeftText:FlxText;
 	
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
@@ -33,11 +33,11 @@ class LevelHUD extends FlxSpriteGroup {
 		powerupCard = new FlxSprite();
 		powerupCard.loadGraphic(AssetPaths.normal_card__png);
 		powerupCard.x = 20;
-		powerupCard.y = 15;
+		powerupCard.y = 17;
 
-		powerupBar = new FlxSprite(103, 20);
+		powerupBar = new FlxSprite(98, 22);
 		powerupBar.makeGraphic(10, POWERUP_BAR_HEIGHT, FlxColor.WHITE);
-		powerupBarCover = new FlxSprite(103, 20);
+		powerupBarCover = new FlxSprite(98, 22);
 		powerupBarCover.makeGraphic(10, POWERUP_BAR_HEIGHT, FlxColor.GREEN);
 		
 		var TEXT_X_POSITION:Float = 118;
@@ -93,7 +93,11 @@ class LevelHUD extends FlxSpriteGroup {
 									 Powerup.getCooldownOfType(currentPowerup);
 			if (timeFraction < 0) timeFraction = 0;
 			var barHeight:Int = Std.int((1-timeFraction) * POWERUP_BAR_HEIGHT);
-			if (barHeight > 0) {
+			if (barHeight == 0) {
+				powerupBarCover.visible = false;
+			}
+			else if (barHeight > 0) {
+				powerupBarCover.visible = true;
 				powerupBarCover.makeGraphic(10, barHeight, new FlxColor(0xFF434343));
 			}
 		}
