@@ -250,7 +250,7 @@ class PlayState extends FlxState {
                     case "tank": enemy = new TankEnemy(randX, randY, this);
                     default: enemy = new BoringEnemy(randX, randY, this);
                 }
-                add(enemy);
+                enemyLayer.add(enemy);
                 _enemies.push(enemy);
             }
         }
