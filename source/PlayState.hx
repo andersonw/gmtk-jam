@@ -36,6 +36,7 @@ class PlayState extends FlxState {
 	public var _powerups:Array<Powerup>;
 	public var _powerupBombs:Array<PowerupBomb>;
 	public var _camera:FlxCamera;
+    public var _level:Level;
 	
 	private var _mapPillars:Array<FlxSprite>;
 	private var _mapPillarBGs:Array<FlxSprite>;
@@ -66,6 +67,7 @@ class PlayState extends FlxState {
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
 		_camera = new FlxCamera();
+        _level = new Level();
 		
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
@@ -189,12 +191,12 @@ class PlayState extends FlxState {
 
 		add(levelHUD);
 		
-        var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
+        var enemySpawner = new FlxTimer().start(0.1, spawnRandomEnemies, 0);
 		super.create();
 		//FlxG.log.warn(_player.characterSprite().getHitbox());
 	}
 
-    private function spawnEnemies(Timer:FlxTimer):Void {
+    private function spawnRandomEnemies(Timer:FlxTimer):Void {
         if (FlxG.random.int(0, 100) < Timer.elapsedLoops) {
 			var randomFreePosition = mapHandler.getRandomPathableSquare();
             var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
@@ -219,7 +221,7 @@ class PlayState extends FlxState {
         }
     }
 
-	public function resetLevel(player:Player, enemy:Enemy) {
+	public function resetLevel() {
 		FlxG.switchState(new PlayState());
 	}
 
@@ -445,9 +447,14 @@ class PlayState extends FlxState {
 	public function damageEnemy(enemy:Enemy, amt:Int, ?immuneToBombs:Bool = false):Void {
 		enemy.currentHealth -= amt;
 		
-		if (enemy.currentHealth <= 0) {			
+		if (enemy.currentHealth <= 0) {
+            _level.killedEnemyCount[enemy.getEnemyType()] += 1;
 			enemy.destroy();
 			_enemies.remove(enemy);
+
+            if(_level.levelComplete()) {
+                resetLevel();
+            }
 
             if(FlxG.random.float(0,1) < 1) {
                 // haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);

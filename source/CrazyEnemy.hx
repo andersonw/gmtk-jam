@@ -10,6 +10,7 @@ class CrazyEnemy extends Enemy {
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
         super(X, Y, FlxColor.RED, 5, playState);
         _bulletSpawnTimer = 0;
+        enemyType = "crazy";
     }
     override public function update(elapsed:Float):Void {
 	}
