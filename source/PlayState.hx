@@ -59,7 +59,7 @@ class PlayState extends FlxState {
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
 		
-		FlxG.sound.playMusic("assets/music/life.wav");
+		//FlxG.sound.playMusic("assets/music/life.wav");
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -301,7 +301,7 @@ class PlayState extends FlxState {
         bulletReady = true;
     }
 	
-	function damageEnemy(enemy:Enemy, amt:Int):Void {
+	public function damageEnemy(enemy:Enemy, amt:Int):Void {
 		enemy.currentHealth -= amt;
 		
 		if (enemy.currentHealth <= 0) {			
