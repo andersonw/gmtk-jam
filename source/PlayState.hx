@@ -290,6 +290,7 @@ class PlayState extends FlxTransitionableState {
                     case "boring": enemy = new BoringEnemy(randX, randY, this);
                     case "crazy": enemy = new CrazyEnemy(randX, randY, this);
                     case "tank": enemy = new TankEnemy(randX, randY, this);
+                    case "boss": enemy = new BossEnemy(randX, randY, this);
                     default: enemy = new BoringEnemy(randX, randY, this);
                 }
                 enemyLayer.add(enemy);

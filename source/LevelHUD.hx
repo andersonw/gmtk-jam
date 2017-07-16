@@ -80,8 +80,15 @@ class LevelHUD extends FlxSpriteGroup {
 		scoreText.size = 20;
 		levelText.text = "Level: " + level;
 		levelText.size = 20;
-		enemiesLeftText.text = "Enemies Left: " + enemiesLeft;
-		enemiesLeftText.size = 20;
+        // BOSS LEVEL
+        if(level == 1) {
+            enemiesLeftText.text = "Defeat the Boss!";
+            enemiesLeftText.size = 20;
+        }
+        else {
+            enemiesLeftText.text = "Enemies Left: " + enemiesLeft;
+            enemiesLeftText.size = 20;
+        }
 	}
 	public override function update(elapsed:Float):Void {
 		if (playState._player.powerupType == Powerup.PowerupType.NONE) {
