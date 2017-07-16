@@ -47,6 +47,29 @@ class MapHandler
 			}
 			fillInSpace(tryX, tryY);
 		}
+		for(row in 0...MapHeight) {
+			for (column in 0...MapWidth) {
+				if (getVal(column, row) != 1) {
+					continue;
+				}
+				if (column == 0 || row == 0 || column == MapWidth - 1 || row == MapHeight - 1) {
+					continue;
+				}
+				
+				var chance:Float;
+				if (getVal(column - 1, row) == 2 || getVal(column, row - 1) == 2) {
+					chance = 0.25;
+				} else if (getVal(column - 1, row) == 0 || getVal(column + 1, row) == 0 ||
+					getVal(column, row - 1) == 0 || getVal(column, row + 1) == 0) {
+					chance = 0.1;
+				} else {
+					chance = 0.01;
+				}
+				if (Math.random() < chance) {
+					setVal(column, row, 2);
+				}
+			}
+		}
 		
         return Map;
 	}
@@ -90,6 +113,9 @@ class MapHandler
  
 	public function PlaceWallLogic(x:Int, y:Int):Int
 	{
+		if (getVal(x, y) == 2) {
+			return 2;
+		}
         if (mode == 0) {
             var numWallsInArea:Int = GetAdjacentWalls(x, y, 2, 2);
             if (numWallsInArea <= 2) {
@@ -103,26 +129,6 @@ class MapHandler
         } else {
             return 0;
         }
-
-		/*if(getVal(x, y)==1)
-		{
-			if( numWalls >= 4 )
-			{
-				return 1;
-			}
-			if(numWalls<2)
-			{
-				return 0;
-			}
-		}
-		else
-		{
-			if(numWalls>=5)
-			{
-				return 1;
-			}
-		}
-		return 0;*/
 	}
  
 	public function GetAdjacentWalls(x:Int, y:Int, scopeX:Int, scopeY:Int):Int
@@ -183,33 +189,6 @@ class MapHandler
 		return false;
 	}
  
-	/*string MapToString()
-	{
-		string returnString = string.Join(" ", // Seperator between each element
-		                                  "Width:",
-		                                  MapWidth.ToString(),
-		                                  "\tHeight:",
-		                                  MapHeight.ToString(),
-		                                  "\t% Walls:",
-		                                  PercentAreWalls.ToString(),
-		                                  Environment.NewLine
-		                                 );
- 
-		List<string> mapSymbols = new List<string>();
-		mapSymbols.Add(".");
-		mapSymbols.Add("#");
-		mapSymbols.Add("+");
- 
-		for(int column=0,row=0; row < MapHeight; row++ ) {
-			for( column = 0; column < MapWidth; column++ )
-			{
-				returnString += mapSymbols[Map[column,row]];
-			}
-			returnString += Environment.NewLine;
-		}
-		return returnString;
-	}*/
- 
 	public function BlankMap():Void
 	{
         Map = new Array<Int>();
@@ -220,12 +199,10 @@ class MapHandler
 		}
 	}
  
-	public function RandomFillMap():Void
-	{
-		// New, empty map
+	public function RandomFillMap():Void {
 		BlankMap();
  
-		var mapMiddle:Int = 0; // Temp variable
+		var mapMiddle:Int = 0;
 		for(row in 0...MapHeight)
         {
 			for(column in 0...MapWidth)
@@ -247,6 +224,9 @@ class MapHandler
 					else
 					{
 						setVal(column, row, RandomPercent(PercentAreWalls));
+						if (getVal(column, row) == 0 && Math.random() < 0.02) {
+							setVal(column, row, 2);
+						}
 					}
 				}
 			}
@@ -280,7 +260,7 @@ class MapHandler
 				var nxPos:Int = xPos + directions[i][0];
 				var nyPos:Int = yPos + directions[i][1];
 				
-				if (nxPos >= 0 && nxPos < LEVEL_WIDTH && nyPos >= 0 && nyPos < LEVEL_HEIGHT && getVal(nxPos, nyPos) != 1 && visited[nyPos][nxPos] == 0) {
+				if (nxPos >= 0 && nxPos < LEVEL_WIDTH && nyPos >= 0 && nyPos < LEVEL_HEIGHT && getVal(nxPos, nyPos) == 0 && visited[nyPos][nxPos] == 0) {
 					visited[nyPos][nxPos] = 1;
 					count++;
 					mainChunkSquares.push(nyPos * LEVEL_WIDTH + nxPos);
@@ -297,7 +277,7 @@ class MapHandler
 		else {
 			for (i in 0...LEVEL_HEIGHT) {
 				for (j in 0...LEVEL_WIDTH) {
-					if (visited[i][j] == 0) {
+					if (visited[i][j] == 0 && getVal(j, i) != 2) {
 						setVal(j, i, 1);
 					}
 				}
@@ -308,7 +288,7 @@ class MapHandler
  
 	public function RandomPercent(percent:Int):Int
 	{
-		if(percent>=Std.random(100))
+		if(percent >= Std.random(100))
 		{
 			return 1;
 		}

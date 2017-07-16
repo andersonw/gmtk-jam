@@ -59,15 +59,12 @@ class PlayState extends FlxState {
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
 		
-		FlxG.sound.playMusic("assets/music/life.wav");
+		// FlxG.sound.playMusic("assets/music/life.wav");
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
 		mapBitmapData = new BitmapData(mapHandler.MapWidth * TILE_WIDTH, mapHandler.MapHeight * TILE_HEIGHT, true, 0);
-		mapHandler.Map[3 * MapHandler.LEVEL_WIDTH + 3] = 2;
 		
-		mapHandler.Map[6 * MapHandler.LEVEL_WIDTH + 5] = 2;
-		mapHandler.Map[6 * MapHandler.LEVEL_WIDTH + 6] = 2;
 		for (y in 0...2*mapHandler.MapHeight) {
 			for (x in 0...2 * mapHandler.MapWidth) {
 				var tileCode:Int = 15;  // filled tile
@@ -108,6 +105,23 @@ class PlayState extends FlxState {
 					
 					var pillarTiles:Array<Int> = [ 7, 11, 13, 14, 17, 17, 16, 16 ];
 					
+					if (mapHandler.getHalfTileValOrSolid(x + 2, y) == 2) {
+						pillarTiles[1] = 3;
+						pillarTiles[3] = 12;
+					}
+					if (mapHandler.getHalfTileValOrSolid(x - 2, y) == 2) {
+						pillarTiles[0] = 3;
+						pillarTiles[2] = 12;
+					}
+					if (mapHandler.getHalfTileValOrSolid(x, y - 2) == 2) {
+						pillarTiles[0] = 5;
+						pillarTiles[1] = 10;
+					}
+					if (mapHandler.getHalfTileValOrSolid(x, y + 2) == 2) {
+						pillarTiles[2] = 5;
+						pillarTiles[3] = 10;
+					}
+					
 					for (i in 0...8) {
 						if (i < 6 || mapHandler.getHalfTileValOrSolid(x, y) == 1) {
 							tileCode = pillarTiles[i];
@@ -118,7 +132,7 @@ class PlayState extends FlxState {
 					pillarSpriteData.colorTransform(pillarSpriteData.rect, new ColorTransform(0.6, 0.6, 0.6, 1));
 					pillar.loadGraphic(pillarSpriteData);
 					pillar.x = x * TILE_WIDTH / 2;
-					pillar.y = y * TILE_HEIGHT / 2 - 26;
+					pillar.y = y * TILE_HEIGHT / 2 - 32;
 					_mapPillars.push(pillar);
 				}
 			}
