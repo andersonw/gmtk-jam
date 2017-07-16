@@ -298,9 +298,9 @@ class PlayState extends FlxState {
 				bulletReady = false;
 				var bulletTimer = new FlxTimer().start(0.05, reload, 1);
 				var DISTANCE_SPAWN_FROM_PLAYER:Float = 35.0;
-				var BULLET_VELOCITY:Float = 300.0;
-				var SMOKE_VELOCITY:Float = 200.0;
-				var SMOKE_VELOCITY_VARIANCE:Float = 80.0;
+				var BULLET_VELOCITY:Float = 450.0;
+				var SMOKE_VELOCITY:Float = 250.0;
+				var SMOKE_VELOCITY_VARIANCE:Float = 100.0;
 				
 				var realAngle:Float = angle + 0.4 * Math.random() - 0.2;
 				var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(realAngle),
