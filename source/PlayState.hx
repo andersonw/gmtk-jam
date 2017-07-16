@@ -64,9 +64,10 @@ class PlayState extends FlxTransitionableState {
     private var _bulletSound:FlxSound;
     private var _flameSound:FlxSound;
     private var _shotgunSound:FlxSound;
-
     private var _lightningSound:FlxSound;
     private var _bulletHitSound:FlxSound;
+    private var _powerupSound:FlxSound;
+    private var _levelCompleteSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -102,6 +103,8 @@ class PlayState extends FlxTransitionableState {
         _shotgunSound = FlxG.sound.load(AssetPaths.shotgun__wav);
         _lightningSound = FlxG.sound.load(AssetPaths.lightning__wav);
         _bulletHitSound = FlxG.sound.load(AssetPaths.bullet_impact__wav);
+        _powerupSound = FlxG.sound.load(AssetPaths.powerup__wav);
+        _levelCompleteSound = FlxG.sound.load(AssetPaths.levelComplete__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -540,6 +543,7 @@ class PlayState extends FlxTransitionableState {
 				lockPlayerControls = true;
 				_player.velocity.set(0, 0);
 				_player.characterSprite().animation.play("stand");
+                _levelCompleteSound.play();
 				
 				for (i in 0...2) {
 					var beatLevelEmitter = new FlxEmitter(_player.x - 8 + 14*i, _player.y - 60, 200);
@@ -697,6 +701,7 @@ class PlayState extends FlxTransitionableState {
 				
 				powerup.destroy();
 				_powerups.splice(i, 1);
+                _powerupSound.play();
 				continue;
 			}
 			++i;
