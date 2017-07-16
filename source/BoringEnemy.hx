@@ -22,7 +22,7 @@ class BoringEnemy extends Enemy {
         if (_state == Enemy.EnemyState.CHASING) {
             _bulletSpawnTimer += elapsed;
             if (_bulletSpawnTimer > BULLET_COOLDOWN) {
-                _bulletSpawnTimer -= BULLET_COOLDOWN;
+                _bulletSpawnTimer -= BULLET_COOLDOWN + FlxG.random.float(-0.5,0.5);
                 
                 var angle:Float = Math.atan2(_playState._player.y - y, _playState._player.x - x) + FlxG.random.float(-0.1,0.1);
                 var DISTANCE_SPAWN_FROM_ENEMY:Float = 32.0;
