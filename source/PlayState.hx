@@ -323,7 +323,7 @@ class PlayState extends FlxTransitionableState {
         if (!bulletReady)
             speed = 120;
         else
-            speed = 200;
+            speed = 300;
 
         if (_up && _down)
             _up = _down = false;
