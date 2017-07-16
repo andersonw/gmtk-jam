@@ -580,6 +580,7 @@ class PlayState extends FlxState {
 			if (overlap(powerup, _player.characterSprite())) {
 				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
 				_player.powerupType = powerup.getType();
+				levelHUD.updateCard(_player.powerupType);
 				
 				powerup.destroy();
 				_powerups.splice(i, 1);

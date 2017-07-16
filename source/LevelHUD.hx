@@ -6,6 +6,8 @@ import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.text.FlxText;
 
+using Powerup.PowerupType;
+
 class LevelHUD extends FlxSpriteGroup {
 	private var duration:Float;
 	
@@ -21,7 +23,7 @@ class LevelHUD extends FlxSpriteGroup {
 		bgMenuImage.loadGraphic("assets/images/level_hud_bg.png");
 		
 		powerupCard = new FlxSprite();
-		powerupCard.loadGraphic(AssetPaths.fire_card__png);
+		powerupCard.loadGraphic(AssetPaths.normal_card__png);
 		powerupCard.x = 20;
 		powerupCard.y = 15;
 		
@@ -39,6 +41,17 @@ class LevelHUD extends FlxSpriteGroup {
 		add(levelText);
 		updateText(0, 1);
     }
+	public function updateCard(type:PowerupType) {
+		if (type == PowerupType.FIRE) {
+			powerupCard.loadGraphic(AssetPaths.fire_card__png);
+		} else if (type == PowerupType.LIGHTNING) {
+			powerupCard.loadGraphic(AssetPaths.lightning_card__png);
+		} else if (type == PowerupType.METAL) {
+			powerupCard.loadGraphic(AssetPaths.metal_card__png);
+		} else {
+			powerupCard.loadGraphic(AssetPaths.normal_card__png);
+		}
+	}
 	public function updateText(score:Int, level:Int) {
 		scoreText.text = "Score: " + score;
 		scoreText.size = 24;
