@@ -537,7 +537,7 @@ class PlayState extends FlxState {
 				
 				for (j in 0..._powerupBombs.length) {
 					var bomb:PowerupBomb = _powerupBombs[j];
-					var accelerateAmt = 0.3;
+					var accelerateAmt = 0.4;
 					if (bullet.type == Bullet.BulletType.FIRE) {
 						accelerateAmt = 0.05;
 					}
@@ -545,11 +545,11 @@ class PlayState extends FlxState {
 					if (overlap(bullet, bomb)) {
 						
 						if (bomb.isLit() && bomb.tickDuration < 3.2) {
-							bomb.addToTickDuration(accelerateAmt);
+							bomb.addToTickDuration(accelerateAmt / 2.0);
 						} else {
 							bomb.light();
 						}
-						var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(accelerateAmt / 2.0));
+						var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(accelerateAmt));
 						bomb.velocity.set(newVelocity.x, newVelocity.y);
 						
 						bullet.destroy();
@@ -595,7 +595,7 @@ class PlayState extends FlxState {
 			var distance:Float = (srcX - bomb.bombSprite.x)*(srcX - bomb.bombSprite.x) +
 								(srcY - bomb.bombSprite.y)*(srcY - bomb.bombSprite.y);
 			if (distance < radius * radius) {
-				bomb.addToTickDuration(2.0);
+				bomb.addToTickDuration(3.0);
 			}
 		}
 		

@@ -22,7 +22,7 @@ class ExplosionFX extends FlxSpriteGroup {
 		
 		var glowCircle:BitmapData = Assets.getBitmapData("assets/images/glow_circle.png").clone();
 		var colorVariance:Float = 8;
-		glowCircle.colorTransform(glowCircle.rect, new ColorTransform(0.1, 0.1, 0.1, 1,
+		glowCircle.colorTransform(glowCircle.rect, new ColorTransform(0.1, 0.1, 0.1, 2,
 			color.red * 7 / 10, color.green * 7 / 10, color.blue * 7 / 10));
 		explosionSprite = new FlxSprite();
 		explosionSprite.loadGraphic(glowCircle);

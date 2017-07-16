@@ -125,11 +125,11 @@ class PowerupBomb extends FlxSpriteGroup {
 		var explosionFX:ExplosionFX = new ExplosionFX(bombSprite.x, bombSprite.y, radius, Powerup.getColorOfType(_type));
 		_playState.add(explosionFX);
 		
-		new FlxTimer().start(0.4, processExplosion, 1);
+		new FlxTimer().start(0.2, processExplosion, 1);
 	}
 	
 	public function addToTickDuration(amt:Float):Void {
-		_tickDuration += amt;
+		tickDuration += amt;
 	}
 	
 	private function makeBombFuseSprite() {
@@ -156,8 +156,8 @@ class PowerupBomb extends FlxSpriteGroup {
 	}
 	public function _update(elapsed:Float):Void {
 		if (_bombState > 0) {
-			_tickDuration += 2 * elapsed;
-			var newState:Int = Std.int(_tickDuration);
+			tickDuration += 2 * elapsed;
+			var newState:Int = Std.int(tickDuration);
 			if (newState > _bombState) {
 				if (newState >= 4) {
 					_bombState = newState = 4;  // just in case!
