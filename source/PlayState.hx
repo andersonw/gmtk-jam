@@ -10,6 +10,12 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.addons.transition.FlxTransitionableState;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileCircle;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileSquare;
+import flixel.addons.transition.TransitionData;
+import flixel.graphics.FlxGraphic;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
@@ -25,7 +31,7 @@ import openfl.display.BitmapData;
 
 using flixel.util.FlxSpriteUtil;
 
-class PlayState extends FlxState {
+class PlayState extends FlxTransitionableState {
 
 	public var backgroundLayer:FlxSpriteGroup;
 	public var bulletLayer:FlxSpriteGroup;
@@ -205,7 +211,22 @@ class PlayState extends FlxState {
         var enemySpawner = new FlxTimer().start(_gameState.randomEnemySpawnrate[_gameState.level], spawnRandomEnemies, 0);
         spawnLevelEnemies();
 		super.create();
-		//FlxG.log.warn(_player.characterSprite().getHitbox());
+		
+		// initialize transitions
+		FlxTransitionableState.defaultTransIn = new TransitionData();
+		FlxTransitionableState.defaultTransOut = new TransitionData();
+		
+		var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
+		diamond.persist = true;
+		diamond.destroyOnNoUse = false;
+		
+		FlxTransitionableState.defaultTransIn.color = FlxColor.BLACK;
+		FlxTransitionableState.defaultTransOut.color = FlxColor.BLACK;
+		FlxTransitionableState.defaultTransIn.type = flixel.addons.transition.TransitionType.TILES;
+		FlxTransitionableState.defaultTransOut.type = flixel.addons.transition.TransitionType.TILES;
+		FlxTransitionableState.defaultTransIn.tileData = { asset: diamond, width: 32, height: 32 };
+		FlxTransitionableState.defaultTransOut.tileData = { asset: diamond, width: 32, height: 32 };
+		transOut = FlxTransitionableState.defaultTransOut;
 	}
 
     private function spawnRandomEnemies(Timer:FlxTimer):Void {
@@ -327,13 +348,31 @@ class PlayState extends FlxState {
         }
         else {
             _player.velocity.set(0, 0);
-			//playerSprite.animation.play("d");
+			playerSprite.animation.play("stand");
         }
     }
 
     function moveEnemies():Void {
 		for (enemy in _enemies) {
+			var enemySprite = enemy.characterSprite();
 			enemy.move();
+			
+			if (Math.abs(enemy.velocity.x) >= Math.abs(enemy.velocity.y)) {
+				if (enemy.velocity.x >= 0) {
+					enemySprite.facing = FlxObject.RIGHT;
+				} else {
+					enemySprite.facing = FlxObject.LEFT;
+				}
+				enemySprite.animation.play("lr");
+			} else {
+				if (enemy.velocity.y >= 0) {
+					enemySprite.facing = FlxObject.DOWN;
+					enemySprite.animation.play("d");
+				} else {
+					enemySprite.facing = FlxObject.UP;
+					enemySprite.animation.play("u");
+				}
+			}
 		}
     }
 	
@@ -462,6 +501,11 @@ class PlayState extends FlxState {
         bulletReady = true;
     }
 	
+	private function advanceLevel(timer:FlxTimer):Void {
+		_gameState.level += 1;
+        resetLevel();
+	}
+	
 	public function damageEnemy(enemy:Enemy, amt:Int, ?immuneToBombs:Bool = false):Void {
 		enemy.currentHealth -= amt;
 		
@@ -473,13 +517,16 @@ class PlayState extends FlxState {
 			_gameState.totalEnemiesLeft -= 1;
 			_gameState.score += 20;
 			
-			if(_gameState.levelComplete()) {
-				_gameState.level += 1;
-                resetLevel();
+			if (_gameState.levelComplete()) {
+				_player.invulnerable = true;
+				lockPlayerControls = true;
+				_player.velocity.set(0, 0);
+				_player.characterSprite().animation.play("stand");
+				
+				new FlxTimer().start(2, advanceLevel, 2);
             }
 
             if(FlxG.random.float(0,1) < 1) {
-                // haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);
                 spawnPowerup(enemy.x,enemy.y, immuneToBombs);
             }
 
@@ -515,11 +562,13 @@ class PlayState extends FlxState {
 			}
 			
 			if (bullet.owner == Bullet.BulletOwner.ENEMY) {
-				// collision with player?
+				// check for collision with player
 				if (overlapCenteredHitboxes(bullet, _player)) {
-					_player.currentHealth -= 1;
-					if (_player.currentHealth <= 0) {
-						//TODO: figure out what happens when the player dies
+					if (!_player.invulnerable) {
+						_player.currentHealth -= 1;
+						if (_player.currentHealth <= 0) {
+							//TODO: figure out what happens when the player dies
+						}
 					}
 					bullet.destroy();
 					_bullets.splice(i, 1);
@@ -527,7 +576,7 @@ class PlayState extends FlxState {
 				}
 			}
 			else if (bullet.owner == Bullet.BulletOwner.PLAYER) {
-				// collision with an enemy?
+				// check for collision with an enemy
 				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
