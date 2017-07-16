@@ -9,6 +9,7 @@ import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
 import openfl.Assets;
 import openfl.display.BitmapData;
 
@@ -20,6 +21,8 @@ class Character extends FlxSpriteGroup {
     public var currentHealth:Int;
     public var maxHealth:Int;
 	public var invulnerable:Bool;
+	public var paralyzeSprite:FlxSprite;
+	public var paralyzed:Bool = false;
 
     public function new(?X:Float=0, ?Y:Float=0, ?color:FlxColor=FlxColor.BLUE, ?maxHealth:Int=1) {
         super(X, Y);
@@ -50,9 +53,18 @@ class Character extends FlxSpriteGroup {
 		_characterSprite.y = -87;
 		add(_characterSprite);
         drawHealthbarSprite();
+		
+		paralyzeSprite = new FlxSprite();
     }
 
 	public function drawCharacterSprite(color:FlxColor) {
+	}
+	
+	public function paralyze(duration:Float) {
+		paralyzeSprite.loadGraphic(AssetPaths.paralyzed__png);
+		add(paralyzeSprite);
+		
+		//new FlxTimer().start(_gameState.randomEnemySpawnrate[_gameState.level], spawnRandomEnemies, 0);
 	}
 
     public function drawHealthbarSprite() {
