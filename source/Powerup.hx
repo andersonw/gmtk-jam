@@ -33,7 +33,7 @@ class Powerup extends FlxSpriteGroup {
 	private static var kPowerupToColorMap:Map<PowerupType, FlxColor> =
 		[FIRE => FlxColor.RED, ICE => FlxColor.BLUE,
 		 LIGHTNING => FlxColor.YELLOW, METAL => FlxColor.GRAY,
-		 LUGE => FlxColor.WHITE];
+		 LUGE => FlxColor.WHITE, NONE => FlxColor.TRANSPARENT];
 	
 	// just in case we want to change individual cooldowns
 	private static var kPowerupToCooldownMap:Map<PowerupType, Int> =
