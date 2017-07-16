@@ -66,7 +66,7 @@ class PlayState extends FlxState {
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
 		
-		// FlxG.sound.playMusic("assets/music/life.wav");
+		FlxG.sound.playMusic(AssetPaths.silly_song3__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
