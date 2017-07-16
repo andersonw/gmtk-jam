@@ -191,7 +191,7 @@ class PlayState extends FlxState {
 
 		add(levelHUD);
 		
-        var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
+        var enemySpawner = new FlxTimer().start(0.1, spawnRandomEnemies, 0);
 		super.create();
 		//FlxG.log.warn(_player.characterSprite().getHitbox());
 	}
