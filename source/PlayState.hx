@@ -491,7 +491,7 @@ class PlayState extends FlxState {
 				
 				for (j in 0..._powerups.length) {
 					var powerup:Powerup = _powerups[j];
-					if (overlap(bullet, powerup)) {
+					if (overlap(bullet, powerup) && powerup.isInvincible == false) {
 						bullet.destroy();
 						_bullets.splice(i, 1);
 						

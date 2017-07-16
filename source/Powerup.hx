@@ -20,6 +20,7 @@ enum PowerupType {
 
 class Powerup extends FlxSpriteGroup {
 	private var _playState:PlayState;
+    public var isInvincible:Bool;
 
 	private static var kPowerupToColorMap:Map<PowerupType, FlxColor> =
 		[FIRE => FlxColor.RED, ICE => FlxColor.BLUE,
@@ -32,7 +33,8 @@ class Powerup extends FlxSpriteGroup {
         super(X, Y);
 		_type = type;
 		_playState = playState;
-		
+		isInvincible = true;
+        haxe.Timer.delay(makeVulnerable.bind(),500);
 		powerupSprite = new FlxSprite();
 		powerupSprite.makeGraphic(20, 20, FlxColor.TRANSPARENT, true);
 		powerupSprite.x = powerupSprite.y = -10;
@@ -43,6 +45,10 @@ class Powerup extends FlxSpriteGroup {
 	public function getType():PowerupType {
 		return _type;
 	}
+
+    public function makeVulnerable() {
+        isInvincible = false;
+    }
 	
 	override public function getHitbox(?rect:FlxRect):FlxRect {
 		return powerupSprite.getHitbox();
