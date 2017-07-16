@@ -178,7 +178,11 @@ class PlayState extends FlxState {
             var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
             if(FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) > 250) {
                 var enemy:Enemy;
-                if(FlxG.random.float(0, 1) < 0.3) {
+                var randomEnemy = FlxG.random.float(0, 1);
+                if(randomEnemy < 0.2) {
+                    enemy = new TankEnemy(randX, randY, this);
+                }                
+                else if(randomEnemy < 0.5) {
                     enemy = new CrazyEnemy(randX, randY, this);
                 }
                 else {

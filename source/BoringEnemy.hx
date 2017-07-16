@@ -1,12 +1,13 @@
 package;
 import flixel.FlxG;
+import flixel.util.FlxColor;
 
 class BoringEnemy extends Enemy {
     private var _bulletSpawnTimer:Float;
     private static var BULLET_COOLDOWN:Float = 1.0;
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
-        super(X, Y, playState);
+        super(X, Y, FlxColor.ORANGE, 5, playState);
         _bulletSpawnTimer = 0;
     }
     override public function update(elapsed:Float):Void {
