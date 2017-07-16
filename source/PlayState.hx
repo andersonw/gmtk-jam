@@ -64,6 +64,7 @@ class PlayState extends FlxTransitionableState {
     private var _lightningSound:FlxSound;
     private var _bulletHitSound:FlxSound;
     private var _powerupSound:FlxSound;
+    private var _levelCompleteSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -100,6 +101,7 @@ class PlayState extends FlxTransitionableState {
         _lightningSound = FlxG.sound.load(AssetPaths.lightning__wav);
         _bulletHitSound = FlxG.sound.load(AssetPaths.bullet_impact__wav);
         _powerupSound = FlxG.sound.load(AssetPaths.powerup__wav);
+        _levelCompleteSound = FlxG.sound.load(AssetPaths.levelComplete__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -538,6 +540,7 @@ class PlayState extends FlxTransitionableState {
 				lockPlayerControls = true;
 				_player.velocity.set(0, 0);
 				_player.characterSprite().animation.play("stand");
+                _levelCompleteSound.play();
 				
 				new FlxTimer().start(2, advanceLevel, 2);
             }
