@@ -68,6 +68,7 @@ class PlayState extends FlxTransitionableState {
     private var _bulletHitSound:FlxSound;
     private var _powerupSound:FlxSound;
     private var _levelCompleteSound:FlxSound;
+    private var _deathSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -103,6 +104,7 @@ class PlayState extends FlxTransitionableState {
         _bulletHitSound = FlxG.sound.load(AssetPaths.bullet_impact__wav);
         _powerupSound = FlxG.sound.load(AssetPaths.powerup__wav);
         _levelCompleteSound = FlxG.sound.load(AssetPaths.levelComplete__wav);
+        _deathSound = FlxG.sound.load(AssetPaths.death__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -609,7 +611,7 @@ class PlayState extends FlxTransitionableState {
 							_player.characterSprite().animation.play("stand");
 							_player.invulnerable = true;
 							lockPlayerControls = true;
-							// TODO(cluedo): add death sound here
+							_deathSound.play();
 							
 							var lostLevelEmitter = new FlxEmitter(_player.x, _player.y - 20, 200);
 							lostLevelEmitter.makeParticles(6, 6, FlxColor.WHITE, 200);
