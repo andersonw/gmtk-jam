@@ -28,6 +28,7 @@ using flixel.util.FlxSpriteUtil;
 class PlayState extends FlxState {
 	// these have underscores because VSCode can't refactor the names :(
 	public var backgroundLayer:FlxSpriteGroup;
+	public var bulletLayer:FlxSpriteGroup;
 	
 	public var _player:Player;
 	public var _bullets:Array<Bullet>;
@@ -37,9 +38,11 @@ class PlayState extends FlxState {
 	public var _camera:FlxCamera;
 	
 	private var _mapPillars:Array<FlxSprite>;
+	private var _mapPillarBGs:Array<FlxSprite>;
 	private var _mapSprite:FlxSprite;
 	private var mapHandler:MapHandler;
 	private var mapBitmapData:BitmapData;
+	private var levelHUD:LevelHUD;
 
     public var bulletReady:Bool = true;
 	public var lockPlayerControls:Bool = false;
@@ -56,6 +59,7 @@ class PlayState extends FlxState {
 
 	override public function create():Void {
 		backgroundLayer = new FlxSpriteGroup();
+		bulletLayer = new FlxSpriteGroup();
 		
 		_bullets = new Array <Bullet>();
 		_enemies = new Array <Enemy>();
@@ -65,6 +69,7 @@ class PlayState extends FlxState {
 		
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
+		_mapPillarBGs = new Array<FlxSprite>();
 		
 		FlxG.sound.playMusic(AssetPaths.silly_song3__wav);
 		
@@ -108,7 +113,9 @@ class PlayState extends FlxState {
 				
 				if ((x % 2 == 0) && (y % 2 == 0) && mapHandler.getHalfTileValOrSolid(x, y) == 2) {
 					var pillarSpriteData:BitmapData = new BitmapData(TILE_WIDTH, 2 * TILE_HEIGHT, true, 0);
+					var pillarBGSpriteData:BitmapData = new BitmapData(TILE_WIDTH, 2 * TILE_HEIGHT, true, 0);
 					var pillar:FlxSprite = new FlxSprite();
+					var pillarBG:FlxSprite = new FlxSprite();
 					
 					var pillarTiles:Array<Int> = [ 7, 11, 13, 14, 17, 17, 16, 16 ];
 					
@@ -132,15 +139,22 @@ class PlayState extends FlxState {
 					for (i in 0...8) {
 						if (i < 6 || mapHandler.getHalfTileValOrSolid(x, y) == 1) {
 							tileCode = pillarTiles[i];
-							pillarSpriteData.copyPixels(mapSrcBitmapData, getRectByTileCode(tileCode),
-														new Point(TILE_WIDTH / 2 * (i % 2), TILE_HEIGHT / 2 * Std.int(i / 2)));
+							var dataToCopyTo = pillarSpriteData;
+							if (i >= 2) {
+								dataToCopyTo = pillarBGSpriteData;
+							}
+							dataToCopyTo.copyPixels(mapSrcBitmapData, getRectByTileCode(tileCode),
+													new Point(TILE_WIDTH / 2 * (i % 2), TILE_HEIGHT / 2 * Std.int(i / 2)));
 						}
 					}
 					pillarSpriteData.colorTransform(pillarSpriteData.rect, new ColorTransform(0.6, 0.6, 0.6, 1));
+					pillarBGSpriteData.colorTransform(pillarSpriteData.rect, new ColorTransform(0.6, 0.6, 0.6, 1));
 					pillar.loadGraphic(pillarSpriteData);
-					pillar.x = x * TILE_WIDTH / 2;
-					pillar.y = y * TILE_HEIGHT / 2 - 32;
+					pillarBG.loadGraphic(pillarBGSpriteData);
+					pillar.x = pillarBG.x = x * TILE_WIDTH / 2;
+					pillar.y = pillarBG.y = y * TILE_HEIGHT / 2 - 32;
 					_mapPillars.push(pillar);
+					_mapPillarBGs.push(pillarBG);
 				}
 			}
 		}
@@ -150,6 +164,10 @@ class PlayState extends FlxState {
 		add(_mapSprite);
 		
 		add(backgroundLayer);
+		for (pillar in _mapPillarBGs) {
+			add(pillar);
+		}
+		add(bulletLayer);
 		
 		var randomFreePosition = mapHandler.getRandomPathableSquare();
         var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
@@ -165,6 +183,11 @@ class PlayState extends FlxState {
 		for (pillar in _mapPillars) {
 			add(pillar);
 		}
+		
+		levelHUD = new LevelHUD(0, Main.GAME_HEIGHT - 120);
+		levelHUD.scrollFactor.set(0, 0);
+
+		add(levelHUD);
 		
         var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
 		super.create();
@@ -317,14 +340,14 @@ class PlayState extends FlxState {
 				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
 				
 				_bullets.push(bullet);
-				add(bullet);
+				bulletLayer.add(bullet);
 			} else if (_player.powerupType == Powerup.PowerupType.FIRE) {
 				bulletReady = false;
 				var bulletTimer = new FlxTimer().start(0.05, reload, 1);
 				var DISTANCE_SPAWN_FROM_PLAYER:Float = 35.0;
-				var BULLET_VELOCITY:Float = 450.0;
-				var SMOKE_VELOCITY:Float = 250.0;
-				var SMOKE_VELOCITY_VARIANCE:Float = 100.0;
+				var BULLET_VELOCITY:Float = 520.0;
+				var SMOKE_VELOCITY:Float = 270.0;
+				var SMOKE_VELOCITY_VARIANCE:Float = 120.0;
 				
 				var realAngle:Float = angle + 0.4 * Math.random() - 0.2;
 				var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(realAngle),
@@ -333,7 +356,7 @@ class PlayState extends FlxState {
 				
 				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
 				_bullets.push(bullet);
-				add(bullet);
+				bulletLayer.add(bullet);
 				
 				for (rep in 0...2) {
 					var tweakedAngle:Float = angle + 0.5 * Math.random() - 0.25;
@@ -369,7 +392,7 @@ class PlayState extends FlxState {
 						lightningFX.makeGraphic(bestDistance, bestDistance, FlxColor.TRANSPARENT);
 						lightningFX.drawLine(offsetX, offsetY, bestEnemy.x - _player.x + offsetX, bestEnemy.y - _player.y + offsetY,
 							{"color": FlxColor.YELLOW, "thickness": 3 } );
-						add(lightningFX);
+						bulletLayer.add(lightningFX);
 						
 						damageEnemy(bestEnemy, 1);
 					}
@@ -394,7 +417,7 @@ class PlayState extends FlxState {
 					bullet.velocity.set(tweakedVelocity * Math.cos(tweakedAngle), tweakedVelocity * Math.sin(tweakedAngle));
 					
 					_bullets.push(bullet);
-					add(bullet);
+					bulletLayer.add(bullet);
 				}
 				
 				var velocityToTry:Float = 800.;
@@ -500,7 +523,7 @@ class PlayState extends FlxState {
 						powerup.destroy();
 						_powerups.splice(j, 1);
 						
-						add(powerupBomb);
+						bulletLayer.add(powerupBomb);
 						_powerupBombs.push(powerupBomb);
 						powerupBomb.light();
 						
@@ -514,16 +537,19 @@ class PlayState extends FlxState {
 				
 				for (j in 0..._powerupBombs.length) {
 					var bomb:PowerupBomb = _powerupBombs[j];
-					var ACCELERATE_AMT_WHEN_HIT:Float = 0.6;
+					var accelerateAmt = 0.6;
+					if (bullet.type == Bullet.BulletType.FIRE) {
+						accelerateAmt = 0.1;
+					}
 					
 					if (overlap(bullet, bomb)) {
 						
 						if (bomb.isLit()) {
-							bomb.addToTickDuration(ACCELERATE_AMT_WHEN_HIT);
+							bomb.addToTickDuration(accelerateAmt);
 						} else {
 							bomb.light();
 						}
-						var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(0.5));
+						var newVelocity = bomb.velocity.addPoint(bullet.velocity.scale(accelerateAmt / 2.0));
 						bomb.velocity.set(newVelocity.x, newVelocity.y);
 						
 						bullet.destroy();
@@ -559,6 +585,34 @@ class PlayState extends FlxState {
 				continue;
 			}
 			++i;
+		}
+	}
+	
+	public function chainExplosions(srcX:Float, srcY:Float, radius:Float):Void {
+		for (bomb in _powerupBombs) {
+			// Process bombs first, since powerups will turn into bombs and
+			// would otherwise be double-counted.
+			var distance:Float = (srcX - bomb.bombSprite.x)*(srcX - bomb.bombSprite.x) +
+								(srcY - bomb.bombSprite.y)*(srcY - bomb.bombSprite.y);
+			if (distance < radius * radius) {
+				bomb.addToTickDuration(2.0);
+			}
+		}
+		
+		for (powerup in _powerups) {
+			var distance:Float = (srcX - powerup.bombSprite.x)*(srcX - powerup.bombSprite.x) +
+								(srcY - powerup.bombSprite.y)*(srcY - powerup.bombSprite.y);
+			if (distance < radius * radius) {
+				var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType(), this);
+				
+				powerup.destroy();
+				_powerups.remove(powerup);
+						
+				bulletLayer.add(powerupBomb);
+				_powerupBombs.push(powerupBomb);
+				powerupBomb.light();
+				powerupBomb.addToTickDuration(1.3);
+			}
 		}
 	}
 	
