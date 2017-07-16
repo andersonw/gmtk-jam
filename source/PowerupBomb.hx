@@ -162,7 +162,7 @@ class PowerupBomb extends FlxSpriteGroup {
 	}
 	public function _update(elapsed:Float):Void {
 		if (_bombState > 0) {
-			tickDuration += 1.4 * elapsed;
+			tickDuration += 1.0 * elapsed;
 			var newState:Int = Std.int(tickDuration);
 			if (newState > _bombState) {
 				if (newState >= 4) {

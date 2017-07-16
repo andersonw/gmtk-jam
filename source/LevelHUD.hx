@@ -28,13 +28,17 @@ class LevelHUD extends FlxSpriteGroup {
 		powerupCard.x = 20;
 		powerupCard.y = 15;
 		
-		scoreText = new FlxText(115, 20, 0, "");
+		var TEXT_X_POSITION:Float = 118;
+		var TEXT_Y_POSITION:Float = 16;
+		var TEXT_SPACING:Float = 30;
+		
+		scoreText = new FlxText(TEXT_X_POSITION, TEXT_Y_POSITION, 0, "");
 		scoreText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
 		
-		levelText = new FlxText(115, 50, 0, "");
+		levelText = new FlxText(TEXT_X_POSITION, TEXT_Y_POSITION + TEXT_SPACING, 0, "");
 		levelText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
 		
-		enemiesLeftText = new FlxText(115, 80, 0, "");
+		enemiesLeftText = new FlxText(TEXT_X_POSITION, TEXT_Y_POSITION + 2*TEXT_SPACING, 0, "");
 		enemiesLeftText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
 		
 		add(bgMenuImage);
