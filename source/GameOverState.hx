@@ -24,7 +24,7 @@ class GameOverState extends FlxState {
 		gameOverText.size = 64;
 		add(gameOverText);
 
-		infoText = new FlxText(500, 650, 0, "Your score: " + Main.gameState.score);
+		infoText = new FlxText(500, 550, 0, "Your score: " + Main.gameState.score);
 		infoText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
 		infoText.size = 32;
 		add(infoText);
@@ -39,6 +39,7 @@ class GameOverState extends FlxState {
 		super.update(elapsed);
 
 		if (FlxG.keys.justPressed.SPACE) {
+            Main.gameState.resetGame();
 			FlxG.switchState(new MenuState());
 		}
 	}
