@@ -442,7 +442,7 @@ class PlayState extends FlxState {
         bulletReady = true;
     }
 	
-	public function damageEnemy(enemy:Enemy, amt:Int):Void {
+	public function damageEnemy(enemy:Enemy, amt:Int, ?immuneToBombs:Bool = false):Void {
 		enemy.currentHealth -= amt;
 		
 		if (enemy.currentHealth <= 0) {			
@@ -451,15 +451,18 @@ class PlayState extends FlxState {
 
             if(FlxG.random.float(0,1) < 1) {
                 // haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);
-                spawnPowerup(enemy.x,enemy.y);
+                spawnPowerup(enemy.x,enemy.y, immuneToBombs);
             }
 
 		}
 	}
 
-    private function spawnPowerup(x,y):Void {
+    private function spawnPowerup(x,y, ?immuneToBombs:Bool = false):Void {
         var powerup:Powerup = new Powerup(x, y, Powerup.getRandomType(), this);
 		_powerups.push(powerup);
+		if (immuneToBombs) {
+			powerup.setInvulnerableToBombs();
+		}
 		add(powerup);
     }
 	
@@ -515,7 +518,7 @@ class PlayState extends FlxState {
 				
 				for (j in 0..._powerups.length) {
 					var powerup:Powerup = _powerups[j];
-					if (overlap(bullet, powerup) && powerup.isInvincible == false) {
+					if (overlap(bullet, powerup) && !powerup.isInvincible) {
 						bullet.destroy();
 						_bullets.splice(i, 1);
 						
@@ -602,7 +605,7 @@ class PlayState extends FlxState {
 		for (powerup in _powerups) {
 			var distance:Float = (srcX - powerup.bombSprite.x)*(srcX - powerup.bombSprite.x) +
 								(srcY - powerup.bombSprite.y)*(srcY - powerup.bombSprite.y);
-			if (distance < radius * radius) {
+			if (distance < radius * radius && !powerup.isInvincibleToBombs) {
 				var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType(), this);
 				
 				powerup.destroy();

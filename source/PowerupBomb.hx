@@ -117,7 +117,7 @@ class PowerupBomb extends FlxSpriteGroup {
 				} else if (_type == PowerupType.METAL) {
 					damageAmount = 10;
 				}
-				_playState.damageEnemy(enemy, damageAmount);
+				_playState.damageEnemy(enemy, damageAmount, true);
 			}
 		}
 	}
