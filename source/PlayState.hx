@@ -622,7 +622,7 @@ class PlayState extends FlxTransitionableState {
 							
 							new FlxTimer().start(0.1, function(timer:FlxTimer) { _player.alpha -= 0.2; }, 5);
 							
-							new FlxTimer().start(4, goToGameOverState, 1);
+							new FlxTimer().start(2.5, goToGameOverState, 1);
 						}
 					}
 					bullet.destroy();
