@@ -11,6 +11,7 @@ import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
 import openfl.Assets;
 import openfl.display.BitmapData;
 
@@ -24,6 +25,7 @@ class PowerupBomb extends FlxSpriteGroup {
 	private var bombOutlineSprite:FlxSprite;
 	private var bombFuseSprite:FlxSprite = null;
 	private var explosionEmitter:FlxEmitter;
+	private var EXPLOSION_RADIUS:Int = 250;
 	
 	private var SPRITE_WIDTH:Int = 40;
 	private var SPRITE_HEIGHT:Int = 40;
@@ -74,7 +76,7 @@ class PowerupBomb extends FlxSpriteGroup {
 		explosionEmitter.lifespan.set(.5, 1);
 		explosionEmitter.speed.set(800, 1000);
 		var particle:FlxParticle;
-		for (i in 0...50)
+		for (i in 0...80)
 		{
 			particle = new FlxParticle();
 			particle.makeGraphic(5, 5);
@@ -97,6 +99,25 @@ class PowerupBomb extends FlxSpriteGroup {
 	
 	public function isExploding():Bool {
 		return _bombState == 4;
+	}
+
+	public function explode():Void {
+		explosionEmitter.x = bombSprite.x + SPRITE_WIDTH/2;
+		explosionEmitter.y = bombSprite.y + SPRITE_HEIGHT/2;
+		explosionEmitter.start(true);
+		new FlxTimer().start(1.0, function(_)
+		{ 
+			_playState.remove(explosionEmitter);
+			explosionEmitter.destroy();
+		});
+
+		for (enemy in _playState._enemies) {
+			var distance:Float = (enemy.x - bombSprite.x)*(enemy.x - bombSprite.x) +
+							   (enemy.y - bombSprite.y)*(enemy.y - bombSprite.y);
+			if (distance < EXPLOSION_RADIUS * EXPLOSION_RADIUS) {
+					_playState.damageEnemy(enemy, 10);
+			}
+		}
 	}
 	
 	public function addToTickDuration(amt:Float):Void {
@@ -132,11 +153,7 @@ class PowerupBomb extends FlxSpriteGroup {
 			if (newState > _bombState) {
 				if (newState >= 4) {
 					_bombState = newState = 4;  // just in case!
-
-					explosionEmitter.x = bombSprite.x + SPRITE_WIDTH/2;
-					explosionEmitter.y = bombSprite.y + SPRITE_HEIGHT/2;
-					explosionEmitter.start(true);
-
+					explode();
 				} else {
 					_bombState = newState;
 					makeBombFuseSprite();

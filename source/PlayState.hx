@@ -315,7 +315,7 @@ class PlayState extends FlxState {
         bulletReady = true;
     }
 	
-	function damageEnemy(enemy:Enemy, amt:Int):Void {
+	public function damageEnemy(enemy:Enemy, amt:Int):Void {
 		enemy.currentHealth -= amt;
 		
 		if (enemy.currentHealth <= 0) {			
