@@ -21,11 +21,10 @@ using Powerup.PowerupType;
 class PowerupBomb extends FlxSpriteGroup {
 	private var _playState:PlayState;
 
-	private var bombSprite:FlxSprite;
+	public var bombSprite:FlxSprite;
 	private var bombOutlineSprite:FlxSprite;
 	private var bombFuseSprite:FlxSprite = null;
 	private var explosionEmitter:FlxEmitter;
-	private var EXPLOSION_RADIUS:Int = 250;
 	
 	private var SPRITE_WIDTH:Int = 40;
 	private var SPRITE_HEIGHT:Int = 40;
@@ -33,13 +32,18 @@ class PowerupBomb extends FlxSpriteGroup {
 	private var FUSE_HEIGHT:Int = 20;
 	
 	private var _bombState:Int = 0;  // unlit
-	private var _tickDuration:Float = 1;
+	public var tickDuration:Float = 1;
+	private var radius:Float;
 	
 	private var _type:PowerupType;
     public function new(?X:Float=0, ?Y:Float=0, type:PowerupType, ?playState:PlayState) {
         super(X, Y);
 		_type = type;
 		_playState = playState;
+		radius = 200;
+		if (type == PowerupType.LIGHTNING) {
+			radius = 320;
+		}
 		
 		var bombBitmapData:BitmapData = Assets.getBitmapData("assets/images/bomb.png");
 		
@@ -71,7 +75,7 @@ class PowerupBomb extends FlxSpriteGroup {
 		makeBombFuseSprite();
 
 		// make explosion particle effects
-		explosionEmitter = new FlxEmitter();
+		/*explosionEmitter = new FlxEmitter();
 		explosionEmitter.color.set(desiredColor, FlxColor.WHITE);
 		explosionEmitter.lifespan.set(.5, 1);
 		explosionEmitter.speed.set(800, 1000);
@@ -82,7 +86,7 @@ class PowerupBomb extends FlxSpriteGroup {
 			particle.makeGraphic(5, 5);
 			explosionEmitter.add(particle);
 		}
-		_playState.add(explosionEmitter);
+		_playState.add(explosionEmitter);*/
     }
 	public function getType():PowerupType {
 		return _type;
@@ -100,28 +104,32 @@ class PowerupBomb extends FlxSpriteGroup {
 	public function isExploding():Bool {
 		return _bombState == 4;
 	}
-
-	public function explode():Void {
-		explosionEmitter.x = bombSprite.x + SPRITE_WIDTH/2;
-		explosionEmitter.y = bombSprite.y + SPRITE_HEIGHT/2;
-		explosionEmitter.start(true);
-		new FlxTimer().start(1.0, function(_)
-		{ 
-			_playState.remove(explosionEmitter);
-			explosionEmitter.destroy();
-		});
-
+	
+	public function processExplosion(timer:FlxTimer):Void {
+		_playState.chainExplosions(bombSprite.x, bombSprite.y, radius);
 		for (enemy in _playState._enemies) {
 			var distance:Float = (enemy.x - bombSprite.x)*(enemy.x - bombSprite.x) +
 							   (enemy.y - bombSprite.y)*(enemy.y - bombSprite.y);
-			if (distance < EXPLOSION_RADIUS * EXPLOSION_RADIUS) {
-					_playState.damageEnemy(enemy, 10);
+			if (distance < radius * radius) {
+				var damageAmount:Int = 15;
+				if (_type == PowerupType.LIGHTNING) {
+					damageAmount = 6;
+				} else if (_type == PowerupType.METAL) {
+					damageAmount = 10;
+				}
+				_playState.damageEnemy(enemy, damageAmount);
 			}
 		}
 	}
+	public function explode():Void {
+		var explosionFX:ExplosionFX = new ExplosionFX(bombSprite.x, bombSprite.y, radius, Powerup.getColorOfType(_type));
+		_playState.add(explosionFX);
+		
+		new FlxTimer().start(0.2, processExplosion, 1);
+	}
 	
 	public function addToTickDuration(amt:Float):Void {
-		_tickDuration += amt;
+		tickDuration += amt;
 	}
 	
 	private function makeBombFuseSprite() {
@@ -148,8 +156,8 @@ class PowerupBomb extends FlxSpriteGroup {
 	}
 	public function _update(elapsed:Float):Void {
 		if (_bombState > 0) {
-			_tickDuration += elapsed;
-			var newState:Int = Std.int(_tickDuration);
+			tickDuration += 2 * elapsed;
+			var newState:Int = Std.int(tickDuration);
 			if (newState > _bombState) {
 				if (newState >= 4) {
 					_bombState = newState = 4;  // just in case!

@@ -1,6 +1,7 @@
 package;
 
 import flash.display3D.textures.RectangleTexture;
+import flash.geom.ColorTransform;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -8,6 +9,8 @@ import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
+import openfl.Assets;
+import openfl.display.BitmapData;
 
 class Character extends FlxSpriteGroup {
 	private var _characterSprite:FlxSprite;
@@ -23,8 +26,11 @@ class Character extends FlxSpriteGroup {
         this.maxHealth = maxHealth;
         currentHealth = maxHealth;
 
+		var characterSpriteData:BitmapData = Assets.getBitmapData(AssetPaths.robot_sprites_packed__png).clone();
+		characterSpriteData.colorTransform(characterSpriteData.rect,
+			new ColorTransform(0.7, 0.7, 0.7, 1, 0.3 * color.red, 0.3 * color.green, 0.3 * color.blue));
 		_characterSprite = new FlxSprite();
-		_characterSprite.loadGraphic(AssetPaths.robot_sprites_packed__png, true, 70, 110);
+		_characterSprite.loadGraphic(characterSpriteData, true, 70, 110);
 		_characterSprite.setFacingFlip(FlxObject.LEFT, false, false);
 		_characterSprite.setFacingFlip(FlxObject.RIGHT, true, false);
 		

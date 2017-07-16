@@ -34,7 +34,7 @@ class Powerup extends FlxSpriteGroup {
 		 LIGHTNING => FlxColor.YELLOW, METAL => FlxColor.GRAY,
 		 LUGE => FlxColor.WHITE];
 	 
-	private var bombSprite:FlxSprite;
+	public var bombSprite:FlxSprite;
 	private var bombOutlineSprite:FlxSprite;
 	private var _type:PowerupType;
     public function new(?X:Float=0, ?Y:Float=0, type:PowerupType, ?playState:PlayState) {
