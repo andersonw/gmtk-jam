@@ -106,20 +106,20 @@ class PlayState extends FlxState {
 					var pillarTiles:Array<Int> = [ 7, 11, 13, 14, 17, 17, 16, 16 ];
 					
 					if (mapHandler.getHalfTileValOrSolid(x + 2, y) == 2) {
-						pillarTiles[1] = 3;
-						pillarTiles[3] = 12;
+						pillarTiles[1] -= 8;
+						pillarTiles[3] -= 2;
 					}
 					if (mapHandler.getHalfTileValOrSolid(x - 2, y) == 2) {
-						pillarTiles[0] = 3;
-						pillarTiles[2] = 12;
+						pillarTiles[0] -= 4;
+						pillarTiles[2] -= 1;
 					}
 					if (mapHandler.getHalfTileValOrSolid(x, y - 2) == 2) {
-						pillarTiles[0] = 5;
-						pillarTiles[1] = 10;
+						pillarTiles[0] -= 2;
+						pillarTiles[1] -= 1;
 					}
 					if (mapHandler.getHalfTileValOrSolid(x, y + 2) == 2) {
-						pillarTiles[2] = 5;
-						pillarTiles[3] = 10;
+						pillarTiles[2] -= 8;
+						pillarTiles[3] -= 4;
 					}
 					
 					for (i in 0...8) {
@@ -142,10 +142,6 @@ class PlayState extends FlxState {
 		_mapSprite.loadGraphic(mapBitmapData);
 		add(_mapSprite);
 		
-		for (pillar in _mapPillars) {
-			add(pillar);
-		}
-		
 		var randomFreePosition = mapHandler.getRandomPathableSquare();
         var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
         var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
@@ -153,6 +149,10 @@ class PlayState extends FlxState {
 		add(_player);
 		handleScrolls();
 
+		for (pillar in _mapPillars) {
+			add(pillar);
+		}
+		
         var enemySpawner = new FlxTimer().start(0.1, spawnEnemies, 0);
 		super.create();
 		//FlxG.log.warn(_player.characterSprite().getHitbox());
