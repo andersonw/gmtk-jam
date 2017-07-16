@@ -26,11 +26,11 @@ class Character extends FlxSpriteGroup {
 		_characterSprite.setFacingFlip(FlxObject.RIGHT, true, false);
 		
 		_characterSprite.animation.add("lr", [8], 6, false);
-		_characterSprite.animation.add("u", [4], 6, false);
-		_characterSprite.animation.add("d", [0, 0], 6, false);
+		_characterSprite.animation.add("u", [4, 5, 4, 6], 6, false);
+		_characterSprite.animation.add("d", [0, 1, 0, 2], 6, false);
 		
 		_characterSprite.x = -35;
-		_characterSprite.y = -90;
+		_characterSprite.y = -87;
 		add(_characterSprite);
 
         _healthbarSprite = new FlxSprite();
