@@ -95,8 +95,6 @@ class PlayState extends FlxTransitionableState {
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
 		_mapPillarBGs = new Array<FlxSprite>();
-		
-		FlxG.sound.playMusic(AssetPaths.silly_song3__wav);
 
         _bulletSound = FlxG.sound.load(AssetPaths.generic_bullet__wav);
         _flameSound = FlxG.sound.load(AssetPaths.flamethrower__wav);
