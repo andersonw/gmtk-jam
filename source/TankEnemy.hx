@@ -27,7 +27,7 @@ class TankEnemy extends Enemy {
                                             Bullet.BulletType.REGULAR, Bullet.BulletOwner.ENEMY);
                 bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
                 _playState._bullets.push(bullet);
-                _playState.add(bullet);
+                _playState.bulletLayer.add(bullet);
             }
         }
 		super._update(elapsed);

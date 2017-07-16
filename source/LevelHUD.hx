@@ -38,6 +38,6 @@ class LevelHUD extends FlxSpriteGroup {
 		levelText.size = 24;
 	}
 	public override function update(elapsed:Float):Void {
-		
+		super.update(elapsed);
 	}
 }
