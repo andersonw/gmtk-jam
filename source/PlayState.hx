@@ -197,7 +197,7 @@ class PlayState extends FlxState {
 		add(healthbarLayer);
 		add(_player._healthbarSprite);
 
-		levelHUD = new LevelHUD(0, Main.GAME_HEIGHT - 120);
+		levelHUD = new LevelHUD(0, Main.GAME_HEIGHT - 120, this);
 		levelHUD.scrollFactor.set(0, 0);
 
 		add(levelHUD);
