@@ -23,7 +23,7 @@ class ExplosionFX extends FlxSpriteGroup {
 		
 		var glowCircle:BitmapData = Assets.getBitmapData("assets/images/glow_circle.png").clone();
 		var colorVariance:Float = 8;
-		glowCircle.colorTransform(glowCircle.rect, new ColorTransform(0.1, 0.1, 0.1, 2,
+		glowCircle.colorTransform(glowCircle.rect, new ColorTransform(0, 0, 0, 2,
 			color.red * 7 / 10, color.green * 7 / 10, color.blue * 7 / 10));
 		explosionSprite = new FlxSprite();
 		explosionSprite.loadGraphic(glowCircle);
@@ -45,7 +45,7 @@ class ExplosionFX extends FlxSpriteGroup {
 			radius = maxRadius - 0.4 * maxRadius * (1. - this.duration / 0.8);
 			explosionSprite.alpha = this.duration;
 		}
-		explosionSprite.scale = new FlxPoint(radius / 25, radius / 25);
+		explosionSprite.scale = new FlxPoint(radius / 20, radius / 20);
 		
 		if (this.duration <= 0) {
 			this.destroy();

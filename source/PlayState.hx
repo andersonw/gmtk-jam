@@ -5,7 +5,6 @@ import flash.display.BitmapData;
 import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
-import flash.utils.Timer;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -52,6 +51,8 @@ class PlayState extends FlxTransitionableState {
 	
 	private var _mapPillars:Array<FlxSprite>;
 	private var _mapPillarBGs:Array<FlxSprite>;
+	private var _mapPillarMap:Map<Int, FlxSprite>;
+	private var _mapPillarBGMap:Map<Int, FlxSprite>;
 	private var _mapSprite:FlxSprite;
 	private var mapHandler:MapHandler;
 	private var mapBitmapData:BitmapData;
@@ -97,6 +98,8 @@ class PlayState extends FlxTransitionableState {
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
 		_mapPillarBGs = new Array<FlxSprite>();
+		_mapPillarMap = new Map<Int, FlxSprite>();
+		_mapPillarBGMap = new Map<Int, FlxSprite>();
 
         _bulletSound = FlxG.sound.load(AssetPaths.generic_bullet__wav);
         _flameSound = FlxG.sound.load(AssetPaths.flamethrower__wav);
@@ -115,7 +118,7 @@ class PlayState extends FlxTransitionableState {
 		for (y in 0...2*mapHandler.MapHeight) {
 			for (x in 0...2 * mapHandler.MapWidth) {
 				var tileCode:Int = 15;  // filled tile
-				if (mapHandler.getHalfTileValOrSolid(x, y) == 0) {
+				if (mapHandler.getHalfTileValOrSolid(x, y) != 1) {
 					var occupiedNW:Int = mapHandler.getHalfTileValOrSolid(x - 1, y - 1);
 					var occupiedNE:Int = mapHandler.getHalfTileValOrSolid(x + 1, y - 1);
 					var occupiedSW:Int = mapHandler.getHalfTileValOrSolid(x - 1, y + 1);
@@ -139,7 +142,8 @@ class PlayState extends FlxTransitionableState {
 							4 * (occupiedSW == 1 ? 1 : 0) +
 							8 * (occupiedSE == 1 ? 1 : 0);
 				}
-				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y - 1) != 1) {
+				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y) == 1 &&
+					mapHandler.getHalfTileValOrSolid(x, y - 1) != 1) {
 					tileCode = 16;  // pillars below tiles
 				}
 
@@ -190,6 +194,8 @@ class PlayState extends FlxTransitionableState {
 					pillar.y = pillarBG.y = y * TILE_HEIGHT / 2 - 32;
 					_mapPillars.push(pillar);
 					_mapPillarBGs.push(pillarBG);
+					_mapPillarMap.set(mapHandler.MapWidth * Std.int(y/2) + Std.int(x/2), pillar);
+					_mapPillarBGMap.set(mapHandler.MapWidth * Std.int(y/2) + Std.int(x/2), pillarBG);
 				}
 			}
 		}
@@ -850,6 +856,49 @@ class PlayState extends FlxTransitionableState {
 	// Utility functions
 	// ==============================================================================
 	
+	public function removePillars(px:Float, py:Float, radius:Float):Void {
+		for (x in 0...mapHandler.MapWidth) {
+			for (y in 0...mapHandler.MapHeight) {
+				if (mapHandler.getVal(x, y) == 2) {
+					var adjCoordinate = mapHandler.MapWidth * y + x;
+					var tileX:Float = TILE_WIDTH * x + TILE_WIDTH / 2;
+					var tileY:Float = TILE_HEIGHT * y + TILE_HEIGHT / 2;
+					var distance:Float = (px - tileX) * (px - tileX) + (py - tileY) * (py - tileY);
+					
+					if (distance < radius * radius) {
+						mapHandler.setVal(x, y, 0);
+						if (_mapPillarMap[adjCoordinate] != null) {
+							var pillarBottom = _mapPillarMap[adjCoordinate];
+							var pillarTop = _mapPillarBGMap[adjCoordinate];
+							
+							_mapPillarMap.remove(adjCoordinate);
+							_mapPillarBGMap.remove(adjCoordinate);
+							_mapPillars.remove(pillarBottom);
+							_mapPillarBGs.remove(pillarTop);
+							pillarBottom.destroy();
+							pillarTop.destroy();
+							
+							var removePillarEmitter = new FlxEmitter(tileX, tileY, 100);
+							removePillarEmitter.color.set(FlxColor.BLUE, FlxColor.GRAY);
+							removePillarEmitter.speed.set(600, 800);
+							removePillarEmitter.lifespan.set(0.15, 0.3);
+							
+							add(removePillarEmitter);
+							for (i in 0...100) {
+								var p = new FlxParticle();
+								p.makeGraphic(8, 8, FlxColor.GRAY);
+								p.exists = false;
+								removePillarEmitter.add(p);
+							}
+							removePillarEmitter.start(true);
+							new FlxTimer().start(1000, function(timer:FlxTimer) { removePillarEmitter.destroy(); }, 1);
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	function hitTestWall(object:FlxObject):Bool {
 		var leftX:Float = object.x - object.getHitbox().width / 2;
 		var rightX:Float = object.x + object.getHitbox().width / 2;
@@ -863,6 +912,7 @@ class PlayState extends FlxTransitionableState {
 		
 		return nwTileValue != 0 || neTileValue != 0 || swTileValue != 0 || seTileValue != 0;
 	}
+	
 	function snapObjectToTiles(object:FlxObject, elapsed:Float):FlxPoint {
 		if (!hitTestWall(object)) {
 			return new FlxPoint(0, 0);

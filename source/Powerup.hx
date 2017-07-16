@@ -47,7 +47,7 @@ class Powerup extends FlxSpriteGroup {
 		_type = type;
 		_playState = playState;
 		isInvincible = true;
-        haxe.Timer.delay(makeVulnerable.bind(), 1000);
+        haxe.Timer.delay(makeVulnerable.bind(), 750);
 		
 		
 		var bombBitmapData:BitmapData = Assets.getBitmapData("assets/images/bomb.png");

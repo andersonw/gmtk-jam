@@ -63,15 +63,15 @@ class Character extends FlxSpriteGroup {
 		paralyzeSprite = new FlxSprite();
 		paralyzeSprite.loadGraphic(AssetPaths.paralyzed__png);
 		add(paralyzeSprite);
-		paralyzeSprite.x = _characterSprite.x + 8;
+		paralyzeSprite.x = _characterSprite.x + 4;
 		paralyzeSprite.y = _characterSprite.y;
 		paralyzed = true;
 		paralyzedToggle = false;
 		
-		new FlxTimer().start(0.2, function(timer:FlxTimer) {
-			paralyzeSprite.x += (paralyzedToggle ? 16 : -16);
+		new FlxTimer().start(0.1, function(timer:FlxTimer) {
+			paralyzeSprite.x += (paralyzedToggle ? 8 : -8);
 			paralyzedToggle = !paralyzedToggle;
-		}, Std.int(0.2 / duration));
+		}, Std.int(duration / 0.1));
 		
 		new FlxTimer().start(duration, function(timer:FlxTimer) { paralyzed = false; paralyzeSprite.destroy(); }, 1);
 	}
