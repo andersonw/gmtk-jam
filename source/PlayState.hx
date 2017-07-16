@@ -69,6 +69,7 @@ class PlayState extends FlxTransitionableState {
     private var _powerupSound:FlxSound;
     private var _levelCompleteSound:FlxSound;
     private var _deathSound:FlxSound;
+    private var _enemyDeathSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -105,6 +106,7 @@ class PlayState extends FlxTransitionableState {
         _powerupSound = FlxG.sound.load(AssetPaths.powerup__wav);
         _levelCompleteSound = FlxG.sound.load(AssetPaths.levelComplete__wav);
         _deathSound = FlxG.sound.load(AssetPaths.death__wav);
+        _enemyDeathSound = FlxG.sound.load(AssetPaths.enemyDeath__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -539,6 +541,7 @@ class PlayState extends FlxTransitionableState {
             levelHUD.updateText(_gameState.score,_gameState.level, _gameState.totalEnemiesLeft);
 			enemy.destroy();
 			_enemies.remove(enemy);
+            _enemyDeathSound.play();
 			_gameState.totalEnemiesLeft -= 1;
 			_gameState.score += 20;
 			
@@ -799,7 +802,9 @@ class PlayState extends FlxTransitionableState {
 		checkBulletCollisions();
 		checkPowerupCollisions();
 		for (enemy in _enemies) {
-			enemy._update(elapsed);
+			if (!enemy.paralyzed) {
+				enemy._update(elapsed);
+			}
 			snapObjectToTiles(enemy, elapsed);
 		}
 		for (bomb in _powerupBombs) {
