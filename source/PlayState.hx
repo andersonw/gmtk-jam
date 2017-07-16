@@ -67,7 +67,7 @@ class PlayState extends FlxState {
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
 		_camera = new FlxCamera();
-        _gameState = new GameState();
+        _gameState = Main.gameState;
 		
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
@@ -179,8 +179,8 @@ class PlayState extends FlxState {
 		handleScrolls();
 		
 		
-		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.METAL));
-		_player.powerupType = Powerup.PowerupType.METAL;
+		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.FIRE));
+		_player.powerupType = Powerup.PowerupType.FIRE;
 
 		for (pillar in _mapPillars) {
 			add(pillar);
@@ -205,8 +205,7 @@ class PlayState extends FlxState {
                 var enemy:Enemy;
                 var randomEnemy = FlxG.random.float(0, 1);
                 if(randomEnemy < 0.2) {
-                    //enemy = new TankEnemy(randX, randY, this);
-                    enemy = new BoringEnemy(randX, randY, this);
+                    enemy = new TankEnemy(randX, randY, this);
                 }                
                 else if(randomEnemy < 0.5) {
                     enemy = new CrazyEnemy(randX, randY, this);
@@ -434,7 +433,7 @@ class PlayState extends FlxState {
             _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
 			enemy.destroy();
 			_enemies.remove(enemy);
-			Main.gameState.score += 20;
+			_gameState.score += 20;
 			
 			if(_gameState.levelComplete()) {
 				_gameState.level += 1;
@@ -592,7 +591,7 @@ class PlayState extends FlxState {
 				_bullets.remove(bullet);
 				bullet.destroy();
 				
-				Main.gameState.score += 1;
+				_gameState.score += 1;
 			}
 		}
 	}
@@ -669,7 +668,7 @@ class PlayState extends FlxState {
 	}
 	
 	function updateMenu(elapsed:Float):Void {
-		levelHUD.updateText(Main.gameState.score, Main.gameState.level);
+		levelHUD.updateText(_gameState.score, _gameState.level);
 		levelHUD.update(elapsed);
 	}
 
