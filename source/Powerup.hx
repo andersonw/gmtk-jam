@@ -14,7 +14,7 @@ enum PowerupType {
 	FIRE;
 	ICE;
 	LIGHTNING;
-	POISON;
+	METAL;
 	LUGE;
 }
 
@@ -23,7 +23,7 @@ class Powerup extends FlxSpriteGroup {
 
 	private static var kPowerupToColorMap:Map<PowerupType, FlxColor> =
 		[FIRE => FlxColor.RED, ICE => FlxColor.BLUE,
-		 LIGHTNING => FlxColor.YELLOW, POISON => FlxColor.GREEN,
+		 LIGHTNING => FlxColor.YELLOW, METAL => FlxColor.GRAY,
 		 LUGE => FlxColor.WHITE];
 	 
 	private var powerupSprite:FlxSprite;
@@ -50,7 +50,7 @@ class Powerup extends FlxSpriteGroup {
 	
 	// static methods
 	public static function getRandomType():PowerupType {
-		return [FIRE, ICE, LIGHTNING, POISON, LUGE][Std.int(Math.random() * 5)];
+		return [FIRE, ICE, LIGHTNING, METAL, LUGE][Std.int(Math.random() * 5)];
 	}
 	public static function getColorOfType(type:PowerupType):FlxColor {
 		return kPowerupToColorMap[type];

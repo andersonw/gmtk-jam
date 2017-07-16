@@ -157,8 +157,8 @@ class PlayState extends FlxState {
 		handleScrolls();
 		
 		
-		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.FIRE));
-		_player.powerupType = Powerup.PowerupType.FIRE;
+		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.METAL));
+		_player.powerupType = Powerup.PowerupType.METAL;
 
 		for (pillar in _mapPillars) {
 			add(pillar);
@@ -279,7 +279,6 @@ class PlayState extends FlxState {
 			
 			if (_player.powerupType == Powerup.PowerupType.NONE ||
 				_player.powerupType == Powerup.PowerupType.ICE ||
-				_player.powerupType == Powerup.PowerupType.POISON ||
 				_player.powerupType == Powerup.PowerupType.LUGE) {
 				bulletReady = false;
 				var bulletTimer = new FlxTimer().start(0.3, reload, 1);
@@ -349,6 +348,26 @@ class PlayState extends FlxState {
 						
 						damageEnemy(bestEnemy, 1);
 					}
+				}
+			} else if (_player.powerupType == Powerup.PowerupType.METAL) {
+				bulletReady = false;
+				var bulletTimer = new FlxTimer().start(0.8, reload, 1);
+				var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
+				var BULLET_VELOCITY:Float = 180.0;
+				var BULLET_VELOCITY_VARIANCE:Float = 280.0;
+				
+				for (rep in 0...11) {
+					var tweakedAngle:Float = angle + 0.7 * Math.random() - 0.35;
+					var ratio:Float = Math.random();
+					var tweakedVelocity:Float = BULLET_VELOCITY + ratio * BULLET_VELOCITY_VARIANCE;
+					
+					var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(tweakedAngle),
+												   _player.y + DISTANCE_SPAWN_FROM_PLAYER * Math.sin(tweakedAngle),
+												   Bullet.BulletType.REGULAR, Bullet.BulletOwner.PLAYER, 3 + Std.int(5 * ratio));
+					bullet.velocity.set(tweakedVelocity * Math.cos(tweakedAngle), tweakedVelocity * Math.sin(tweakedAngle));
+					
+					_bullets.push(bullet);
+					add(bullet);
 				}
 			}
 		}

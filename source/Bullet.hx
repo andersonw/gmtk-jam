@@ -31,20 +31,25 @@ class Bullet extends FlxSpriteGroup {
 	public var timeAlive:Float = 0;
 	public var originalVelocity:FlxPoint;
 	
-    public function new(?X:Float=0, ?Y:Float=0, ?type:BulletType, ?owner:BulletOwner) {
+    public function new(?X:Float=0, ?Y:Float=0, ?type:BulletType, ?owner:BulletOwner, ?bulletSize:Int) {
         super(X, Y);
 		this.type = type;
 		this.owner = owner;
 		
+		var useBulletSize:Int = 5;
+		if (bulletSize != null) {
+			useBulletSize = bulletSize;
+		}
+		
 		if (type == BulletType.REGULAR) {
 			bulletSprite = new FlxSprite();
-			bulletSprite.makeGraphic(10, 10, FlxColor.TRANSPARENT, true);
-			bulletSprite.x = bulletSprite.y = -5;
+			bulletSprite.makeGraphic(2*useBulletSize, 2*useBulletSize, FlxColor.TRANSPARENT, true);
+			bulletSprite.x = bulletSprite.y = -useBulletSize;
 			if (owner == BulletOwner.PLAYER) {
-				bulletSprite.drawCircle(5, 5, 5, FlxColor.YELLOW);
+				bulletSprite.drawCircle(useBulletSize, useBulletSize, useBulletSize, FlxColor.YELLOW);
 			}
 			else if (owner == BulletOwner.ENEMY) {
-				bulletSprite.drawCircle(5, 5, 5, FlxColor.RED);
+				bulletSprite.drawCircle(useBulletSize, useBulletSize, useBulletSize, FlxColor.RED);
 			}
 			add(bulletSprite);
 		} else if (type == BulletType.FIRE) {
