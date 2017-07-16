@@ -479,7 +479,7 @@ class PlayState extends FlxState {
 			
 			if (bullet.owner == Bullet.BulletOwner.ENEMY) {
 				// collision with player?
-				if (overlap(bullet, _player.characterSprite())) {
+				if (overlapCenteredHitboxes(bullet, _player)) {
 					_player.currentHealth -= 1;
 					if (_player.currentHealth <= 0) {
 						//TODO: figure out what happens when the player dies
@@ -494,7 +494,7 @@ class PlayState extends FlxState {
 				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
-					if (overlap(bullet, enemy.characterSprite())) {
+					if (overlapCenteredHitboxes(bullet, enemy)) {
 						bullet.destroy();
 						_bullets.splice(i, 1);
 						
@@ -739,6 +739,16 @@ class PlayState extends FlxState {
 		camera.scroll.x = _player.x - Main.GAME_WIDTH / 2;
 		camera.scroll.y = _player.y - Main.GAME_HEIGHT / 2;
 		if (camera.x < 0) camera.x = 0;
+	}
+	
+	function overlapCenteredHitboxes(obj1:FlxObject, obj2:FlxObject):Bool {
+		var hitbox1:FlxRect = obj1.getHitbox();
+		var hitbox2:FlxRect = obj2.getHitbox();
+		
+		return 	obj1.x + hitbox1.width/2 >= obj2.x - hitbox2.width/2 &&
+				obj2.x + hitbox2.width/2 >= obj1.x - hitbox1.width/2 &&
+				obj1.y + hitbox1.height/2 >= obj2.y - hitbox2.height/2 &&
+				obj2.y + hitbox2.height/2 >= obj1.y - hitbox1.height/2;
 	}
 	
 	function overlap(obj1:FlxObject, obj2:FlxObject):Bool {
