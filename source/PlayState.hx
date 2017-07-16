@@ -258,10 +258,10 @@ class PlayState extends FlxTransitionableState {
             if(FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) > 250) {
                 var enemy:Enemy;
                 var randomEnemy = FlxG.random.float(0, 1);
-                if(randomEnemy < 0.2) {
+                if(randomEnemy < 0.02) {
                     enemy = new TankEnemy(randX, randY, this);
                 }                
-                else if(randomEnemy < 0.5) {
+                else if(randomEnemy < 0.3) {
                     enemy = new CrazyEnemy(randX, randY, this);
                 }
                 else {

@@ -19,7 +19,7 @@ class GameState {
         crazyEnemyCount=[0,0,2,5,10,0];
         tankEnemyCount=[0,0,0,2,5,20];
         bossEnemyCount=[0,1,0,0,0,0];
-        randomEnemySpawnrate=[0,10,1000,1000,1000,0.1];
+        randomEnemySpawnrate=[0,1,1000,1000,1000,0.1];
 		resetGame();
         initNewLevel();
 	}
