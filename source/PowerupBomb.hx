@@ -125,7 +125,7 @@ class PowerupBomb extends FlxSpriteGroup {
 		var explosionFX:ExplosionFX = new ExplosionFX(bombSprite.x, bombSprite.y, radius, Powerup.getColorOfType(_type));
 		_playState.add(explosionFX);
 		
-		new FlxTimer().start(0.7, processExplosion, 1);
+		new FlxTimer().start(0.4, processExplosion, 1);
 	}
 	
 	public function addToTickDuration(amt:Float):Void {
