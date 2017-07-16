@@ -799,7 +799,9 @@ class PlayState extends FlxTransitionableState {
 		checkBulletCollisions();
 		checkPowerupCollisions();
 		for (enemy in _enemies) {
-			enemy._update(elapsed);
+			if (!enemy.paralyzed) {
+				enemy._update(elapsed);
+			}
 			snapObjectToTiles(enemy, elapsed);
 		}
 		for (bomb in _powerupBombs) {

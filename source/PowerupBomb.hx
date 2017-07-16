@@ -20,6 +20,8 @@ using flixel.util.FlxSpriteUtil;
 using Powerup.PowerupType;
 
 class PowerupBomb extends FlxSpriteGroup {
+	public static var PARALYZE_DURATION:Float = 4.0;
+	
 	private var _playState:PlayState;
 
 	public var bombSprite:FlxSprite;
@@ -91,6 +93,7 @@ class PowerupBomb extends FlxSpriteGroup {
 	public function light():Void {
 		_bombState = 1;
 		makeBombFuseSprite();
+		_tickSound.play(0.7);
 	}
 	
 	public function isExploding():Bool {
@@ -108,6 +111,7 @@ class PowerupBomb extends FlxSpriteGroup {
 				var damageAmount:Int = 11;
 				if (_type == PowerupType.LIGHTNING) {
 					damageAmount = 4;
+					enemy.paralyze(PARALYZE_DURATION);
 				} else if (_type == PowerupType.METAL) {
 					damageAmount = 6;
 				}
@@ -157,7 +161,7 @@ class PowerupBomb extends FlxSpriteGroup {
 					_bombState = newState = 4;  // just in case!
 					explode();
 				} else {
-					_tickSound.play();
+					_tickSound.play(0.7);
 					_bombState = newState;
 					makeBombFuseSprite();
 				}

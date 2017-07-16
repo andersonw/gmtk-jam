@@ -23,6 +23,7 @@ class Character extends FlxSpriteGroup {
 	public var invulnerable:Bool;
 	public var paralyzeSprite:FlxSprite;
 	public var paralyzed:Bool = false;
+	public var paralyzedToggle:Bool = false;
 
     public function new(?X:Float=0, ?Y:Float=0, ?color:FlxColor=FlxColor.BLUE, ?maxHealth:Int=1) {
         super(X, Y);
@@ -53,18 +54,26 @@ class Character extends FlxSpriteGroup {
 		_characterSprite.y = -87;
 		add(_characterSprite);
         drawHealthbarSprite();
-		
-		paralyzeSprite = new FlxSprite();
     }
 
 	public function drawCharacterSprite(color:FlxColor) {
 	}
 	
 	public function paralyze(duration:Float) {
+		paralyzeSprite = new FlxSprite();
 		paralyzeSprite.loadGraphic(AssetPaths.paralyzed__png);
 		add(paralyzeSprite);
+		paralyzeSprite.x = _characterSprite.x + 8;
+		paralyzeSprite.y = _characterSprite.y;
+		paralyzed = true;
+		paralyzedToggle = false;
 		
-		//new FlxTimer().start(_gameState.randomEnemySpawnrate[_gameState.level], spawnRandomEnemies, 0);
+		new FlxTimer().start(0.2, function(timer:FlxTimer) {
+			paralyzeSprite.x += (paralyzedToggle ? 16 : -16);
+			paralyzedToggle = !paralyzedToggle;
+		}, Std.int(0.2 / duration));
+		
+		new FlxTimer().start(duration, function(timer:FlxTimer) { paralyzed = false; paralyzeSprite.destroy(); }, 1);
 	}
 
     public function drawHealthbarSprite() {
