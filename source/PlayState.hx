@@ -224,23 +224,6 @@ class PlayState extends FlxState {
 	public function resetLevel() {
 		FlxG.switchState(new PlayState());
 	}
-
-	override public function update(elapsed:Float):Void {
-		super.update(elapsed);
-		
-		if (!lockPlayerControls) {
-			handlePlayerMovement();
-		}
-        moveEnemies();
-		updateAndHandleCollisions(elapsed);
-		
-        //FlxG.overlap(_player, _enemy, resetLevel);
-		handleMousePress();
-
-        if(FlxG.keys.justPressed.R) {
-            FlxG.switchState(new PlayState());
-        }
-	}
 	
 	// ==============================================================================
 	// Movement-related functions
@@ -451,8 +434,10 @@ class PlayState extends FlxState {
             _level.killedEnemyCount[enemy.getEnemyType()] += 1;
 			enemy.destroy();
 			_enemies.remove(enemy);
+			Main.gameState.score += 20;
 
             if(_level.levelComplete()) {
+				Main.gameState.level += 1;
                 resetLevel();
             }
 
@@ -598,6 +583,20 @@ class PlayState extends FlxState {
 		}
 	}
 	
+	public function removeBullets(srcX:Float, srcY:Float, radius:Float):Void {
+		for (bullet in _bullets) {
+			var distance:Float = (srcX - bullet.bulletSprite.x)*(srcX - bullet.bulletSprite.x) +
+								 (srcY - bullet.bulletSprite.y) * (srcY - bullet.bulletSprite.y);
+			
+			if (distance < radius * radius && bullet.owner != Bullet.BulletOwner.PLAYER) {
+				_bullets.remove(bullet);
+				bullet.destroy();
+				
+				Main.gameState.score += 1;
+			}
+		}
+	}
+	
 	public function chainExplosions(srcX:Float, srcY:Float, radius:Float):Void {
 		for (bomb in _powerupBombs) {
 			// Process bombs first, since powerups will turn into bombs and
@@ -626,6 +625,74 @@ class PlayState extends FlxState {
 		}
 	}
 	
+	// ==============================================================================
+	// Core update logic
+	// ==============================================================================
+	
+	function updateAndHandleCollisions(elapsed:Float):Void {
+		_player._update(elapsed);
+		if (!ignorePlayerWallCollision) {
+			snapObjectToTiles(_player, elapsed);
+		}
+		var i:Int = 0;
+		while (i < _bullets.length) {
+			var bullet = _bullets[i];
+			bullet._update(elapsed);
+			if (bullet.shouldDelete()) {
+				bullet.destroy();
+				_bullets.splice(i, 1);
+				continue;
+			}
+			if (bullet.x < camera.scroll.x - 100 || bullet.x > Main.GAME_WIDTH + camera.scroll.x + 100 ||
+				bullet.y < camera.scroll.y - 100 || bullet.y > Main.GAME_HEIGHT + camera.scroll.y + 100) {
+				bullet.destroy();
+				_bullets.splice(i, 1);
+				continue;
+			}
+			++i;
+		}
+		checkBulletCollisions();
+		checkPowerupCollisions();
+		for (enemy in _enemies) {
+			enemy._update(elapsed);
+			snapObjectToTiles(enemy, elapsed);
+		}
+		for (bomb in _powerupBombs) {
+			bomb._update(elapsed);
+			snapObjectToTiles(bomb, elapsed);
+			if (bomb.isExploding()) {
+				bomb.destroy();
+				_powerupBombs.remove(bomb);
+			}
+		}
+		handleScrolls();
+	}
+	
+	function updateMenu(elapsed:Float):Void {
+		levelHUD.updateText(Main.gameState.score, Main.gameState.level);
+		levelHUD.update(elapsed);
+	}
+
+	override public function update(elapsed:Float):Void {
+		super.update(elapsed);
+		
+		if (!lockPlayerControls) {
+			handlePlayerMovement();
+		}
+        moveEnemies();
+		updateAndHandleCollisions(elapsed);
+		updateMenu(elapsed);
+		
+        //FlxG.overlap(_player, _enemy, resetLevel);
+		handleMousePress();
+
+        if(FlxG.keys.justPressed.R) {
+            FlxG.switchState(new PlayState());
+        }
+	}
+	
+	// ==============================================================================
+	// Utility functions
 	// ==============================================================================
 	
 	function hitTestWall(object:FlxObject):Bool {
@@ -666,45 +733,6 @@ class PlayState extends FlxState {
 			object.y += yDistance;
 			object.x -= xDistance;
 		}
-	}
-	
-	function updateAndHandleCollisions(elapsed:Float):Void {
-		_player._update(elapsed);
-		if (!ignorePlayerWallCollision) {
-			snapObjectToTiles(_player, elapsed);
-		}
-		var i:Int = 0;
-		while (i < _bullets.length) {
-			var bullet = _bullets[i];
-			bullet._update(elapsed);
-			if (bullet.shouldDelete()) {
-				bullet.destroy();
-				_bullets.splice(i, 1);
-				continue;
-			}
-			if (bullet.x < camera.scroll.x - 100 || bullet.x > Main.GAME_WIDTH + camera.scroll.x + 100 ||
-				bullet.y < camera.scroll.y - 100 || bullet.y > Main.GAME_HEIGHT + camera.scroll.y + 100) {
-				bullet.destroy();
-				_bullets.splice(i, 1);
-				continue;
-			}
-			++i;
-		}
-		checkBulletCollisions();
-		checkPowerupCollisions();
-		for (enemy in _enemies) {
-			enemy._update(elapsed);
-			snapObjectToTiles(enemy, elapsed);
-		}
-		for (bomb in _powerupBombs) {
-			bomb._update(elapsed);
-			snapObjectToTiles(bomb, elapsed);
-			if (bomb.isExploding()) {
-				bomb.destroy();
-				_powerupBombs.remove(bomb);
-			}
-		}
-		handleScrolls();
 	}
 	
 	function handleScrolls() {

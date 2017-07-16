@@ -106,6 +106,7 @@ class PowerupBomb extends FlxSpriteGroup {
 	}
 	
 	public function processExplosion(timer:FlxTimer):Void {
+		_playState.removeBullets(bombSprite.x, bombSprite.y, radius);
 		_playState.chainExplosions(bombSprite.x, bombSprite.y, radius);
 		for (enemy in _playState._enemies) {
 			var distance:Float = (enemy.x - bombSprite.x)*(enemy.x - bombSprite.x) +

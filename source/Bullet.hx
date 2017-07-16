@@ -23,7 +23,7 @@ enum BulletOwner {
 }
 
 class Bullet extends FlxSpriteGroup {
-	private var bulletSprite:FlxSprite;
+	public var bulletSprite:FlxSprite;
 	
 	public var type:BulletType;
 	public var owner:BulletOwner;
