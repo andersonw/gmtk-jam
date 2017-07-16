@@ -30,6 +30,7 @@ class PlayState extends FlxState {
 	public var backgroundLayer:FlxSpriteGroup;
 	public var bulletLayer:FlxSpriteGroup;
 	public var enemyLayer:FlxSpriteGroup;
+	public var healthbarLayer:FlxSpriteGroup;
 	
 	// these have underscores because VSCode can't refactor the names :(
 	public var _player:Player;
@@ -64,6 +65,7 @@ class PlayState extends FlxState {
 		backgroundLayer = new FlxSpriteGroup();
 		bulletLayer = new FlxSpriteGroup();
 		enemyLayer = new FlxSpriteGroup();
+		healthbarLayer = new FlxSpriteGroup();
 		
 		_bullets = new Array <Bullet>();
 		_enemies = new Array <Enemy>();
@@ -182,7 +184,7 @@ class PlayState extends FlxState {
         var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
         var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
 		_player = new Player(randX, randY);
-		add(_player);
+		add(_player._characterSprite);
 		handleScrolls();
 			
 		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.FIRE));
@@ -191,7 +193,10 @@ class PlayState extends FlxState {
 		for (pillar in _mapPillars) {
 			add(pillar);
 		}
-		
+
+		add(healthbarLayer);
+		add(_player._healthbarSprite);
+
 		levelHUD = new LevelHUD(0, Main.GAME_HEIGHT - 120);
 		levelHUD.scrollFactor.set(0, 0);
 
@@ -219,7 +224,8 @@ class PlayState extends FlxState {
                 else {
                     enemy = new BoringEnemy(randX, randY, this);
                 }
-                enemyLayer.add(enemy);
+                enemyLayer.add(enemy._characterSprite);
+				healthbarLayer.add(enemy._healthbarSprite);
                 _enemies.push(enemy);
                 Timer.reset(0.1);
             }
