@@ -610,6 +610,7 @@ class PlayState extends FlxTransitionableState {
 						_bulletHitSound.play();
 						_player.currentHealth -= 1;
 						if (_player.currentHealth <= 0) {
+							FlxG.sound.pause();
 							_player.velocity.set(0, 0);
 							_player.characterSprite().animation.play("stand");
 							_player.invulnerable = true;
