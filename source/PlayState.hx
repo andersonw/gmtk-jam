@@ -95,8 +95,6 @@ class PlayState extends FlxTransitionableState {
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
 		_mapPillarBGs = new Array<FlxSprite>();
-		
-		FlxG.sound.playMusic(AssetPaths.silly_song3__wav);
 
         _bulletSound = FlxG.sound.load(AssetPaths.generic_bullet__wav);
         _flameSound = FlxG.sound.load(AssetPaths.flamethrower__wav);
@@ -527,6 +525,11 @@ class PlayState extends FlxTransitionableState {
         resetLevel();
 	}
 	
+	private function goToGameOverState(timer:FlxTimer):Void {
+		_gameState.level += 1;
+        FlxG.switchState(new GameOverState());
+	}
+	
 	public function damageEnemy(enemy:Enemy, amt:Int, ?immuneToBombs:Bool = false):Void {
 		enemy.currentHealth -= amt;
 		
@@ -557,7 +560,7 @@ class PlayState extends FlxTransitionableState {
 					beatLevelEmitter.start(false, 0.01);
 				}
 				
-				new FlxTimer().start(2, advanceLevel, 2);
+				new FlxTimer().start(2, advanceLevel, 1);
             }
 
             if(FlxG.random.float(0,1) < 1) {
@@ -602,7 +605,24 @@ class PlayState extends FlxTransitionableState {
 						_bulletHitSound.play();
 						_player.currentHealth -= 1;
 						if (_player.currentHealth <= 0) {
-							//TODO: figure out what happens when the player dies
+							_player.velocity.set(0, 0);
+							_player.characterSprite().animation.play("stand");
+							_player.invulnerable = true;
+							lockPlayerControls = true;
+							// TODO(cluedo): add death sound here
+							
+							var lostLevelEmitter = new FlxEmitter(_player.x, _player.y - 20, 200);
+							lostLevelEmitter.makeParticles(6, 6, FlxColor.WHITE, 200);
+							lostLevelEmitter.color.set(FlxColor.RED, FlxColor.WHITE);
+							lostLevelEmitter.speed.set(400, 500);
+							lostLevelEmitter.lifespan.set(0.2, 0.3);
+							
+							add(lostLevelEmitter);
+							lostLevelEmitter.start(false, 0.01);
+							
+							new FlxTimer().start(0.1, function(timer:FlxTimer) { _player.alpha -= 0.2; }, 5);
+							
+							new FlxTimer().start(2.5, goToGameOverState, 1);
 						}
 					}
 					bullet.destroy();

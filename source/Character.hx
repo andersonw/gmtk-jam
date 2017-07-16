@@ -65,7 +65,7 @@ class Character extends FlxSpriteGroup {
 	}
 	
 	override public function getHitbox(?rect:FlxRect):FlxRect {
-		return new FlxRect(_characterSprite.x - 25, _characterSprite.y - 5, 50, 40);
+		return new FlxRect(_characterSprite.x - 25, _characterSprite.y - 15, 50, 50);
 	}
 
     public function characterSprite():FlxSprite {

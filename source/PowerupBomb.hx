@@ -43,10 +43,10 @@ class PowerupBomb extends FlxSpriteGroup {
         super(X, Y);
 		_type = type;
 		_playState = playState;
-		radius = 200;
+		radius = 250;
         _explosionSound = FlxG.sound.load(AssetPaths.explosion__wav);
 		if (type == PowerupType.LIGHTNING) {
-			radius = 320;
+			radius = 380;
 		}
 		
 		var bombBitmapData:BitmapData = Assets.getBitmapData("assets/images/bomb.png");
@@ -77,20 +77,6 @@ class PowerupBomb extends FlxSpriteGroup {
 		add(bombSprite);
 		add(bombOutlineSprite);
 		makeBombFuseSprite();
-
-		// make explosion particle effects
-		/*explosionEmitter = new FlxEmitter();
-		explosionEmitter.color.set(desiredColor, FlxColor.WHITE);
-		explosionEmitter.lifespan.set(.5, 1);
-		explosionEmitter.speed.set(800, 1000);
-		var particle:FlxParticle;
-		for (i in 0...80)
-		{
-			particle = new FlxParticle();
-			particle.makeGraphic(5, 5);
-			explosionEmitter.add(particle);
-		}
-		_playState.add(explosionEmitter);*/
     }
 	public function getType():PowerupType {
 		return _type;
@@ -117,11 +103,11 @@ class PowerupBomb extends FlxSpriteGroup {
 			var distance:Float = (enemy.x - bombSprite.x)*(enemy.x - bombSprite.x) +
 							   (enemy.y - bombSprite.y)*(enemy.y - bombSprite.y);
 			if (distance < radius * radius) {
-				var damageAmount:Int = 15;
+				var damageAmount:Int = 11;
 				if (_type == PowerupType.LIGHTNING) {
-					damageAmount = 6;
+					damageAmount = 4;
 				} else if (_type == PowerupType.METAL) {
-					damageAmount = 10;
+					damageAmount = 6;
 				}
 				_playState.damageEnemy(enemy, damageAmount, true);
 			}
@@ -169,6 +155,7 @@ class PowerupBomb extends FlxSpriteGroup {
 					_bombState = newState = 4;  // just in case!
 					explode();
 				} else {
+					// TODO(cluedo): add tick sound here
 					_bombState = newState;
 					makeBombFuseSprite();
 				}

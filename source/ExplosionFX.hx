@@ -45,7 +45,7 @@ class ExplosionFX extends FlxSpriteGroup {
 			radius = maxRadius - 0.4 * maxRadius * (1. - this.duration / 0.8);
 			explosionSprite.alpha = this.duration;
 		}
-		explosionSprite.scale = new FlxPoint(radius / 20, radius / 20);
+		explosionSprite.scale = new FlxPoint(radius / 25, radius / 25);
 		
 		if (this.duration <= 0) {
 			this.destroy();
