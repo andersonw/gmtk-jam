@@ -426,7 +426,8 @@ class PlayState extends FlxState {
 			_enemies.remove(enemy);
 
             if(FlxG.random.float(0,1) < 0.5) {
-                haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);
+                // haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);
+                spawnPowerup(enemy.x,enemy.y);
             }
 
 		}
