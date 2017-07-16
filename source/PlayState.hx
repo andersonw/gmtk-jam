@@ -26,10 +26,12 @@ import openfl.display.BitmapData;
 using flixel.util.FlxSpriteUtil;
 
 class PlayState extends FlxState {
-	// these have underscores because VSCode can't refactor the names :(
+
 	public var backgroundLayer:FlxSpriteGroup;
 	public var bulletLayer:FlxSpriteGroup;
+	public var enemyLayer:FlxSpriteGroup;
 	
+	// these have underscores because VSCode can't refactor the names :(
 	public var _player:Player;
 	public var _bullets:Array<Bullet>;
 	public var _enemies:Array<Enemy>;
@@ -61,6 +63,7 @@ class PlayState extends FlxState {
 	override public function create():Void {
 		backgroundLayer = new FlxSpriteGroup();
 		bulletLayer = new FlxSpriteGroup();
+		enemyLayer = new FlxSpriteGroup();
 		
 		_bullets = new Array <Bullet>();
 		_enemies = new Array <Enemy>();
@@ -167,10 +170,13 @@ class PlayState extends FlxState {
 		add(_mapSprite);
 		
 		add(backgroundLayer);
+		add(bulletLayer);
+
 		for (pillar in _mapPillarBGs) {
 			add(pillar);
 		}
-		add(bulletLayer);
+		// The pillars are added in this order because isometric projections are hard :(
+		add(enemyLayer);
 		
 		var randomFreePosition = mapHandler.getRandomPathableSquare();
         var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
@@ -178,8 +184,7 @@ class PlayState extends FlxState {
 		_player = new Player(randX, randY);
 		add(_player);
 		handleScrolls();
-		
-		
+			
 		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.FIRE));
 		_player.powerupType = Powerup.PowerupType.FIRE;
 
@@ -214,7 +219,7 @@ class PlayState extends FlxState {
                 else {
                     enemy = new BoringEnemy(randX, randY, this);
                 }
-                add(enemy);
+                enemyLayer.add(enemy);
                 _enemies.push(enemy);
                 Timer.reset(0.1);
             }
