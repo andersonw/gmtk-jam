@@ -46,7 +46,7 @@ class PlayState extends FlxState {
 	private var _mapSprite:FlxSprite;
 	private var mapHandler:MapHandler;
 	private var mapBitmapData:BitmapData;
-	private var levelHUD:LevelHUD;
+	public var levelHUD:LevelHUD;
 
     public var bulletReady:Bool = true;
 	public var lockPlayerControls:Bool = false;
@@ -196,7 +196,7 @@ class PlayState extends FlxState {
 		var randomFreePosition = mapHandler.getRandomPathableSquare();
         var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
         var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
-		_player = new Player(randX, randY);
+		_player = new Player(randX, randY, this);
 		add(_player._characterSprite);
 		handleScrolls();
 			
@@ -263,7 +263,7 @@ class PlayState extends FlxState {
                     case "tank": enemy = new TankEnemy(randX, randY, this);
                     default: enemy = new BoringEnemy(randX, randY, this);
                 }
-                add(enemy);
+                enemyLayer.add(enemy);
                 _enemies.push(enemy);
             }
         }
@@ -482,9 +482,10 @@ class PlayState extends FlxState {
 		
 		if (enemy.currentHealth <= 0) {
             _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
-            levelHUD.updateText(_gameState.score,_gameState.level);
+            levelHUD.updateText(_gameState.score,_gameState.level, _gameState.totalEnemiesLeft);
 			enemy.destroy();
 			_enemies.remove(enemy);
+			_gameState.totalEnemiesLeft -= 1;
 			_gameState.score += 20;
 			
 			if(_gameState.levelComplete()) {
@@ -506,7 +507,7 @@ class PlayState extends FlxState {
 		if (immuneToBombs) {
 			powerup.setInvulnerableToBombs();
 		}
-		add(powerup);
+		bulletLayer.add(powerup);
     }
 	
 	function checkBulletCollisions():Void {
@@ -624,9 +625,10 @@ class PlayState extends FlxState {
 		while (i < _powerups.length) {
 			var powerup:Powerup = _powerups[i];
 			
-			if (overlap(powerup, _player.characterSprite())) {
+			if (overlapCenteredHitboxes(powerup, _player)) {
 				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
 				_player.powerupType = powerup.getType();
+				_player.timeUntilPowerupExpires = Powerup.getCooldownOfType(powerup.getType());
 				levelHUD.updateCard(_player.powerupType);
 				
 				powerup.destroy();
@@ -729,7 +731,7 @@ class PlayState extends FlxState {
 	}
 	
 	function updateMenu(elapsed:Float):Void {
-		levelHUD.updateText(_gameState.score, _gameState.level);
+		levelHUD.updateText(_gameState.score, _gameState.level, _gameState.totalEnemiesLeft);
 		levelHUD.update(elapsed);
 	}
 
