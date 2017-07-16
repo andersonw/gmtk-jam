@@ -41,7 +41,9 @@ class PlayState extends FlxState {
 	private var mapHandler:MapHandler;
 	private var mapBitmapData:BitmapData;
 
-    public var bulletReady = true;
+    public var bulletReady:Bool = true;
+	public var lockPlayerControls:Bool = false;
+	public var ignorePlayerWallCollision:Bool = false;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -196,7 +198,9 @@ class PlayState extends FlxState {
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		
-		handlePlayerMovement();
+		if (!lockPlayerControls) {
+			handlePlayerMovement();
+		}
         moveEnemies();
 		updateAndHandleCollisions(elapsed);
 		
@@ -351,7 +355,9 @@ class PlayState extends FlxState {
 				}
 			} else if (_player.powerupType == Powerup.PowerupType.METAL) {
 				bulletReady = false;
-				var bulletTimer = new FlxTimer().start(0.8, reload, 1);
+				var knockbackDuration:Float = 0.2;
+				var cooldownDuration:Float = 0.8;
+				var bulletTimer = new FlxTimer().start(cooldownDuration, reload, 1);
 				var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
 				var BULLET_VELOCITY:Float = 180.0;
 				var BULLET_VELOCITY_VARIANCE:Float = 280.0;
@@ -369,6 +375,21 @@ class PlayState extends FlxState {
 					_bullets.push(bullet);
 					add(bullet);
 				}
+				
+				var velocityToTry:Float = 800.;
+				_player.x -= velocityToTry * knockbackDuration * Math.cos(angle);
+				_player.y -= velocityToTry * knockbackDuration * Math.sin(angle);
+				
+				// TODO: Make more sophisticated?
+				_player.velocity.set( -velocityToTry * Math.cos(angle), -velocityToTry * Math.sin(angle));
+				if (!hitTestWall(_player)) {
+					ignorePlayerWallCollision = true;
+				}
+				_player.x += velocityToTry * knockbackDuration * Math.cos(angle);
+				_player.y += velocityToTry * knockbackDuration * Math.sin(angle);
+				
+				lockPlayerControls = true;
+				var lockTimer = new FlxTimer().start(knockbackDuration, function(timer:FlxTimer) { ignorePlayerWallCollision = false; lockPlayerControls = false; }, 1);
 			}
 		}
 	}
@@ -562,7 +583,9 @@ class PlayState extends FlxState {
 	
 	function updateAndHandleCollisions(elapsed:Float):Void {
 		_player._update(elapsed);
-		snapObjectToTiles(_player, elapsed);
+		if (!ignorePlayerWallCollision) {
+			snapObjectToTiles(_player, elapsed);
+		}
 		var i:Int = 0;
 		while (i < _bullets.length) {
 			var bullet = _bullets[i];
