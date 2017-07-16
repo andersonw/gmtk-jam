@@ -19,7 +19,10 @@ class Character extends FlxSpriteGroup {
 
     public function new(?X:Float=0, ?Y:Float=0, ?color:FlxColor=FlxColor.BLUE, ?maxHealth:Int=1) {
         super(X, Y);
-		
+		drawCharacterSprite(color);
+        this.maxHealth = maxHealth;
+        currentHealth = maxHealth;
+
 		_characterSprite = new FlxSprite();
 		_characterSprite.loadGraphic(AssetPaths.robot_sprites_packed__png, true, 70, 110);
 		_characterSprite.setFacingFlip(FlxObject.LEFT, false, false);
@@ -32,18 +35,18 @@ class Character extends FlxSpriteGroup {
 		_characterSprite.x = -35;
 		_characterSprite.y = -87;
 		add(_characterSprite);
+        drawHealthbarSprite();
+    }
 
+	public function drawCharacterSprite(color:FlxColor) {
+	}
+
+    public function drawHealthbarSprite() {
         _healthbarSprite = new FlxSprite();
         _healthbarSprite.makeGraphic(32, 10, FlxColor.RED);
         _healthbarSprite.x = _characterSprite.x - this.x;
-        _healthbarSprite.y = _characterSprite.y - this.y + 40;
+        _healthbarSprite.y = _characterSprite.y - this.y + 120;
         add(_healthbarSprite);
-
-        this.maxHealth = maxHealth;
-        currentHealth = maxHealth;
-    }
-	
-	public function drawCharacterSprite(color:FlxColor) {
 	}
 	
 	override public function getHitbox(?rect:FlxRect):FlxRect {
@@ -59,7 +62,7 @@ class Character extends FlxSpriteGroup {
 	public function _update(elapsed:Float):Void {
         _healthbarSprite.visible = _healthbarVisible;
         if (currentHealth > 0) {
-            _healthbarSprite.makeGraphic(Std.int(currentHealth/maxHealth*_characterSprite.width), 10, FlxColor.RED);
+            _healthbarSprite.makeGraphic(Math.ceil(currentHealth/maxHealth*_characterSprite.width), 10, FlxColor.RED);
         }
         else {
             _healthbarSprite.visible = false;
