@@ -1,17 +1,20 @@
 package;
 import flixel.FlxG;
 import flixel.util.FlxColor;
+import flixel.system.FlxSound;
 
 class BoringEnemy extends Enemy {
     private var _bulletSpawnTimer:Float;
     private static var BULLET_COOLDOWN:Float = 1.0;
     private static var CHASE_DISTANCE:Float = 450.0; // distance at which it will start chasing the player
     private static var STOP_CHASE_DISTANCE:Float = 750.0; // distance at which it stops chasing the player
+    private var _bulletSound:FlxSound;
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
         super(X, Y, FlxColor.ORANGE, 5, playState);
         _bulletSpawnTimer = 0;
         enemyType = "boring";
+        _bulletSound = FlxG.sound.load(AssetPaths.enemy_bullet__wav);
     }
     override public function update(elapsed:Float):Void {
 	}
@@ -29,6 +32,7 @@ class BoringEnemy extends Enemy {
             bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
             _playState._bullets.push(bullet);
             _playState.bulletLayer.add(bullet);
+            _bulletSound.play();
         }
 		super._update(elapsed);
 	}

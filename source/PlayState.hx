@@ -55,9 +55,9 @@ class PlayState extends FlxState {
     private var _bulletSound:FlxSound;
     private var _flameSound:FlxSound;
     private var _shotgunSound:FlxSound;
-
     private var _lightningSound:FlxSound;
     private var _bulletHitSound:FlxSound;
+    private var _powerupSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -93,6 +93,7 @@ class PlayState extends FlxState {
         _shotgunSound = FlxG.sound.load(AssetPaths.shotgun__wav);
         _lightningSound = FlxG.sound.load(AssetPaths.lightning__wav);
         _bulletHitSound = FlxG.sound.load(AssetPaths.bullet_impact__wav);
+        _powerupSound = FlxG.sound.load(AssetPaths.powerup__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -633,6 +634,7 @@ class PlayState extends FlxState {
 				
 				powerup.destroy();
 				_powerups.splice(i, 1);
+                _powerupSound.play();
 				continue;
 			}
 			++i;
