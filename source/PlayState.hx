@@ -46,7 +46,7 @@ class PlayState extends FlxState {
 	private var _mapSprite:FlxSprite;
 	private var mapHandler:MapHandler;
 	private var mapBitmapData:BitmapData;
-	private var levelHUD:LevelHUD;
+	public var levelHUD:LevelHUD;
 
     public var bulletReady:Bool = true;
 	public var lockPlayerControls:Bool = false;
@@ -183,7 +183,7 @@ class PlayState extends FlxState {
 		var randomFreePosition = mapHandler.getRandomPathableSquare();
         var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
         var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
-		_player = new Player(randX, randY);
+		_player = new Player(randX, randY, this);
 		add(_player._characterSprite);
 		handleScrolls();
 			
@@ -611,6 +611,7 @@ class PlayState extends FlxState {
 			if (overlapCenteredHitboxes(powerup, _player)) {
 				_player.drawCharacterSprite(Powerup.getColorOfType(powerup.getType()));
 				_player.powerupType = powerup.getType();
+				_player.timeUntilPowerupExpires = Powerup.getCooldownOfType(powerup.getType());
 				levelHUD.updateCard(_player.powerupType);
 				
 				powerup.destroy();
