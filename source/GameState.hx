@@ -8,9 +8,12 @@ class GameState {
     public var killedEnemyCount:Map<String,Int>;
 
 	public function new() {
-		reset();
         fixedEnemyTypes=["boring","crazy","tank"];
 
+		resetGame();
+        initNewLevel();
+	}
+	public function initNewLevel() {
         enemyCount=["boring"=>1,
                     "crazy"=>1,
                     "tank"=>1];
@@ -19,7 +22,7 @@ class GameState {
                           "crazy"=>0,
                           "tank"=>0];
 	}
-	public function reset() {
+	public function resetGame() {
 		score = 0;
 		level = 1;
 	}

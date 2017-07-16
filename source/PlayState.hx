@@ -68,6 +68,7 @@ class PlayState extends FlxState {
 		_powerupBombs = new Array <PowerupBomb>();
 		_camera = new FlxCamera();
         _gameState = Main.gameState;
+		_gameState.initNewLevel();
 		
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
@@ -658,7 +659,13 @@ class PlayState extends FlxState {
 		}
 		for (bomb in _powerupBombs) {
 			bomb._update(elapsed);
-			snapObjectToTiles(bomb, elapsed);
+			var hitDirection:FlxPoint = snapObjectToTiles(bomb, elapsed);
+			if (hitDirection.x > 0.5) {
+				bomb.velocity.set( -bomb.velocity.x, bomb.velocity.y);
+			}
+			if (hitDirection.y > 0.5) {
+				bomb.velocity.set(bomb.velocity.x, - bomb.velocity.y);
+			}
 			if (bomb.isExploding()) {
 				bomb.destroy();
 				_powerupBombs.remove(bomb);
@@ -707,9 +714,9 @@ class PlayState extends FlxState {
 		
 		return nwTileValue != 0 || neTileValue != 0 || swTileValue != 0 || seTileValue != 0;
 	}
-	function snapObjectToTiles(object:FlxObject, elapsed:Float):Void {
+	function snapObjectToTiles(object:FlxObject, elapsed:Float):FlxPoint {
 		if (!hitTestWall(object)) {
-			return;
+			return new FlxPoint(0, 0);
 		}
 		
 		var xDistance:Float = object.velocity.x * elapsed;
@@ -727,10 +734,13 @@ class PlayState extends FlxState {
 		}
 		if (hitWithoutX && hitWithoutY) {
 			object.x -= xDistance;
+			return new FlxPoint(1, 1);
 		} else if (hitWithoutX) {
+			return new FlxPoint(0, 1);
 		} else {
 			object.y += yDistance;
 			object.x -= xDistance;
+			return new FlxPoint(1, 0);
 		}
 	}
 	
