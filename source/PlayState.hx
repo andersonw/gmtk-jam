@@ -36,7 +36,7 @@ class PlayState extends FlxState {
 	public var _powerups:Array<Powerup>;
 	public var _powerupBombs:Array<PowerupBomb>;
 	public var _camera:FlxCamera;
-    public var _level:Level;
+    public var _gameState:GameState;
 	
 	private var _mapPillars:Array<FlxSprite>;
 	private var _mapPillarBGs:Array<FlxSprite>;
@@ -67,7 +67,7 @@ class PlayState extends FlxState {
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
 		_camera = new FlxCamera();
-        _level = new Level();
+        _gameState = new GameState();
 		
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
@@ -431,13 +431,13 @@ class PlayState extends FlxState {
 		enemy.currentHealth -= amt;
 		
 		if (enemy.currentHealth <= 0) {
-            _level.killedEnemyCount[enemy.getEnemyType()] += 1;
+            _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
 			enemy.destroy();
 			_enemies.remove(enemy);
 			Main.gameState.score += 20;
-
-            if(_level.levelComplete()) {
-				Main.gameState.level += 1;
+			
+			if(_gameState.levelComplete()) {
+				_gameState.level += 1;
                 resetLevel();
             }
 
