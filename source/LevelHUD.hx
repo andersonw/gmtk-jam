@@ -10,6 +10,7 @@ class LevelHUD extends FlxSpriteGroup {
 	private var duration:Float;
 	
 	private var bgMenuImage:FlxSprite;
+	public var powerupCard:FlxSprite;
 	private var scoreText:FlxText;
 	private var levelText:FlxText;
 	
@@ -19,14 +20,21 @@ class LevelHUD extends FlxSpriteGroup {
 		bgMenuImage = new FlxSprite();
 		bgMenuImage.loadGraphic("assets/images/level_hud_bg.png");
 		
-		scoreText = new FlxText(70, 30, 0, "");
+		powerupCard = new FlxSprite();
+		powerupCard.loadGraphic(AssetPaths.fire_card__png);
+		powerupCard.x = 20;
+		powerupCard.y = 15;
+		
+		scoreText = new FlxText(130, 30, 0, "");
 		scoreText.size = 30;
 		scoreText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
-		levelText = new FlxText(70, 60, 0, "");
+		levelText = new FlxText(130, 60, 0, "");
 		levelText.size = 30;
 		levelText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
 		
 		add(bgMenuImage);
+		
+		add(powerupCard);
 		add(scoreText);
 		add(levelText);
 		updateText(0, 1);

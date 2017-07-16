@@ -202,7 +202,8 @@ class PlayState extends FlxState {
 
 		add(levelHUD);
 		
-        var enemySpawner = new FlxTimer().start(0.1, spawnRandomEnemies, 0);
+        //var enemySpawner = new FlxTimer().start(0.1, spawnRandomEnemies, 0);
+        spawnLevelEnemies();
 		super.create();
 		//FlxG.log.warn(_player.characterSprite().getHitbox());
 	}
@@ -228,6 +229,29 @@ class PlayState extends FlxState {
 				healthbarLayer.add(enemy._healthbarSprite);
                 _enemies.push(enemy);
                 Timer.reset(0.1);
+            }
+        }
+    }
+
+    private function spawnLevelEnemies() {
+        for(enemyType in _gameState.fixedEnemyTypes) {
+            for(i in 0..._gameState.enemyCount[enemyType]) {
+                var randX:Float;
+                var randY:Float;
+                var enemy:Enemy;
+                do {
+                    var randomFreePosition = mapHandler.getRandomPathableSquare();
+                    randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
+                    randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
+                } while (FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) < 250);
+                switch(enemyType) {
+                    case "boring": enemy = new BoringEnemy(randX, randY, this);
+                    case "crazy": enemy = new CrazyEnemy(randX, randY, this);
+                    case "tank": enemy = new TankEnemy(randX, randY, this);
+                    default: enemy = new BoringEnemy(randX, randY, this);
+                }
+                add(enemy);
+                _enemies.push(enemy);
             }
         }
     }
@@ -701,7 +725,6 @@ class PlayState extends FlxState {
 		updateAndHandleCollisions(elapsed);
 		updateMenu(elapsed);
 		
-        //FlxG.overlap(_player, _enemy, resetLevel);
 		handleMousePress();
 
         if(FlxG.keys.justPressed.R) {
