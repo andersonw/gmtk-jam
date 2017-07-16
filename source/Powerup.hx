@@ -34,6 +34,10 @@ class Powerup extends FlxSpriteGroup {
 		[FIRE => FlxColor.RED, ICE => FlxColor.BLUE,
 		 LIGHTNING => FlxColor.YELLOW, METAL => FlxColor.GRAY,
 		 LUGE => FlxColor.WHITE];
+	
+	// just in case we want to change individual cooldowns
+	private static var kPowerupToCooldownMap:Map<PowerupType, Int> =
+		[FIRE => 5, ICE => 5, LIGHTNING => 5, METAL => 5, LUGE => 5];		
 	 
 	public var bombSprite:FlxSprite;
 	private var bombOutlineSprite:FlxSprite;
@@ -100,7 +104,9 @@ class Powerup extends FlxSpriteGroup {
 	public static function getColorOfType(type:PowerupType):FlxColor {
 		return kPowerupToColorMap[type];
 	}
-	
+	public static function getCooldownOfType(type:PowerupType):Int {
+		return kPowerupToCooldownMap[type];
+	}
 	override public function update(elapsed:Float):Void {
 	}
 	public function _update(elapsed:Float):Void {
