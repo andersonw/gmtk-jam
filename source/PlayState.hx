@@ -264,10 +264,10 @@ class PlayState extends FlxTransitionableState {
             if(FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) > 250) {
                 var enemy:Enemy;
                 var randomEnemy = FlxG.random.float(0, 1);
-                if(randomEnemy < 0.2) {
+                if(randomEnemy < 0.02) {
                     enemy = new TankEnemy(randX, randY, this);
                 }                
-                else if(randomEnemy < 0.5) {
+                else if(randomEnemy < 0.3) {
                     enemy = new CrazyEnemy(randX, randY, this);
                 }
                 else {
@@ -296,6 +296,7 @@ class PlayState extends FlxTransitionableState {
                     case "boring": enemy = new BoringEnemy(randX, randY, this);
                     case "crazy": enemy = new CrazyEnemy(randX, randY, this);
                     case "tank": enemy = new TankEnemy(randX, randY, this);
+                    case "boss": enemy = new BossEnemy(randX, randY, this);
                     default: enemy = new BoringEnemy(randX, randY, this);
                 }
                 enemyLayer.add(enemy);
@@ -615,6 +616,7 @@ class PlayState extends FlxTransitionableState {
 						_bulletHitSound.play();
 						_player.currentHealth -= 1;
 						if (_player.currentHealth <= 0) {
+							FlxG.sound.pause();
 							_player.velocity.set(0, 0);
 							_player.characterSprite().animation.play("stand");
 							_player.invulnerable = true;
