@@ -102,14 +102,8 @@ class PowerupBomb extends FlxSpriteGroup {
 	}
 
 	public function explode():Void {
-		explosionEmitter.x = bombSprite.x + SPRITE_WIDTH/2;
-		explosionEmitter.y = bombSprite.y + SPRITE_HEIGHT/2;
-		explosionEmitter.start(true);
-		new FlxTimer().start(1.0, function(_)
-		{ 
-			_playState.remove(explosionEmitter);
-			explosionEmitter.destroy();
-		});
+		var explosionFX:ExplosionFX = new ExplosionFX(bombSprite.x, bombSprite.y, 150, Powerup.getColorOfType(_type));
+		_playState.add(explosionFX);
 
 		for (enemy in _playState._enemies) {
 			var distance:Float = (enemy.x - bombSprite.x)*(enemy.x - bombSprite.x) +

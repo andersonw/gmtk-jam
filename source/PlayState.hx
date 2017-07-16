@@ -180,7 +180,8 @@ class PlayState extends FlxState {
                 var enemy:Enemy;
                 var randomEnemy = FlxG.random.float(0, 1);
                 if(randomEnemy < 0.2) {
-                    enemy = new TankEnemy(randX, randY, this);
+                    //enemy = new TankEnemy(randX, randY, this);
+                    enemy = new BoringEnemy(randX, randY, this);
                 }                
                 else if(randomEnemy < 0.5) {
                     enemy = new CrazyEnemy(randX, randY, this);
@@ -425,7 +426,7 @@ class PlayState extends FlxState {
 			enemy.destroy();
 			_enemies.remove(enemy);
 
-            if(FlxG.random.float(0,1) < 0.5) {
+            if(FlxG.random.float(0,1) < 1) {
                 // haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);
                 spawnPowerup(enemy.x,enemy.y);
             }

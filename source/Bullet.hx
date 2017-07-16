@@ -1,6 +1,5 @@
 package;
 
-import flash.display.BitmapData;
 import flash.geom.ColorTransform;
 import flixel.FlxG;
 import flixel.FlxSprite;
