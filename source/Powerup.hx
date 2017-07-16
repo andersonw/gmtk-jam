@@ -99,7 +99,7 @@ class Powerup extends FlxSpriteGroup {
 	
 	// static methods
 	public static function getRandomType():PowerupType {
-		return [FIRE, ICE, LIGHTNING, METAL, LUGE][Std.int(Math.random() * 5)];
+		return [FIRE, LIGHTNING, METAL][Std.int(Math.random() * 3)];
 	}
 	public static function getColorOfType(type:PowerupType):FlxColor {
 		return kPowerupToColorMap[type];

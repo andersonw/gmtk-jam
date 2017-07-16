@@ -9,13 +9,14 @@ class GameState {
     public var boringEnemyCount:Array<Int>;
     public var crazyEnemyCount:Array<Int>;
     public var tankEnemyCount:Array<Int>;
-    
+    public var randomEnemySpawnrate:Array<Float>;
 
 	public function new() {
         fixedEnemyTypes=["boring","crazy","tank"];
-        boringEnemyCount=[0,5,10,20,50];
-        crazyEnemyCount=[0,1,2,5,10];
-        tankEnemyCount=[0,0,1,2,5];
+        boringEnemyCount=[0,5,10,20,50,];
+        crazyEnemyCount=[0,0,2,5,10,0];
+        tankEnemyCount=[0,0,0,2,5,20];
+        randomEnemySpawnrate=[1000,1000,1000,1000,1000,0.1];
 		resetGame();
         initNewLevel();
 	}
