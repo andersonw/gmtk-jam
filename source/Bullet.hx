@@ -5,6 +5,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 import openfl.Assets;
 import openfl.display.BitmapData;
@@ -23,7 +24,7 @@ enum BulletOwner {
 }
 
 class Bullet extends FlxSpriteGroup {
-	private var bulletSprite:FlxSprite;
+	public var bulletSprite:FlxSprite;
 	
 	public var type:BulletType;
 	public var owner:BulletOwner;
@@ -77,6 +78,9 @@ class Bullet extends FlxSpriteGroup {
 			originalVelocity = this.velocity;
 		}
     }
+	override public function getHitbox(?rect:FlxRect):FlxRect {
+		return bulletSprite.getHitbox();
+	}
 	public function shouldDelete():Bool {
 		if (type == BulletType.FIRE) {
 			return timeAlive >= 1.0;

@@ -26,6 +26,7 @@ enum PowerupType {
 class Powerup extends FlxSpriteGroup {
 	private var _playState:PlayState;
     public var isInvincible:Bool;
+    public var isInvincibleToBombs:Bool;
 	private var SPRITE_WIDTH:Int = 40;
 	private var SPRITE_HEIGHT:Int = 40;
 
@@ -79,6 +80,13 @@ class Powerup extends FlxSpriteGroup {
 
     public function makeVulnerable() {
         isInvincible = false;
+    }
+	public function setInvulnerableToBombs() {
+		isInvincibleToBombs = true;
+        haxe.Timer.delay(makeVulnerableToBombs.bind(), 3000);
+	}
+    public function makeVulnerableToBombs() {
+        isInvincibleToBombs = false;
     }
 	
 	override public function getHitbox(?rect:FlxRect):FlxRect {

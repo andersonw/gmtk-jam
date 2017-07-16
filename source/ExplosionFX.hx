@@ -14,10 +14,11 @@ class ExplosionFX extends FlxSpriteGroup {
 	
 	private var maxRadius:Float;
 	private var explosionSprite:FlxSprite;
+	private var MAX_DURATION = 1.8;
 	
     public function new(?X:Float=0, ?Y:Float=0, ?maxRadius:Float, ?color:FlxColor) {
         super(X, Y);
-		this.duration = 3.0;
+		this.duration = MAX_DURATION;
 		this.maxRadius = maxRadius;
 		
 		var glowCircle:BitmapData = Assets.getBitmapData("assets/images/glow_circle.png").clone();
@@ -36,12 +37,12 @@ class ExplosionFX extends FlxSpriteGroup {
 		
 		var radius:Float;
 		
-		if (this.duration > 2.6) {
-			radius = (3.0 - this.duration) / 0.4 * maxRadius;
-		} else if (this.duration > 1.0) {
+		if (this.duration > MAX_DURATION - 0.4) {
+			radius = (MAX_DURATION - this.duration) / 0.4 * maxRadius;
+		} else if (this.duration > 0.8) {
 			radius = maxRadius;
 		} else {
-			radius = maxRadius - 0.4 * maxRadius * (1. - this.duration);
+			radius = maxRadius - 0.4 * maxRadius * (1. - this.duration / 0.8);
 			explosionSprite.alpha = this.duration;
 		}
 		explosionSprite.scale = new FlxPoint(radius / 20, radius / 20);

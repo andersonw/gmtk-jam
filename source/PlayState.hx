@@ -36,7 +36,7 @@ class PlayState extends FlxState {
 	public var _powerups:Array<Powerup>;
 	public var _powerupBombs:Array<PowerupBomb>;
 	public var _camera:FlxCamera;
-    public var _level:Level;
+    public var _gameState:GameState;
 	
 	private var _mapPillars:Array<FlxSprite>;
 	private var _mapPillarBGs:Array<FlxSprite>;
@@ -67,7 +67,8 @@ class PlayState extends FlxState {
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
 		_camera = new FlxCamera();
-        _level = new Level();
+        _gameState = Main.gameState;
+		_gameState.initNewLevel();
 		
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
@@ -179,8 +180,8 @@ class PlayState extends FlxState {
 		handleScrolls();
 		
 		
-		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.METAL));
-		_player.powerupType = Powerup.PowerupType.METAL;
+		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.FIRE));
+		_player.powerupType = Powerup.PowerupType.FIRE;
 
 		for (pillar in _mapPillars) {
 			add(pillar);
@@ -205,8 +206,7 @@ class PlayState extends FlxState {
                 var enemy:Enemy;
                 var randomEnemy = FlxG.random.float(0, 1);
                 if(randomEnemy < 0.2) {
-                    //enemy = new TankEnemy(randX, randY, this);
-                    enemy = new BoringEnemy(randX, randY, this);
+                    enemy = new TankEnemy(randX, randY, this);
                 }                
                 else if(randomEnemy < 0.5) {
                     enemy = new CrazyEnemy(randX, randY, this);
@@ -223,23 +223,6 @@ class PlayState extends FlxState {
 
 	public function resetLevel() {
 		FlxG.switchState(new PlayState());
-	}
-
-	override public function update(elapsed:Float):Void {
-		super.update(elapsed);
-		
-		if (!lockPlayerControls) {
-			handlePlayerMovement();
-		}
-        moveEnemies();
-		updateAndHandleCollisions(elapsed);
-		
-        //FlxG.overlap(_player, _enemy, resetLevel);
-		handleMousePress();
-
-        if(FlxG.keys.justPressed.R) {
-            FlxG.switchState(new PlayState());
-        }
 	}
 	
 	// ==============================================================================
@@ -444,29 +427,35 @@ class PlayState extends FlxState {
         bulletReady = true;
     }
 	
-	public function damageEnemy(enemy:Enemy, amt:Int):Void {
+	public function damageEnemy(enemy:Enemy, amt:Int, ?immuneToBombs:Bool = false):Void {
 		enemy.currentHealth -= amt;
 		
 		if (enemy.currentHealth <= 0) {
-            _level.killedEnemyCount[enemy.getEnemyType()] += 1;
+            _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
+            levelHUD.updateText(_gameState.score,_gameState.level);
 			enemy.destroy();
 			_enemies.remove(enemy);
-
-            if(_level.levelComplete()) {
+			_gameState.score += 20;
+			
+			if(_gameState.levelComplete()) {
+				_gameState.level += 1;
                 resetLevel();
             }
 
             if(FlxG.random.float(0,1) < 1) {
                 // haxe.Timer.delay(spawnPowerup.bind(enemy.x,enemy.y),500);
-                spawnPowerup(enemy.x,enemy.y);
+                spawnPowerup(enemy.x,enemy.y, immuneToBombs);
             }
 
 		}
 	}
 
-    private function spawnPowerup(x,y):Void {
+    private function spawnPowerup(x,y, ?immuneToBombs:Bool = false):Void {
         var powerup:Powerup = new Powerup(x, y, Powerup.getRandomType(), this);
 		_powerups.push(powerup);
+		if (immuneToBombs) {
+			powerup.setInvulnerableToBombs();
+		}
 		add(powerup);
     }
 	
@@ -491,7 +480,7 @@ class PlayState extends FlxState {
 			
 			if (bullet.owner == Bullet.BulletOwner.ENEMY) {
 				// collision with player?
-				if (overlap(bullet, _player.characterSprite())) {
+				if (overlapCenteredHitboxes(bullet, _player)) {
 					_player.currentHealth -= 1;
 					if (_player.currentHealth <= 0) {
 						//TODO: figure out what happens when the player dies
@@ -506,7 +495,7 @@ class PlayState extends FlxState {
 				var collisionFound:Bool = false;
 				for (j in 0..._enemies.length) {
 					var enemy:Enemy = _enemies[j];
-					if (overlap(bullet, enemy.characterSprite())) {
+					if (overlapCenteredHitboxes(bullet, enemy)) {
 						bullet.destroy();
 						_bullets.splice(i, 1);
 						
@@ -522,7 +511,7 @@ class PlayState extends FlxState {
 				
 				for (j in 0..._powerups.length) {
 					var powerup:Powerup = _powerups[j];
-					if (overlap(bullet, powerup) && powerup.isInvincible == false) {
+					if (overlap(bullet, powerup) && !powerup.isInvincible) {
 						bullet.destroy();
 						_bullets.splice(i, 1);
 						
@@ -595,6 +584,20 @@ class PlayState extends FlxState {
 		}
 	}
 	
+	public function removeBullets(srcX:Float, srcY:Float, radius:Float):Void {
+		for (bullet in _bullets) {
+			var distance:Float = (srcX - bullet.bulletSprite.x)*(srcX - bullet.bulletSprite.x) +
+								 (srcY - bullet.bulletSprite.y) * (srcY - bullet.bulletSprite.y);
+			
+			if (distance < radius * radius && bullet.owner != Bullet.BulletOwner.PLAYER) {
+				_bullets.remove(bullet);
+				bullet.destroy();
+				
+				_gameState.score += 1;
+			}
+		}
+	}
+	
 	public function chainExplosions(srcX:Float, srcY:Float, radius:Float):Void {
 		for (bomb in _powerupBombs) {
 			// Process bombs first, since powerups will turn into bombs and
@@ -609,7 +612,7 @@ class PlayState extends FlxState {
 		for (powerup in _powerups) {
 			var distance:Float = (srcX - powerup.bombSprite.x)*(srcX - powerup.bombSprite.x) +
 								(srcY - powerup.bombSprite.y)*(srcY - powerup.bombSprite.y);
-			if (distance < radius * radius) {
+			if (distance < radius * radius && !powerup.isInvincibleToBombs) {
 				var powerupBomb:PowerupBomb = new PowerupBomb(powerup.x, powerup.y, powerup.getType(), this);
 				
 				powerup.destroy();
@@ -624,46 +627,8 @@ class PlayState extends FlxState {
 	}
 	
 	// ==============================================================================
-	
-	function hitTestWall(object:FlxObject):Bool {
-		var leftX:Float = object.x - object.getHitbox().width / 2;
-		var rightX:Float = object.x + object.getHitbox().width / 2;
-		var topY:Float = object.y - object.getHitbox().height / 2;
-		var bottomY:Float = object.y + object.getHitbox().height / 2;
-		
-		var nwTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
-		var neTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
-		var swTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(bottomY / TILE_HEIGHT));
-		var seTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(bottomY / TILE_HEIGHT));
-		
-		return nwTileValue != 0 || neTileValue != 0 || swTileValue != 0 || seTileValue != 0;
-	}
-	function snapObjectToTiles(object:FlxObject, elapsed:Float):Void {
-		if (!hitTestWall(object)) {
-			return;
-		}
-		
-		var xDistance:Float = object.velocity.x * elapsed;
-		var yDistance:Float = object.velocity.y * elapsed;
-		var hitWithoutX:Bool = false;
-		var hitWithoutY:Bool = false;
-		object.x -= xDistance;
-		if (hitTestWall(object)) {
-			hitWithoutX = true;
-		}
-		object.x += xDistance;
-		object.y -= yDistance;
-		if (hitTestWall(object)) {
-			hitWithoutY = true;
-		}
-		if (hitWithoutX && hitWithoutY) {
-			object.x -= xDistance;
-		} else if (hitWithoutX) {
-		} else {
-			object.y += yDistance;
-			object.x -= xDistance;
-		}
-	}
+	// Core update logic
+	// ==============================================================================
 	
 	function updateAndHandleCollisions(elapsed:Float):Void {
 		_player._update(elapsed);
@@ -695,7 +660,13 @@ class PlayState extends FlxState {
 		}
 		for (bomb in _powerupBombs) {
 			bomb._update(elapsed);
-			snapObjectToTiles(bomb, elapsed);
+			var hitDirection:FlxPoint = snapObjectToTiles(bomb, elapsed);
+			if (hitDirection.x > 0.5) {
+				bomb.velocity.set( -bomb.velocity.x, bomb.velocity.y);
+			}
+			if (hitDirection.y > 0.5) {
+				bomb.velocity.set(bomb.velocity.x, - bomb.velocity.y);
+			}
 			if (bomb.isExploding()) {
 				bomb.destroy();
 				_powerupBombs.remove(bomb);
@@ -704,10 +675,90 @@ class PlayState extends FlxState {
 		handleScrolls();
 	}
 	
+	function updateMenu(elapsed:Float):Void {
+		levelHUD.updateText(_gameState.score, _gameState.level);
+		levelHUD.update(elapsed);
+	}
+
+	override public function update(elapsed:Float):Void {
+		super.update(elapsed);
+		
+		if (!lockPlayerControls) {
+			handlePlayerMovement();
+		}
+        moveEnemies();
+		updateAndHandleCollisions(elapsed);
+		updateMenu(elapsed);
+		
+        //FlxG.overlap(_player, _enemy, resetLevel);
+		handleMousePress();
+
+        if(FlxG.keys.justPressed.R) {
+            FlxG.switchState(new PlayState());
+        }
+	}
+	
+	// ==============================================================================
+	// Utility functions
+	// ==============================================================================
+	
+	function hitTestWall(object:FlxObject):Bool {
+		var leftX:Float = object.x - object.getHitbox().width / 2;
+		var rightX:Float = object.x + object.getHitbox().width / 2;
+		var topY:Float = object.y - object.getHitbox().height / 2;
+		var bottomY:Float = object.y + object.getHitbox().height / 2;
+		
+		var nwTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
+		var neTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
+		var swTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(bottomY / TILE_HEIGHT));
+		var seTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(bottomY / TILE_HEIGHT));
+		
+		return nwTileValue != 0 || neTileValue != 0 || swTileValue != 0 || seTileValue != 0;
+	}
+	function snapObjectToTiles(object:FlxObject, elapsed:Float):FlxPoint {
+		if (!hitTestWall(object)) {
+			return new FlxPoint(0, 0);
+		}
+		
+		var xDistance:Float = object.velocity.x * elapsed;
+		var yDistance:Float = object.velocity.y * elapsed;
+		var hitWithoutX:Bool = false;
+		var hitWithoutY:Bool = false;
+		object.x -= xDistance;
+		if (hitTestWall(object)) {
+			hitWithoutX = true;
+		}
+		object.x += xDistance;
+		object.y -= yDistance;
+		if (hitTestWall(object)) {
+			hitWithoutY = true;
+		}
+		if (hitWithoutX && hitWithoutY) {
+			object.x -= xDistance;
+			return new FlxPoint(1, 1);
+		} else if (hitWithoutX) {
+			return new FlxPoint(0, 1);
+		} else {
+			object.y += yDistance;
+			object.x -= xDistance;
+			return new FlxPoint(1, 0);
+		}
+	}
+	
 	function handleScrolls() {
 		camera.scroll.x = _player.x - Main.GAME_WIDTH / 2;
 		camera.scroll.y = _player.y - Main.GAME_HEIGHT / 2;
 		if (camera.x < 0) camera.x = 0;
+	}
+	
+	function overlapCenteredHitboxes(obj1:FlxObject, obj2:FlxObject):Bool {
+		var hitbox1:FlxRect = obj1.getHitbox();
+		var hitbox2:FlxRect = obj2.getHitbox();
+		
+		return 	obj1.x + hitbox1.width/2 >= obj2.x - hitbox2.width/2 &&
+				obj2.x + hitbox2.width/2 >= obj1.x - hitbox1.width/2 &&
+				obj1.y + hitbox1.height/2 >= obj2.y - hitbox2.height/2 &&
+				obj2.y + hitbox2.height/2 >= obj1.y - hitbox1.height/2;
 	}
 	
 	function overlap(obj1:FlxObject, obj2:FlxObject):Bool {
