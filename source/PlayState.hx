@@ -5,6 +5,7 @@ import flash.display.BitmapData;
 import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flash.utils.Timer;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -15,6 +16,8 @@ import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileCircle;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileSquare;
 import flixel.addons.transition.TransitionData;
+import flixel.effects.particles.FlxEmitter;
+import flixel.effects.particles.FlxParticle;
 import flixel.graphics.FlxGraphic;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
@@ -532,11 +535,23 @@ class PlayState extends FlxTransitionableState {
 			_gameState.totalEnemiesLeft -= 1;
 			_gameState.score += 20;
 			
-			if (_gameState.levelComplete()) {
+			if (_gameState.levelComplete() || true) {
 				_player.invulnerable = true;
 				lockPlayerControls = true;
 				_player.velocity.set(0, 0);
 				_player.characterSprite().animation.play("stand");
+				
+				for (i in 0...2) {
+					var beatLevelEmitter = new FlxEmitter(_player.x - 8 + 14*i, _player.y - 60, 200);
+					beatLevelEmitter.makeParticles(3, 3, FlxColor.WHITE, 200);
+					beatLevelEmitter.color.set(FlxColor.GREEN, FlxColor.WHITE);
+					beatLevelEmitter.launchMode = flixel.effects.particles.FlxEmitterMode.SQUARE;
+					beatLevelEmitter.velocity.set(-100, -250, 100, -400);
+					beatLevelEmitter.lifespan.set(0.15, 0.3);
+					
+					add(beatLevelEmitter);
+					beatLevelEmitter.start(false, 0.01);
+				}
 				
 				new FlxTimer().start(2, advanceLevel, 2);
             }
