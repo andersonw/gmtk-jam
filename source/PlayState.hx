@@ -222,6 +222,8 @@ class PlayState extends FlxState {
         var _left:Bool = false;
         var _right:Bool = false;
 		var speed;
+		
+		var playerSprite = _player.characterSprite();
 
         _up = FlxG.keys.anyPressed([UP, W]);
         _down = FlxG.keys.anyPressed([DOWN, S]);
@@ -247,6 +249,7 @@ class PlayState extends FlxState {
                 } else if(_right) {
                     mA += 45;
                 }
+				playerSprite.facing = FlxObject.UP;
             } else if (_down) {
                 mA = 90;
                 if (_left) {
@@ -254,16 +257,29 @@ class PlayState extends FlxState {
                 } else if (_right) {
                     mA -= 45;
                 }
+				playerSprite.facing = FlxObject.DOWN;
             } else if (_left) {
                 mA = 180;
+				playerSprite.facing = FlxObject.LEFT;
             } else if (_right) {
                 mA = 0;
+				playerSprite.facing = FlxObject.RIGHT;
             }
             _player.velocity.set(speed, 0);
-            _player.velocity.rotate(FlxPoint.weak(0,0), mA);
+            _player.velocity.rotate(FlxPoint.weak(0, 0), mA);
+			
+			switch (playerSprite.facing) {
+				case FlxObject.LEFT, FlxObject.RIGHT:
+					playerSprite.animation.play("lr");
+				case FlxObject.UP:
+					playerSprite.animation.play("u");
+				case FlxObject.DOWN:
+					playerSprite.animation.play("d");
+			}
         }
         else {
             _player.velocity.set(0, 0);
+			//playerSprite.animation.play("d");
         }
     }
 
@@ -542,10 +558,10 @@ class PlayState extends FlxState {
 	// ==============================================================================
 	
 	function hitTestWall(object:FlxObject):Bool {
-		var leftX:Float = object.x - object.width / 2;
-		var rightX:Float = object.x + object.width / 2;
-		var topY:Float = object.y - object.height / 2;
-		var bottomY:Float = object.y + object.height / 2;
+		var leftX:Float = object.x - object.getHitbox().width / 2;
+		var rightX:Float = object.x + object.getHitbox().width / 2;
+		var topY:Float = object.y - object.getHitbox().height / 2;
+		var bottomY:Float = object.y + object.getHitbox().height / 2;
 		
 		var nwTileValue:Int = mapHandler.getVal(Std.int(leftX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
 		var neTileValue:Int = mapHandler.getVal(Std.int(rightX / TILE_WIDTH), Std.int(topY / TILE_HEIGHT));
@@ -627,8 +643,8 @@ class PlayState extends FlxState {
 	}
 	
 	function overlap(obj1:FlxObject, obj2:FlxObject):Bool {
-		var hitbox1 = obj1.getHitbox();
-		var hitbox2 = obj2.getHitbox();
+		var hitbox1:FlxRect = obj1.getHitbox();
+		var hitbox2:FlxRect = obj2.getHitbox();
 		
 		return 	hitbox1.x + hitbox1.width >= hitbox2.x &&
 				hitbox2.x + hitbox2.width >= hitbox1.x &&
