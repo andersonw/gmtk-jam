@@ -18,17 +18,19 @@ class Character extends FlxSpriteGroup {
         super(X, Y);
 		
 		drawCharacterSprite(color);
-
+        drawHealthbarSprite();
+        this.maxHealth = maxHealth;
+        currentHealth = maxHealth;
+    }
+	
+    public function drawHealthbarSprite() {
         _healthbarSprite = new FlxSprite();
         _healthbarSprite.makeGraphic(32, 10, FlxColor.RED);
         _healthbarSprite.x = _characterSprite.x - this.x;
         _healthbarSprite.y = _characterSprite.y - this.y + 40;
         add(_healthbarSprite);
-
-        this.maxHealth = maxHealth;
-        currentHealth = maxHealth;
     }
-	
+
 	public function drawCharacterSprite(color:FlxColor) {
 		_characterSprite = new FlxSprite();
         _characterSprite.makeGraphic(32, 32, color, true);

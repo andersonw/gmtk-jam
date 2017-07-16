@@ -1,6 +1,7 @@
 package;
 import flixel.FlxG;
 import flixel.util.FlxColor;
+import flixel.FlxSprite;
 
 class TankEnemy extends Enemy {
     private var _bulletSpawnTimer:Float;
@@ -29,6 +30,21 @@ class TankEnemy extends Enemy {
             }
         }
 		super._update(elapsed);
+	}
+
+    override public function drawHealthbarSprite() {
+        _healthbarSprite = new FlxSprite();
+        _healthbarSprite.makeGraphic(32, 10, FlxColor.RED);
+        _healthbarSprite.x = _characterSprite.x - this.x;
+        _healthbarSprite.y = _characterSprite.y - this.y + 72;
+        add(_healthbarSprite);
+    }
+
+    override public function drawCharacterSprite(color:FlxColor) {
+		_characterSprite = new FlxSprite();
+        _characterSprite.makeGraphic(64, 64, color, true);
+		_characterSprite.x = _characterSprite.y = -16;
+		add(_characterSprite);
 	}
 
     override public function move():Void {
