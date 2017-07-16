@@ -10,6 +10,7 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.system.FlxSound;
@@ -26,6 +27,8 @@ using flixel.util.FlxSpriteUtil;
 
 class PlayState extends FlxState {
 	// these have underscores because VSCode can't refactor the names :(
+	public var backgroundLayer:FlxSpriteGroup;
+	
 	public var _player:Player;
 	public var _bullets:Array<Bullet>;
 	public var _enemies:Array<Enemy>;
@@ -50,6 +53,8 @@ class PlayState extends FlxState {
 	}
 
 	override public function create():Void {
+		backgroundLayer = new FlxSpriteGroup();
+		
 		_bullets = new Array <Bullet>();
 		_enemies = new Array <Enemy>();
 		_powerups = new Array <Powerup>();
@@ -142,12 +147,18 @@ class PlayState extends FlxState {
 		_mapSprite.loadGraphic(mapBitmapData);
 		add(_mapSprite);
 		
+		add(backgroundLayer);
+		
 		var randomFreePosition = mapHandler.getRandomPathableSquare();
         var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
         var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
 		_player = new Player(randX, randY);
 		add(_player);
 		handleScrolls();
+		
+		
+		_player.drawCharacterSprite(Powerup.getColorOfType(Powerup.PowerupType.FIRE));
+		_player.powerupType = Powerup.PowerupType.FIRE;
 
 		for (pillar in _mapPillars) {
 			add(pillar);
@@ -266,9 +277,12 @@ class PlayState extends FlxState {
 		if (FlxG.mouse.pressed && bulletReady) {
 			var angle:Float = Math.atan2(FlxG.mouse.y - _player.y, FlxG.mouse.x - _player.x);
 			
-			if (_player.powerupType != Powerup.PowerupType.LIGHTNING) {
+			if (_player.powerupType == Powerup.PowerupType.NONE ||
+				_player.powerupType == Powerup.PowerupType.ICE ||
+				_player.powerupType == Powerup.PowerupType.POISON ||
+				_player.powerupType == Powerup.PowerupType.LUGE) {
 				bulletReady = false;
-				var bulletTimer = new FlxTimer().start(0.1, reload, 1);
+				var bulletTimer = new FlxTimer().start(0.3, reload, 1);
 				var DISTANCE_SPAWN_FROM_PLAYER:Float = 32.0;
 				var BULLET_VELOCITY:Float = 300.0;
 				
@@ -280,7 +294,36 @@ class PlayState extends FlxState {
 				
 				_bullets.push(bullet);
 				add(bullet);
-			} else {
+			} else if (_player.powerupType == Powerup.PowerupType.FIRE) {
+				bulletReady = false;
+				var bulletTimer = new FlxTimer().start(0.05, reload, 1);
+				var DISTANCE_SPAWN_FROM_PLAYER:Float = 35.0;
+				var BULLET_VELOCITY:Float = 300.0;
+				var SMOKE_VELOCITY:Float = 200.0;
+				var SMOKE_VELOCITY_VARIANCE:Float = 80.0;
+				
+				var realAngle:Float = angle + 0.4 * Math.random() - 0.2;
+				var bullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(realAngle),
+											   _player.y + DISTANCE_SPAWN_FROM_PLAYER * Math.sin(realAngle),
+											   Bullet.BulletType.FIRE, Bullet.BulletOwner.PLAYER);
+				
+				bullet.velocity.set(BULLET_VELOCITY * Math.cos(angle), BULLET_VELOCITY * Math.sin(angle));
+				_bullets.push(bullet);
+				add(bullet);
+				
+				for (rep in 0...2) {
+					var tweakedAngle:Float = angle + 0.5 * Math.random() - 0.25;
+					var smokeBullet:Bullet = new Bullet(_player.x + DISTANCE_SPAWN_FROM_PLAYER * Math.cos(tweakedAngle),
+														_player.y + DISTANCE_SPAWN_FROM_PLAYER * Math.sin(tweakedAngle),
+														Bullet.BulletType.SMOKE, Bullet.BulletOwner.PLAYER);
+					
+					var smokeVelocityActual = SMOKE_VELOCITY + SMOKE_VELOCITY_VARIANCE * Math.random();
+					smokeBullet.velocity.set(smokeVelocityActual * Math.cos(tweakedAngle),
+											 smokeVelocityActual * Math.sin(tweakedAngle));
+					_bullets.push(smokeBullet);
+					backgroundLayer.add(smokeBullet);
+				}
+			} else if (_player.powerupType == Powerup.PowerupType.LIGHTNING) {
 				if (_enemies.length > 0) {
 					var bestEnemy:Enemy = null;
 					var bestDistance:Int = 220;
@@ -346,6 +389,11 @@ class PlayState extends FlxState {
 			if (mapHandler.getVal(bulletTileX, bulletTileY) == 2) {
 				bullet.destroy();
 				_bullets.splice(i, 1);
+				continue;
+			}
+			
+			if (bullet.type == Bullet.BulletType.SMOKE) {
+				++i;
 				continue;
 			}
 			
@@ -500,6 +548,11 @@ class PlayState extends FlxState {
 		while (i < _bullets.length) {
 			var bullet = _bullets[i];
 			bullet._update(elapsed);
+			if (bullet.shouldDelete()) {
+				bullet.destroy();
+				_bullets.splice(i, 1);
+				continue;
+			}
 			if (bullet.x < camera.scroll.x - 100 || bullet.x > Main.GAME_WIDTH + camera.scroll.x + 100 ||
 				bullet.y < camera.scroll.y - 100 || bullet.y > Main.GAME_HEIGHT + camera.scroll.y + 100) {
 				bullet.destroy();

@@ -14,6 +14,7 @@ class Player extends Character {
     public function new(?X:Float=0, ?Y:Float=0) {
         super(X, Y, FlxColor.BLUE, 5);
         _healthbarVisible = true;
+		powerupType = PowerupType.NONE;
     }
 	override public function update(elapsed:Float):Void {
 	}

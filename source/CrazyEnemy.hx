@@ -4,7 +4,7 @@ import flixel.math.FlxPoint;
 
 class CrazyEnemy extends Enemy {
     private var _bulletSpawnTimer:Float;
-    private static var BULLET_COOLDOWN:Float = 0.03;
+    private static var BULLET_COOLDOWN:Float = 0.6;
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
         super(X, Y, playState);

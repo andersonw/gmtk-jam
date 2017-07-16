@@ -10,6 +10,7 @@ import flixel.util.FlxColor;
 using flixel.util.FlxSpriteUtil;
 
 enum PowerupType {
+	NONE;
 	FIRE;
 	ICE;
 	LIGHTNING;
