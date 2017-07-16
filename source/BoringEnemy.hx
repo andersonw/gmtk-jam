@@ -5,6 +5,8 @@ import flixel.util.FlxColor;
 class BoringEnemy extends Enemy {
     private var _bulletSpawnTimer:Float;
     private static var BULLET_COOLDOWN:Float = 1.0;
+    private static var CHASE_DISTANCE:Float = 450.0; // distance at which it will start chasing the player
+    private static var STOP_CHASE_DISTANCE:Float = 750.0; // distance at which it stops chasing the player
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
         super(X, Y, FlxColor.ORANGE, 5, playState);
@@ -32,8 +34,22 @@ class BoringEnemy extends Enemy {
 	}
 
     override public function move():Void {
-        var ENEMY_VELOCITY:Float = 30.0;
-		var angle:Float = Math.atan2(_playState._player.y - y, _playState._player.x - x);
-		velocity.set(ENEMY_VELOCITY * Math.cos(angle), ENEMY_VELOCITY * Math.sin(angle));
+        var playerDistance:Float = (this.x - _playState._player.x)*(this.x - _playState._player.x) +
+                                   (this.y - _playState._player.y)*(this.y - _playState._player.y);
+
+        if (_state == Enemy.EnemyState.IDLE) {
+            if (playerDistance < CHASE_DISTANCE * CHASE_DISTANCE) {
+                _state = Enemy.EnemyState.CHASING;
+            }
+        }
+        else if (_state == Enemy.EnemyState.CHASING) {
+            var ENEMY_VELOCITY:Float = 30.0;
+            var angle:Float = Math.atan2(_playState._player.y - y, _playState._player.x - x);
+            velocity.set(ENEMY_VELOCITY * Math.cos(angle), ENEMY_VELOCITY * Math.sin(angle));
+
+            if (playerDistance > STOP_CHASE_DISTANCE * STOP_CHASE_DISTANCE) {
+                _state = Enemy.EnemyState.IDLE;
+            }
+        }
     }
 }
