@@ -9,6 +9,7 @@ class BoringEnemy extends Enemy {
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
         super(X, Y, FlxColor.ORANGE, 5, playState);
         _bulletSpawnTimer = 0;
+        enemyType = "boring";
     }
     override public function update(elapsed:Float):Void {
 	}
