@@ -14,6 +14,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import openfl.Assets;
 import openfl.display.BitmapData;
+import flixel.system.FlxSound;
 
 using flixel.util.FlxSpriteUtil;
 using Powerup.PowerupType;
@@ -34,6 +35,8 @@ class PowerupBomb extends FlxSpriteGroup {
 	private var _bombState:Int = 0;  // unlit
 	public var tickDuration:Float = 1;
 	private var radius:Float;
+
+    private var _explosionSound:FlxSound;
 	
 	private var _type:PowerupType;
     public function new(?X:Float=0, ?Y:Float=0, type:PowerupType, ?playState:PlayState) {
@@ -41,6 +44,7 @@ class PowerupBomb extends FlxSpriteGroup {
 		_type = type;
 		_playState = playState;
 		radius = 200;
+        _explosionSound = FlxG.sound.load(AssetPaths.explosion__wav);
 		if (type == PowerupType.LIGHTNING) {
 			radius = 320;
 		}
@@ -106,6 +110,7 @@ class PowerupBomb extends FlxSpriteGroup {
 	}
 	
 	public function processExplosion(timer:FlxTimer):Void {
+        _explosionSound.play();
 		_playState.removeBullets(bombSprite.x, bombSprite.y, radius);
 		_playState.chainExplosions(bombSprite.x, bombSprite.y, radius);
 		for (enemy in _playState._enemies) {
