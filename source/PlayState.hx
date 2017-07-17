@@ -530,6 +530,28 @@ class PlayState extends FlxTransitionableState {
         resetLevel();
 	}
 	
+	private function killPlayer():Void {
+		FlxG.sound.pause();
+		_player.isDead = true;
+		_player.velocity.set(0, 0);
+		_player.characterSprite().animation.play("stand");
+		_player.invulnerable = true;
+		lockPlayerControls = true;
+		_deathSound.play(); 
+		
+		var lostLevelEmitter = new FlxEmitter(_player.x, _player.y - 20, 200);
+		lostLevelEmitter.makeParticles(6, 6, FlxColor.WHITE, 200);
+		lostLevelEmitter.color.set(FlxColor.RED, FlxColor.WHITE);
+		lostLevelEmitter.speed.set(400, 500);
+		lostLevelEmitter.lifespan.set(0.2, 0.3);
+		
+		add(lostLevelEmitter);
+		lostLevelEmitter.start(false, 0.01);
+		
+		new FlxTimer().start(0.1, function(timer:FlxTimer) { _player.alpha -= 0.2; }, 5);
+		new FlxTimer().start(2.5, goToGameOverState, 1);
+	}
+
 	private function goToGameOverState(timer:FlxTimer):Void {
         FlxG.switchState(new GameOverState());
 	}
@@ -610,24 +632,7 @@ class PlayState extends FlxTransitionableState {
 						_bulletHitSound.play();
 						_player.currentHealth -= 1;
 						if (_player.currentHealth <= 0) {
-							FlxG.sound.pause();
-							_player.velocity.set(0, 0);
-							_player.characterSprite().animation.play("stand");
-							_player.invulnerable = true;
-							lockPlayerControls = true;
-							_deathSound.play(); 
-							
-							var lostLevelEmitter = new FlxEmitter(_player.x, _player.y - 20, 200);
-							lostLevelEmitter.makeParticles(6, 6, FlxColor.WHITE, 200);
-							lostLevelEmitter.color.set(FlxColor.RED, FlxColor.WHITE);
-							lostLevelEmitter.speed.set(400, 500);
-							lostLevelEmitter.lifespan.set(0.2, 0.3);
-							
-							add(lostLevelEmitter);
-							lostLevelEmitter.start(false, 0.01);
-							
-							new FlxTimer().start(0.1, function(timer:FlxTimer) { _player.alpha -= 0.2; }, 5);
-							new FlxTimer().start(2.5, goToGameOverState, 1);
+							killPlayer();
 						}
 					}
 					bullet.destroy();
@@ -831,9 +836,20 @@ class PlayState extends FlxTransitionableState {
 		levelHUD.update(elapsed);
 	}
 
+	function advanceTime(elapsed:Float):Void {
+		_gameState.timeLeft -= elapsed;
+		if (_gameState.timeLeft < 0) {
+			killPlayer();
+		}
+	}
+
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
-		
+
+		if (!_player.isDead) {
+			advanceTime(elapsed);
+		}
+
 		if (!lockPlayerControls) {
 			handlePlayerMovement();
 		}
@@ -841,7 +857,7 @@ class PlayState extends FlxTransitionableState {
 		updateAndHandleCollisions(elapsed);
 		updateMenu(elapsed);
 		
-		handleMousePress();
+		handleMousePress();		
 
         if(FlxG.keys.justPressed.R) {
             FlxG.switchState(new PlayState());

@@ -11,6 +11,7 @@ using Powerup.PowerupType;
 class Player extends Character {
 	public var powerupType:PowerupType;
     public var timeUntilPowerupExpires:Float;
+    public var isDead:Bool;
     private var _playState:PlayState;
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
@@ -20,6 +21,7 @@ class Player extends Character {
         _healthbarVisible = true;
 		powerupType = PowerupType.NONE;
         timeUntilPowerupExpires = 0;
+        isDead = false;
     }
 	override public function update(elapsed:Float):Void {
 	}
