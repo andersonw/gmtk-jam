@@ -48,7 +48,7 @@ class PowerupBomb extends FlxSpriteGroup {
 		_playState = playState;
 		radius = 250;
         _explosionSound = FlxG.sound.load(AssetPaths.explosion__wav);
-        _tickSound = FlxG.sound.load(AssetPaths.bombTicking__wav);
+        _tickSound = FlxG.sound.load(AssetPaths.bombTicking__wav, 0.7);
 		if (type == PowerupType.LIGHTNING) {
 			radius = 380;
 		}
@@ -93,7 +93,7 @@ class PowerupBomb extends FlxSpriteGroup {
 	public function light():Void {
 		_bombState = 1;
 		makeBombFuseSprite();
-		_tickSound.play(0.7);
+		_tickSound.play();
 	}
 	
 	public function isExploding():Bool {
@@ -111,7 +111,8 @@ class PowerupBomb extends FlxSpriteGroup {
 			var distance:Float = (enemy.x - bombSprite.x)*(enemy.x - bombSprite.x) +
 							   (enemy.y - bombSprite.y)*(enemy.y - bombSprite.y);
 			if (distance < radius * radius) {
-				var damageAmount:Int = 11;
+				_playState._gameState.score += 10;
+				var damageAmount:Int = 30;
 				if (_type == PowerupType.LIGHTNING) {
 					damageAmount = 4;
 					enemy.paralyze(PARALYZE_DURATION);
@@ -164,7 +165,7 @@ class PowerupBomb extends FlxSpriteGroup {
 					_bombState = newState = 4;  // just in case!
 					explode();
 				} else {
-					_tickSound.play(0.7);
+					_tickSound.play();
 					_bombState = newState;
 					makeBombFuseSprite();
 				}

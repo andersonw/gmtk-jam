@@ -12,13 +12,11 @@ class MapHandler
 	public var builtMap:Bool = false;
 	
 	public var MIN_PATHABLE_SQUARES:Int = 200;
-	public static var LEVEL_WIDTH:Int = 32;
-	public static var LEVEL_HEIGHT:Int = 32;
  
-	public function new():Void
+	public function new(width:Int = 40, height:Int = 40):Void
 	{
-		MapWidth = LEVEL_WIDTH;
-		MapHeight = LEVEL_HEIGHT;
+		MapWidth = width;
+		MapHeight = height;
 		PercentAreWalls = 40;
 		genMap(MapWidth, MapHeight, PercentAreWalls);
     }
@@ -241,9 +239,9 @@ class MapHandler
 		var count:Int = 1;
 		mainChunkSquares = new Array<Int>();
 		
-		for (i in 0...LEVEL_HEIGHT) {
+		for (i in 0...MapHeight) {
 			visited.push(new Array<Int>());
-			for (j in 0...LEVEL_WIDTH) {
+			for (j in 0...MapWidth) {
 				visited[i].push(0);
 			}
 		}
@@ -260,10 +258,10 @@ class MapHandler
 				var nxPos:Int = xPos + directions[i][0];
 				var nyPos:Int = yPos + directions[i][1];
 				
-				if (nxPos >= 0 && nxPos < LEVEL_WIDTH && nyPos >= 0 && nyPos < LEVEL_HEIGHT && getVal(nxPos, nyPos) == 0 && visited[nyPos][nxPos] == 0) {
+				if (nxPos >= 0 && nxPos < MapWidth && nyPos >= 0 && nyPos < MapHeight && getVal(nxPos, nyPos) == 0 && visited[nyPos][nxPos] == 0) {
 					visited[nyPos][nxPos] = 1;
 					count++;
-					mainChunkSquares.push(nyPos * LEVEL_WIDTH + nxPos);
+					mainChunkSquares.push(nyPos * MapWidth + nxPos);
 					
 					queue.insert(0, nxPos);
 					queue.insert(0, nyPos);
@@ -275,8 +273,8 @@ class MapHandler
 			RandomFillMap();
 		}
 		else {
-			for (i in 0...LEVEL_HEIGHT) {
-				for (j in 0...LEVEL_WIDTH) {
+			for (i in 0...MapHeight) {
+				for (j in 0...MapWidth) {
 					if (visited[i][j] == 0 && getVal(j, i) != 2) {
 						setVal(j, i, 1);
 					}
