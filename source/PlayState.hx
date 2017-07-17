@@ -493,6 +493,10 @@ class PlayState extends FlxTransitionableState {
 						bulletLayer.add(lightningFX);
 						_lightningSound.play();
 						damageEnemy(bestEnemy, 1);
+					} else {
+                        bulletReady = false;
+                        var bulletTimer = new FlxTimer().start(0.15, reload, 1);
+						_bulletSound.play();
 					}
 				}
 			} else if (_player.powerupType == Powerup.PowerupType.METAL) {
