@@ -14,6 +14,7 @@ class GameState {
 	public var totalEnemiesLeft:Int;
     public var timePerLevel:Array<Float>;
     public var timeLeft:Float;
+    public var gameCompleted:Bool;
 
 	public function new() {
         fixedEnemyTypes=["boring","crazy","tank","boss"];
@@ -42,6 +43,7 @@ class GameState {
 	}
 	public function resetGame() {
 		score = 0;
+        gameCompleted = false;
 		level = 1;
 	}
 

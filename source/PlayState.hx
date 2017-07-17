@@ -98,7 +98,11 @@ class PlayState extends FlxTransitionableState {
         _gameState = Main.gameState;
 		_gameState.initNewLevel();
 		
-		mapHandler = new MapHandler();
+		var levelWidth:Int = 10 + 10 * _gameState.level;
+		if (levelWidth > 40) {
+			levelWidth = 40;
+		}
+		mapHandler = new MapHandler(levelWidth, levelWidth);
 		_mapPillars = new Array<FlxSprite>();
 		_mapPillarBGs = new Array<FlxSprite>();
 		_mapPillarMap = new Map<Int, FlxSprite>();
@@ -218,8 +222,8 @@ class PlayState extends FlxTransitionableState {
 		add(enemyLayer);
 		
 		var randomFreePosition = mapHandler.getRandomPathableSquare();
-        var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
-        var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
+        var randX = TILE_WIDTH * (randomFreePosition % mapHandler.MapWidth) + TILE_WIDTH / 2;
+        var randY = TILE_HEIGHT * Std.int(randomFreePosition / mapHandler.MapWidth) + TILE_HEIGHT / 2;
 		_player = new Player(randX, randY, this);
 		add(_player._characterSprite);
 		handleScrolls();
@@ -263,12 +267,12 @@ class PlayState extends FlxTransitionableState {
     private function spawnRandomEnemies(Timer:FlxTimer):Void {
         if (FlxG.random.int(0, 100) < Timer.elapsedLoops) {
 			var randomFreePosition = mapHandler.getRandomPathableSquare();
-            var randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
-            var randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
+            var randX = TILE_WIDTH * (randomFreePosition % mapHandler.MapWidth) + TILE_WIDTH / 2;
+            var randY = TILE_HEIGHT * Std.int(randomFreePosition / mapHandler.MapWidth) + TILE_HEIGHT / 2;
             if(FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) > 250) {
                 var enemy:Enemy;
                 var randomEnemy = FlxG.random.float(0, 1);
-                if(randomEnemy < 0.02) {
+                if(randomEnemy < 0.05) {
                     enemy = new TankEnemy(randX, randY, this);
                 }                
                 else if(randomEnemy < 0.3) {
@@ -293,8 +297,8 @@ class PlayState extends FlxTransitionableState {
                 var enemy:Enemy;
                 do {
                     var randomFreePosition = mapHandler.getRandomPathableSquare();
-                    randX = TILE_WIDTH * (randomFreePosition % MapHandler.LEVEL_WIDTH) + TILE_WIDTH / 2;
-                    randY = TILE_HEIGHT * Std.int(randomFreePosition / MapHandler.LEVEL_WIDTH) + TILE_HEIGHT / 2;
+                    randX = TILE_WIDTH * (randomFreePosition % mapHandler.MapWidth) + TILE_WIDTH / 2;
+                    randY = TILE_HEIGHT * Std.int(randomFreePosition / mapHandler.MapWidth) + TILE_HEIGHT / 2;
                 } while (FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) < 250);
                 switch(enemyType) {
                     case "boring": enemy = new BoringEnemy(randX, randY, this);
@@ -332,9 +336,9 @@ class PlayState extends FlxTransitionableState {
         _right = FlxG.keys.anyPressed([RIGHT, D]);
 
         if (!bulletReady)
-            speed = 120;
+            speed = 110;
         else
-            speed = 300;
+            speed = 240;
 
         if (_up && _down)
             _up = _down = false;
@@ -538,8 +542,14 @@ class PlayState extends FlxTransitionableState {
     }
 	
 	private function advanceLevel(timer:FlxTimer):Void {
-		_gameState.level += 1;
-        resetLevel();
+        if(_gameState.level==5) {
+            _gameState.gameCompleted = true;
+            goToGameOverState(timer);
+        }
+        else {
+            _gameState.level += 1;
+            resetLevel();
+        }
 	}
 	
 	private function killPlayer():Void {
@@ -572,13 +582,14 @@ class PlayState extends FlxTransitionableState {
 		enemy.currentHealth -= amt;
 		
 		if (enemy.currentHealth <= 0) {
+            _gameState.score += enemy.maxHealth * 3;
             _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
             levelHUD.updateText(_gameState.score,_gameState.level, _gameState.totalEnemiesLeft);
 			enemy.destroy();
 			_enemies.remove(enemy);
             _enemyDeathSound.play();
 			_gameState.totalEnemiesLeft -= 1;
-			_gameState.score += 20;
+			
 			
 			if (_gameState.levelComplete()) {
 				_gameState.score += 2 * Std.int(_gameState.timeLeft + 1);

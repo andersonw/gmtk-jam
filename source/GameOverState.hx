@@ -18,8 +18,13 @@ class GameOverState extends FlxState {
 		super.create();
 		
 		bgColor = new FlxColor(0xff000000);
-		
-		gameOverText = new FlxText(70, 50, 0, "GAME OVER");
+		if(Main.gameState.gameCompleted) {
+            gameOverText = new FlxText(70, 50, 0, "CONGRATULATIONS!
+            YOU WIN!");
+        }
+        else {
+            gameOverText = new FlxText(70, 50, 0, "GAME OVER");
+        }
 		gameOverText.setFormat("assets/fonts/RobotoSlab_Bold.ttf");
 		gameOverText.size = 64;
 		add(gameOverText);

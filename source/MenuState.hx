@@ -24,7 +24,7 @@ class MenuState extends FlxState {
 		swatch.y = 118;
 		add(swatch);
 		
-		titleText = new FlxText(70, 100, 0, "Luge Brothers XXIV");
+		titleText = new FlxText(70, 100, 0, "The Little Robot That Could");
 		titleText.setFormat("assets/fonts/RobotoSlab_Bold.ttf");
 		titleText.size = 40;
 		add(titleText);
