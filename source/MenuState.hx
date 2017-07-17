@@ -25,12 +25,12 @@ class MenuState extends FlxState {
 		add(swatch);
 		
 		titleText = new FlxText(70, 100, 0, "Luge Brothers XXIV");
-		titleText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
+		titleText.setFormat("assets/fonts/RobotoSlab_Bold.ttf");
 		titleText.size = 40;
 		add(titleText);
 
 		helpText = new FlxText(500, 650, 0, "[SPACE] START");
-		helpText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
+		helpText.setFormat("assets/fonts/RobotoSlab_Bold.ttf");
 		helpText.size = 32;
 		add(helpText);
 	}

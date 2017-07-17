@@ -18,10 +18,10 @@ class LevelHUD extends FlxSpriteGroup {
 	private var powerupBarCover:FlxSprite;
 	private var scoreText:FlxText;
 	private var levelText:FlxText;
+	private var enemiesLeftText:FlxText;
+	private var timeText:FlxText;
 
 	private static var POWERUP_BAR_HEIGHT = 80;
-
-	private var enemiesLeftText:FlxText;
 	
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
         super(X, Y);
@@ -45,13 +45,17 @@ class LevelHUD extends FlxSpriteGroup {
 		var TEXT_SPACING:Float = 30;
 		
 		scoreText = new FlxText(TEXT_X_POSITION, TEXT_Y_POSITION, 0, "");
-		scoreText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
+		scoreText.setFormat("assets/fonts/RobotoSlab_Bold.ttf");
 		
-		levelText = new FlxText(TEXT_X_POSITION, TEXT_Y_POSITION + TEXT_SPACING, 0, "");
-		levelText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
+		levelText = new FlxText(TEXT_X_POSITION, TEXT_Y_POSITION + TEXT_SPACING + 3, 0, "");
+		levelText.setFormat("assets/fonts/RobotoSlab_Bold.ttf");
 		
 		enemiesLeftText = new FlxText(TEXT_X_POSITION, TEXT_Y_POSITION + 2*TEXT_SPACING, 0, "");
-		enemiesLeftText.setFormat("assets/fonts/RobotoSlab-Bold.ttf");
+		enemiesLeftText.setFormat("assets/fonts/RobotoSlab_Bold.ttf");
+
+		timeText = new FlxText(TEXT_X_POSITION + 80, TEXT_Y_POSITION + TEXT_SPACING + 3, 0, "");
+		timeText.setFormat(AssetPaths.RobotoSlab_Bold__ttf);
+		timeText.size = 16;
 		
 		add(bgMenuImage);
 		
@@ -61,6 +65,7 @@ class LevelHUD extends FlxSpriteGroup {
 		add(scoreText);
 		add(levelText);
 		add(enemiesLeftText);
+		add(timeText);
 		updateText(0, 1, 0);
     }
 	public function updateCard(type:PowerupType) {
@@ -79,7 +84,7 @@ class LevelHUD extends FlxSpriteGroup {
 		scoreText.text = "Score: " + score;
 		scoreText.size = 20;
 		levelText.text = "Level: " + level;
-		levelText.size = 20;
+		levelText.size = 16;
         // BOSS LEVEL
         if(level == 5) {
             enemiesLeftText.text = "Defeat the Boss!";
@@ -91,6 +96,8 @@ class LevelHUD extends FlxSpriteGroup {
         }
 	}
 	public override function update(elapsed:Float):Void {
+		timeText.text = "Time: " + Std.int(playState._gameState.timeLeft + 1);
+
 		if (playState._player.powerupType == Powerup.PowerupType.NONE) {
 			powerupBarCover.makeGraphic(10, POWERUP_BAR_HEIGHT, new FlxColor(0xFF434343));
 		}

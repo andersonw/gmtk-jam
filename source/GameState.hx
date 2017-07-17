@@ -12,6 +12,8 @@ class GameState {
     public var bossEnemyCount:Array<Int>;
     public var randomEnemySpawnrate:Array<Float>;
 	public var totalEnemiesLeft:Int;
+    public var timePerLevel:Array<Float>;
+    public var timeLeft:Float;
 
 	public function new() {
         fixedEnemyTypes=["boring","crazy","tank","boss"];
@@ -20,6 +22,7 @@ class GameState {
         tankEnemyCount=[0,0,0,2,4,0];
         bossEnemyCount=[0,0,0,0,0,1];
         randomEnemySpawnrate=[0,1000,1000,1000,1000,1];
+        timePerLevel=[0,10,120,120,120,120];
 		resetGame();
         initNewLevel();
 	}
@@ -35,6 +38,7 @@ class GameState {
                           "boss"=>0];
 						  
 		totalEnemiesLeft = boringEnemyCount[level] + crazyEnemyCount[level] + tankEnemyCount[level] + bossEnemyCount[level];
+        timeLeft = timePerLevel[level];
 	}
 	public function resetGame() {
 		score = 0;
