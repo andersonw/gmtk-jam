@@ -579,6 +579,7 @@ class PlayState extends FlxTransitionableState {
 			_gameState.score += 20;
 			
 			if (_gameState.levelComplete()) {
+				_gameState.score += 2 * Std.int(_gameState.timeLeft + 1);
 				_player.invulnerable = true;
 				lockPlayerControls = true;
 				_player.velocity.set(0, 0);
