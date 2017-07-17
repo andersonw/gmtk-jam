@@ -86,7 +86,7 @@ class LevelHUD extends FlxSpriteGroup {
 		levelText.text = "Level: " + level;
 		levelText.size = 16;
         // BOSS LEVEL
-        if(level == 1) {
+        if(level == 5) {
             enemiesLeftText.text = "Defeat the Boss!";
             enemiesLeftText.size = 20;
         }

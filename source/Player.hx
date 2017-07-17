@@ -15,7 +15,7 @@ class Player extends Character {
     private var _playState:PlayState;
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
-        super(X, Y, FlxColor.BLUE, 5);
+        super(X, Y, FlxColor.BLUE, 10);
         _playState = playState;
 
         _healthbarVisible = true;

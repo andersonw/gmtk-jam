@@ -5,7 +5,6 @@ import flash.display.BitmapData;
 import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
-import flash.utils.Timer;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -47,11 +46,14 @@ class PlayState extends FlxTransitionableState {
 	public var _enemies:Array<Enemy>;
 	public var _powerups:Array<Powerup>;
 	public var _powerupBombs:Array<PowerupBomb>;
+	public var _chickens:Array<FlxSprite>;
 	public var _camera:FlxCamera;
     public var _gameState:GameState;
 	
 	private var _mapPillars:Array<FlxSprite>;
 	private var _mapPillarBGs:Array<FlxSprite>;
+	private var _mapPillarMap:Map<Int, FlxSprite>;
+	private var _mapPillarBGMap:Map<Int, FlxSprite>;
 	private var _mapSprite:FlxSprite;
 	private var mapHandler:MapHandler;
 	private var mapBitmapData:BitmapData;
@@ -70,6 +72,7 @@ class PlayState extends FlxTransitionableState {
     private var _levelCompleteSound:FlxSound;
     private var _deathSound:FlxSound;
     private var _enemyDeathSound:FlxSound;
+    private var _pillarExplosionSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -90,6 +93,7 @@ class PlayState extends FlxTransitionableState {
 		_enemies = new Array <Enemy>();
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
+		_chickens = new Array <FlxSprite>();
 		_camera = new FlxCamera();
         _gameState = Main.gameState;
 		_gameState.initNewLevel();
@@ -97,6 +101,8 @@ class PlayState extends FlxTransitionableState {
 		mapHandler = new MapHandler();
 		_mapPillars = new Array<FlxSprite>();
 		_mapPillarBGs = new Array<FlxSprite>();
+		_mapPillarMap = new Map<Int, FlxSprite>();
+		_mapPillarBGMap = new Map<Int, FlxSprite>();
 
         _bulletSound = FlxG.sound.load(AssetPaths.generic_bullet__wav);
         _flameSound = FlxG.sound.load(AssetPaths.flamethrower__wav);
@@ -107,6 +113,7 @@ class PlayState extends FlxTransitionableState {
         _levelCompleteSound = FlxG.sound.load(AssetPaths.levelComplete__wav);
         _deathSound = FlxG.sound.load(AssetPaths.death__wav);
         _enemyDeathSound = FlxG.sound.load(AssetPaths.enemyDeath__wav);
+        _pillarExplosionSound = FlxG.sound.load(AssetPaths.pillarExplosion__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -115,7 +122,7 @@ class PlayState extends FlxTransitionableState {
 		for (y in 0...2*mapHandler.MapHeight) {
 			for (x in 0...2 * mapHandler.MapWidth) {
 				var tileCode:Int = 15;  // filled tile
-				if (mapHandler.getHalfTileValOrSolid(x, y) == 0) {
+				if (mapHandler.getHalfTileValOrSolid(x, y) != 1) {
 					var occupiedNW:Int = mapHandler.getHalfTileValOrSolid(x - 1, y - 1);
 					var occupiedNE:Int = mapHandler.getHalfTileValOrSolid(x + 1, y - 1);
 					var occupiedSW:Int = mapHandler.getHalfTileValOrSolid(x - 1, y + 1);
@@ -139,7 +146,8 @@ class PlayState extends FlxTransitionableState {
 							4 * (occupiedSW == 1 ? 1 : 0) +
 							8 * (occupiedSE == 1 ? 1 : 0);
 				}
-				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y - 1) != 1) {
+				if (tileCode == 15 && mapHandler.getHalfTileValOrSolid(x, y) == 1 &&
+					mapHandler.getHalfTileValOrSolid(x, y - 1) != 1) {
 					tileCode = 16;  // pillars below tiles
 				}
 
@@ -190,6 +198,8 @@ class PlayState extends FlxTransitionableState {
 					pillar.y = pillarBG.y = y * TILE_HEIGHT / 2 - 32;
 					_mapPillars.push(pillar);
 					_mapPillarBGs.push(pillarBG);
+					_mapPillarMap.set(mapHandler.MapWidth * Std.int(y/2) + Std.int(x/2), pillar);
+					_mapPillarBGMap.set(mapHandler.MapWidth * Std.int(y/2) + Std.int(x/2), pillarBG);
 				}
 			}
 		}
@@ -258,10 +268,10 @@ class PlayState extends FlxTransitionableState {
             if(FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) > 250) {
                 var enemy:Enemy;
                 var randomEnemy = FlxG.random.float(0, 1);
-                if(randomEnemy < 0.2) {
+                if(randomEnemy < 0.02) {
                     enemy = new TankEnemy(randX, randY, this);
                 }                
-                else if(randomEnemy < 0.5) {
+                else if(randomEnemy < 0.3) {
                     enemy = new CrazyEnemy(randX, randY, this);
                 }
                 else {
@@ -808,6 +818,17 @@ class PlayState extends FlxTransitionableState {
 		}
 		checkBulletCollisions();
 		checkPowerupCollisions();
+		for (chicken in _chickens) {
+			if (overlap(chicken, _player.characterSprite())) {
+				_chickens.remove(chicken);
+				chicken.destroy();
+                _powerupSound.play();
+				_player.currentHealth += Std.int(_player.maxHealth / 2);
+				if (_player.currentHealth > _player.maxHealth) {
+					_player.currentHealth = _player.maxHealth;
+				}
+			}
+		}
 		for (enemy in _enemies) {
 			if (!enemy.paralyzed) {
 				enemy._update(elapsed);
@@ -868,6 +889,57 @@ class PlayState extends FlxTransitionableState {
 	// Utility functions
 	// ==============================================================================
 	
+	public function removePillars(px:Float, py:Float, radius:Float):Void {
+		for (x in 0...mapHandler.MapWidth) {
+			for (y in 0...mapHandler.MapHeight) {
+				if (mapHandler.getVal(x, y) == 2) {
+					var adjCoordinate = mapHandler.MapWidth * y + x;
+					var tileX:Float = TILE_WIDTH * x + TILE_WIDTH / 2;
+					var tileY:Float = TILE_HEIGHT * y + TILE_HEIGHT / 2;
+					var distance:Float = (px - tileX) * (px - tileX) + (py - tileY) * (py - tileY);
+					
+					if (distance < radius * radius) {
+						mapHandler.setVal(x, y, 0);
+						if (_mapPillarMap[adjCoordinate] != null) {
+							var pillarBottom = _mapPillarMap[adjCoordinate];
+							var pillarTop = _mapPillarBGMap[adjCoordinate];
+							
+							_mapPillarMap.remove(adjCoordinate);
+							_mapPillarBGMap.remove(adjCoordinate);
+							_mapPillars.remove(pillarBottom);
+							_mapPillarBGs.remove(pillarTop);
+							pillarBottom.destroy();
+							pillarTop.destroy();
+							
+							var removePillarEmitter = new FlxEmitter(tileX, tileY, 100);
+							removePillarEmitter.color.set(FlxColor.BLUE, FlxColor.GRAY);
+							removePillarEmitter.speed.set(600, 800);
+							removePillarEmitter.lifespan.set(0.15, 0.3);
+							
+							add(removePillarEmitter);
+							for (i in 0...100) {
+								var p = new FlxParticle();
+								p.makeGraphic(8, 8, FlxColor.GRAY);
+								p.exists = false;
+								removePillarEmitter.add(p);
+                            }
+							_pillarExplosionSound.play();
+							removePillarEmitter.start(true);
+							new FlxTimer().start(1000, function(timer:FlxTimer) { removePillarEmitter.destroy(); }, 1);
+							
+							var chicken:FlxSprite = new FlxSprite();
+							chicken.loadGraphic(AssetPaths.chicken__png);
+							bulletLayer.add(chicken);
+							chicken.x = tileX - 30;
+							chicken.y = tileY - 30;
+							_chickens.push(chicken);
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	function hitTestWall(object:FlxObject):Bool {
 		var leftX:Float = object.x - object.getHitbox().width / 2;
 		var rightX:Float = object.x + object.getHitbox().width / 2;
@@ -881,6 +953,7 @@ class PlayState extends FlxTransitionableState {
 		
 		return nwTileValue != 0 || neTileValue != 0 || swTileValue != 0 || seTileValue != 0;
 	}
+	
 	function snapObjectToTiles(object:FlxObject, elapsed:Float):FlxPoint {
 		if (!hitTestWall(object)) {
 			return new FlxPoint(0, 0);

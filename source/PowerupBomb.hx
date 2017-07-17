@@ -104,6 +104,9 @@ class PowerupBomb extends FlxSpriteGroup {
         _explosionSound.play();
 		_playState.removeBullets(bombSprite.x, bombSprite.y, radius);
 		_playState.chainExplosions(bombSprite.x, bombSprite.y, radius);
+		if (_type == PowerupType.METAL) {
+			_playState.removePillars(bombSprite.x, bombSprite.y, radius);
+		}
 		for (enemy in _playState._enemies) {
 			var distance:Float = (enemy.x - bombSprite.x)*(enemy.x - bombSprite.x) +
 							   (enemy.y - bombSprite.y)*(enemy.y - bombSprite.y);

@@ -11,7 +11,7 @@ class BossEnemy extends Enemy {
     private var _bulletSound:FlxSound;
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
-        super(X, Y, FlxColor.BLACK, 1000, playState);
+        super(X, Y, FlxColor.BLACK, 500, playState);
         _bulletSpawnTimer = 0;
         enemyType = "boss";
         _bulletSound = FlxG.sound.load(AssetPaths.enemy_bullet__wav);
