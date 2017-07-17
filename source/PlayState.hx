@@ -72,6 +72,7 @@ class PlayState extends FlxTransitionableState {
     private var _levelCompleteSound:FlxSound;
     private var _deathSound:FlxSound;
     private var _enemyDeathSound:FlxSound;
+    private var _pillarExplosionSound:FlxSound;
 	
 	private var TILE_WIDTH:Int = 64;
 	private var TILE_HEIGHT:Int = 64;
@@ -112,6 +113,7 @@ class PlayState extends FlxTransitionableState {
         _levelCompleteSound = FlxG.sound.load(AssetPaths.levelComplete__wav);
         _deathSound = FlxG.sound.load(AssetPaths.death__wav);
         _enemyDeathSound = FlxG.sound.load(AssetPaths.enemyDeath__wav);
+        _pillarExplosionSound = FlxG.sound.load(AssetPaths.pillarExplosion__wav);
 		
 		var mapSrcBitmapData:BitmapData = Assets.getBitmapData("assets/images/dungeon_tiles_packed.png");
 		
@@ -900,7 +902,8 @@ class PlayState extends FlxTransitionableState {
 								p.makeGraphic(8, 8, FlxColor.GRAY);
 								p.exists = false;
 								removePillarEmitter.add(p);
-							}
+                            }
+							_pillarExplosionSound.play();
 							removePillarEmitter.start(true);
 							new FlxTimer().start(1000, function(timer:FlxTimer) { removePillarEmitter.destroy(); }, 1);
 							
