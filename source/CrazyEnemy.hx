@@ -12,7 +12,7 @@ class CrazyEnemy extends Enemy {
     private static var SHOOT_DISTANCE:Float = 650.0;
 
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
-        super(X, Y, FlxColor.RED, 5, playState);
+        super(X, Y, FlxColor.RED, 8, playState);
         _bulletSpawnTimer = 0;
         enemyType = "crazy";
         _bulletSound = FlxG.sound.load(AssetPaths.enemy_bullet__wav);
