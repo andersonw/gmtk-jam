@@ -111,7 +111,8 @@ class PowerupBomb extends FlxSpriteGroup {
 			var distance:Float = (enemy.x - bombSprite.x)*(enemy.x - bombSprite.x) +
 							   (enemy.y - bombSprite.y)*(enemy.y - bombSprite.y);
 			if (distance < radius * radius) {
-				var damageAmount:Int = 11;
+				_playState._gameState.score += 10;
+				var damageAmount:Int = 30;
 				if (_type == PowerupType.LIGHTNING) {
 					damageAmount = 4;
 					enemy.paralyze(PARALYZE_DURATION);
