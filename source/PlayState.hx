@@ -102,7 +102,7 @@ class PlayState extends FlxTransitionableState {
 		if (levelWidth > 40) {
 			levelWidth = 40;
 		}
-		mapHandler = new MapHandler(levelWidth, levelWidth);
+		mapHandler = new MapHandler(levelWidth, levelWidth, levelWidth);
 		_mapPillars = new Array<FlxSprite>();
 		_mapPillarBGs = new Array<FlxSprite>();
 		_mapPillarMap = new Map<Int, FlxSprite>();

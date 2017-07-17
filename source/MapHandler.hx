@@ -13,11 +13,11 @@ class MapHandler
 	
 	public var MIN_PATHABLE_SQUARES:Int = 200;
  
-	public function new(width:Int = 40, height:Int = 40):Void
+	public function new(width:Int = 40, height:Int = 40, pctAreWalls:Int = 40):Void
 	{
 		MapWidth = width;
 		MapHeight = height;
-		PercentAreWalls = 40;
+		PercentAreWalls = pctAreWalls;
 		genMap(MapWidth, MapHeight, PercentAreWalls);
     }
     
