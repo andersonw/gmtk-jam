@@ -332,9 +332,9 @@ class PlayState extends FlxTransitionableState {
         _right = FlxG.keys.anyPressed([RIGHT, D]);
 
         if (!bulletReady)
-            speed = 120;
+            speed = 110;
         else
-            speed = 300;
+            speed = 240;
 
         if (_up && _down)
             _up = _down = false;
