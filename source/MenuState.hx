@@ -3,11 +3,12 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.math.FlxMath;
+import flixel.math.FlxPoint;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
-import flixel.math.FlxMath;
 
 class MenuState extends FlxState {
 	var titleText:FlxText;
@@ -20,8 +21,9 @@ class MenuState extends FlxState {
 
 		var swatch:FlxSprite = new FlxSprite();
 		swatch.loadGraphic("assets/images/swatch.png");
-		swatch.x = 40;
+		swatch.x = 95;
 		swatch.y = 118;
+		swatch.scale.set(1.25, 1);
 		add(swatch);
 		
 		titleText = new FlxText(70, 100, 0, "The Little Robot That Could");

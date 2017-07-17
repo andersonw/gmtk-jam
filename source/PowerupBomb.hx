@@ -93,11 +93,7 @@ class PowerupBomb extends FlxSpriteGroup {
 	public function light():Void {
 		_bombState = 1;
 		makeBombFuseSprite();
-<<<<<<< HEAD
-		_tickSound.play(true, 0.7);
-=======
 		_tickSound.play();
->>>>>>> 4666499223e6583834f056cd94b7338470f988b2
 	}
 	
 	public function isExploding():Bool {
@@ -169,11 +165,7 @@ class PowerupBomb extends FlxSpriteGroup {
 					_bombState = newState = 4;  // just in case!
 					explode();
 				} else {
-<<<<<<< HEAD
-					_tickSound.play(true, 0.7);
-=======
 					_tickSound.play();
->>>>>>> 4666499223e6583834f056cd94b7338470f988b2
 					_bombState = newState;
 					makeBombFuseSprite();
 				}
