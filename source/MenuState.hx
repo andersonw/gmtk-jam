@@ -39,7 +39,7 @@ class MenuState extends FlxState {
 		super.update(elapsed);
 
 		if (FlxG.keys.justPressed.SPACE) {
-			FlxG.sound.playMusic(AssetPaths.silly_song3__wav);
+			FlxG.sound.playMusic(AssetPaths.silly_song3__mp3);
 			FlxG.switchState(new PlayState());
 		}
 	}

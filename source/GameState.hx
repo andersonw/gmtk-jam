@@ -22,7 +22,7 @@ class GameState {
         tankEnemyCount=[0,0,0,2,4,0];
         bossEnemyCount=[0,0,0,0,0,1];
         randomEnemySpawnrate=[0,1000,1000,1000,1000,1];
-        timePerLevel=[0,10,120,120,120,120];
+        timePerLevel=[0,60,120,180,240,300];
 		resetGame();
         initNewLevel();
 	}
