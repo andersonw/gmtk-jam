@@ -817,7 +817,11 @@ class PlayState extends FlxTransitionableState {
 			if (overlap(chicken, _player.characterSprite())) {
 				_chickens.remove(chicken);
 				chicken.destroy();
-				_player.currentHealth = _player.maxHealth;
+                _powerupSound.play();
+				_player.currentHealth += Std.int(_player.maxHealth / 2);
+				if (_player.currentHealth > _player.maxHealth) {
+					_player.currentHealth = _player.maxHealth;
+				}
 			}
 		}
 		for (enemy in _enemies) {
@@ -910,8 +914,8 @@ class PlayState extends FlxTransitionableState {
 							var chicken:FlxSprite = new FlxSprite();
 							chicken.loadGraphic(AssetPaths.chicken__png);
 							bulletLayer.add(chicken);
-							chicken.x = tileX;
-							chicken.y = tileY;
+							chicken.x = tileX - 30;
+							chicken.y = tileY - 30;
 							_chickens.push(chicken);
 						}
 					}
