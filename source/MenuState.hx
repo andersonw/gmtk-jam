@@ -21,8 +21,8 @@ class MenuState extends FlxState {
 
 		var swatch:FlxSprite = new FlxSprite();
 		swatch.loadGraphic("assets/images/swatch.png");
-		swatch.x = 95;
-		swatch.y = 118;
+		swatch.x = 100;
+		swatch.y = 115;
 		swatch.scale.set(1.25, 1);
 		add(swatch);
 		
@@ -31,7 +31,7 @@ class MenuState extends FlxState {
 		titleText.size = 40;
 		add(titleText);
 
-		helpText = new FlxText(500, 650, 0, "[SPACE] START");
+		helpText = new FlxText(700, 630, 0, "[SPACE] START");
 		helpText.setFormat("assets/fonts/RobotoSlab_Bold.ttf");
 		helpText.size = 32;
 		add(helpText);
