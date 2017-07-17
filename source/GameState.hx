@@ -14,14 +14,15 @@ class GameState {
 	public var totalEnemiesLeft:Int;
     public var timePerLevel:Array<Float>;
     public var timeLeft:Float;
+    public var gameCompleted:Bool;
 
 	public function new() {
         fixedEnemyTypes=["boring","crazy","tank","boss"];
-        boringEnemyCount=[0,5,10,15,20,0];
-        crazyEnemyCount=[0,0,2,5,8,0];
-        tankEnemyCount=[0,0,0,2,4,0];
-        bossEnemyCount=[0,0,0,0,0,1];
-        randomEnemySpawnrate=[0,1000,1000,1000,1000,1];
+        boringEnemyCount=[0,1,1,1,1,1];//[0,5,10,15,20,0];
+        crazyEnemyCount=[0,0,0,0,0,0];//[0,0,2,5,8,0];
+        tankEnemyCount=[0,0,0,0,0,0];//[0,0,0,2,4,0];
+        bossEnemyCount=[0,0,0,0,0,0];//[0,0,0,0,0,1];
+        randomEnemySpawnrate=[0,1,1,1,1,1];//[0,1000,1000,1000,1000,1];
         timePerLevel=[0,60,120,180,240,300];
 		resetGame();
         initNewLevel();
@@ -42,6 +43,7 @@ class GameState {
 	}
 	public function resetGame() {
 		score = 0;
+        gameCompleted = false;
 		level = 1;
 	}
 

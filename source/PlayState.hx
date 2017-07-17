@@ -268,7 +268,7 @@ class PlayState extends FlxTransitionableState {
             if(FlxMath.distanceToPoint(_player, new FlxPoint(randX, randY)) > 250) {
                 var enemy:Enemy;
                 var randomEnemy = FlxG.random.float(0, 1);
-                if(randomEnemy < 0.02) {
+                if(randomEnemy < 0.05) {
                     enemy = new TankEnemy(randX, randY, this);
                 }                
                 else if(randomEnemy < 0.3) {
@@ -538,8 +538,14 @@ class PlayState extends FlxTransitionableState {
     }
 	
 	private function advanceLevel(timer:FlxTimer):Void {
-		_gameState.level += 1;
-        resetLevel();
+        if(_gameState.level==5) {
+            _gameState.gameCompleted = true;
+            goToGameOverState(timer);
+        }
+        else {
+            _gameState.level += 1;
+            resetLevel();
+        }
 	}
 	
 	private function killPlayer():Void {
