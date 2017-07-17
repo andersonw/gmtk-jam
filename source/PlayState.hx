@@ -546,7 +546,7 @@ class PlayState extends FlxTransitionableState {
     }
 	
 	private function advanceLevel(timer:FlxTimer):Void {
-        if(_gameState.level==5) {
+        if(_gameState.level == _gameState.boringEnemyCount.length - 1) {
             _gameState.gameCompleted = true;
             goToGameOverState(timer);
         }
