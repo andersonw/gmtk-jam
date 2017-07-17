@@ -572,13 +572,14 @@ class PlayState extends FlxTransitionableState {
 		enemy.currentHealth -= amt;
 		
 		if (enemy.currentHealth <= 0) {
+            _gameState.score += enemy.maxHealth * 3;
             _gameState.killedEnemyCount[enemy.getEnemyType()] += 1;
             levelHUD.updateText(_gameState.score,_gameState.level, _gameState.totalEnemiesLeft);
 			enemy.destroy();
 			_enemies.remove(enemy);
             _enemyDeathSound.play();
 			_gameState.totalEnemiesLeft -= 1;
-			_gameState.score += 20;
+			
 			
 			if (_gameState.levelComplete()) {
 				_player.invulnerable = true;
