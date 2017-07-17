@@ -17,9 +17,9 @@ class GameState {
 
 	public function new() {
         fixedEnemyTypes=["boring","crazy","tank","boss"];
-        boringEnemyCount=[0,5,10,20,30,0];
-        crazyEnemyCount=[0,0,2,5,10,0];
-        tankEnemyCount=[0,0,0,2,5,0];
+        boringEnemyCount=[0,5,10,15,20,0];
+        crazyEnemyCount=[0,0,2,5,8,0];
+        tankEnemyCount=[0,0,0,2,4,0];
         bossEnemyCount=[0,0,0,0,0,1];
         randomEnemySpawnrate=[0,1000,1000,1000,1000,1];
         timePerLevel=[0,10,120,120,120,120];

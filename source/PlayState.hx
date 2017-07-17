@@ -434,7 +434,7 @@ class PlayState extends FlxTransitionableState {
 				bulletLayer.add(bullet);
 			} else if (_player.powerupType == Powerup.PowerupType.FIRE) {
 				bulletReady = false;
-				var bulletTimer = new FlxTimer().start(0.05, reload, 1);
+				var bulletTimer = new FlxTimer().start(0.12, reload, 1);
 				var DISTANCE_SPAWN_FROM_PLAYER:Float = 35.0;
 				var BULLET_VELOCITY:Float = 520.0;
 				var SMOKE_VELOCITY:Float = 270.0;
@@ -478,6 +478,8 @@ class PlayState extends FlxTransitionableState {
 						}
 					}
 					if (bestEnemy != null) {
+                        bulletReady = false;
+                        var bulletTimer = new FlxTimer().start(0.15, reload, 1);
 						var offsetX = (bestEnemy.x - _player.x < 0 ? _player.x - bestEnemy.x : 0);
 						var offsetY = (bestEnemy.y - _player.y < 0 ? _player.y - bestEnemy.y : 0);
 						var lightningFX:StaticFX = new StaticFX(_player.x - offsetX, _player.y - offsetY, 0.2);
@@ -601,7 +603,7 @@ class PlayState extends FlxTransitionableState {
 				new FlxTimer().start(2, advanceLevel, 1);
             }
 
-            if(FlxG.random.float(0,1) < 1) {
+            if(FlxG.random.float(0,1) < 0.5) {
                 spawnPowerup(enemy.x,enemy.y, immuneToBombs);
             }
 
