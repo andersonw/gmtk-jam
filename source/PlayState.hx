@@ -46,6 +46,7 @@ class PlayState extends FlxTransitionableState {
 	public var _enemies:Array<Enemy>;
 	public var _powerups:Array<Powerup>;
 	public var _powerupBombs:Array<PowerupBomb>;
+	public var _chickens:Array<FlxSprite>;
 	public var _camera:FlxCamera;
     public var _gameState:GameState;
 	
@@ -91,6 +92,7 @@ class PlayState extends FlxTransitionableState {
 		_enemies = new Array <Enemy>();
 		_powerups = new Array <Powerup>();
 		_powerupBombs = new Array <PowerupBomb>();
+		_chickens = new Array <FlxSprite>();
 		_camera = new FlxCamera();
         _gameState = Main.gameState;
 		_gameState.initNewLevel();
@@ -809,6 +811,13 @@ class PlayState extends FlxTransitionableState {
 		}
 		checkBulletCollisions();
 		checkPowerupCollisions();
+		for (chicken in _chickens) {
+			if (overlap(chicken, _player.characterSprite())) {
+				_chickens.remove(chicken);
+				chicken.destroy();
+				_player.currentHealth = _player.maxHealth;
+			}
+		}
 		for (enemy in _enemies) {
 			if (!enemy.paralyzed) {
 				enemy._update(elapsed);
@@ -894,6 +903,13 @@ class PlayState extends FlxTransitionableState {
 							}
 							removePillarEmitter.start(true);
 							new FlxTimer().start(1000, function(timer:FlxTimer) { removePillarEmitter.destroy(); }, 1);
+							
+							var chicken:FlxSprite = new FlxSprite();
+							chicken.loadGraphic(AssetPaths.chicken__png);
+							bulletLayer.add(chicken);
+							chicken.x = tileX;
+							chicken.y = tileY;
+							_chickens.push(chicken);
 						}
 					}
 				}
