@@ -15,10 +15,10 @@ class MapHandler
 	public static var LEVEL_WIDTH:Int = 32;
 	public static var LEVEL_HEIGHT:Int = 32;
  
-	public function new():Void
+	public function new(width:Int = LEVEL_WIDTH, height:Int = LEVEL_HEIGHT):Void
 	{
-		MapWidth = LEVEL_WIDTH;
-		MapHeight = LEVEL_HEIGHT;
+		MapWidth = width;
+		MapHeight = height;
 		PercentAreWalls = 40;
 		genMap(MapWidth, MapHeight, PercentAreWalls);
     }
