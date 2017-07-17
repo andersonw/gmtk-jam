@@ -13,7 +13,7 @@ class TankEnemy extends Enemy {
     private static var STOP_CHASE_DISTANCE:Float = 750.0; // distance at which it stops chasing the player
     
     public function new(?X:Float=0, ?Y:Float=0, ?playState:PlayState) {
-        super(X, Y, FlxColor.GREEN, 20, playState);
+        super(X, Y, FlxColor.GREEN, 40, playState);
         _bulletSpawnTimer = 0;
         enemyType = "tank";
         _bulletSound = FlxG.sound.load(AssetPaths.enemy_bullet__wav);
