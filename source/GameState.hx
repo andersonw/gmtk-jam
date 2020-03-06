@@ -24,7 +24,7 @@ class GameState {
         bossEnemyCount=  [0,	0,	0,	0,	0,	0,	1];
         timePerLevel =	 [0,	60,	120, 120, 180, 240, 300];
 		
-        randomEnemySpawnrate=[0,1000,1000,1000,1000,1000,1];
+        randomEnemySpawnrate=[0,1000,1000,1000,1000,1000,1.5];
 		resetGame();
         initNewLevel();
 	}
