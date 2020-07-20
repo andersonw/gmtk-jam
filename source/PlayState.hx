@@ -251,7 +251,7 @@ class PlayState extends FlxTransitionableState {
 		FlxTransitionableState.defaultTransIn = new TransitionData();
 		FlxTransitionableState.defaultTransOut = new TransitionData();
 		
-		var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
+		var diamond:FlxGraphic = FlxGraphic.fromBitmapData(Assets.getBitmapData('assets/images/diamond.png'));
 		diamond.persist = true;
 		diamond.destroyOnNoUse = false;
 		
@@ -438,7 +438,7 @@ class PlayState extends FlxTransitionableState {
 				bulletLayer.add(bullet);
 			} else if (_player.powerupType == Powerup.PowerupType.FIRE) {
 				bulletReady = false;
-				var bulletTimer = new FlxTimer().start(0.12, reload, 1);
+				var bulletTimer = new FlxTimer().start(0.09, reload, 1);
 				var DISTANCE_SPAWN_FROM_PLAYER:Float = 35.0;
 				var BULLET_VELOCITY:Float = 520.0;
 				var SMOKE_VELOCITY:Float = 270.0;
@@ -714,7 +714,7 @@ class PlayState extends FlxTransitionableState {
 					var bomb:PowerupBomb = _powerupBombs[j];
 					var accelerateAmt = 0.5;
 					if (bullet.type == Bullet.BulletType.FIRE) {
-						accelerateAmt = 0.1;
+						accelerateAmt = 0.12;
 					}
 					
 					if (overlap(bullet, bomb)) {

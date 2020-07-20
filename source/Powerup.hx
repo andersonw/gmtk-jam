@@ -37,7 +37,7 @@ class Powerup extends FlxSpriteGroup {
 	
 	// just in case we want to change individual cooldowns
 	private static var kPowerupToCooldownMap:Map<PowerupType, Int> =
-		[FIRE => 10, ICE => 5, LIGHTNING => 18, METAL => 18, LUGE => 9999999];		
+		[FIRE => 14, ICE => 5, LIGHTNING => 18, METAL => 18, LUGE => 9999999];
 	 
 	public var bombSprite:FlxSprite;
 	private var bombOutlineSprite:FlxSprite;
